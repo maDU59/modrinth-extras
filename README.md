@@ -11,9 +11,8 @@ A browser extension adding unofficial extra features to the [Modrinth](https://m
 Install from your browser's extension store:
 
 - **[Chrome Web Store](#)**
-- **[Firefox Add-ons](#)**
-
-You must be logged in to modrinth.com for all features to work.
+- **[Firefox Add-Ons](#)**
+- **[Edge Add-Ons](#)**
 
 ## ✨ Features
 
@@ -55,12 +54,6 @@ pnpm dev
 pnpm dev:firefox
 ```
 
-Then load the extension:
-
-1. Open `chrome://extensions` (or `about:debugging#/runtime/this-firefox` in Firefox)
-2. Enable **Developer Mode**
-3. Click **Load unpacked** and select `.output/chrome-mv3-dev`
-
 ### Build
 
 ```bash
@@ -73,7 +66,9 @@ pnpm build:firefox
 
 ## 🤝 Contributing
 
-Contributions are always welcome! Open a pull request in this repository.
+Contributions are always welcome!
+
+Please ensure you run `pnpm lint` before opening a pull request.
 
 ## 📜 License
 

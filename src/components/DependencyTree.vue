@@ -28,7 +28,8 @@
 <script setup lang="ts">
 import { LoaderCircleIcon, XIcon } from '@modrinth/assets'
 import { onMounted, ref } from 'vue'
-import { fetchProjectDependencies, type EnrichedDep } from '../helpers/dependencies'
+
+import { type EnrichedDep, fetchProjectDependencies } from '../helpers/dependencies'
 import DependencyNode from './DependencyNode.vue'
 
 const props = defineProps<{

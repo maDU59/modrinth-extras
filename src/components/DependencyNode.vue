@@ -58,7 +58,8 @@
 <script setup lang="ts">
 import { BoxIcon, ChevronRightIcon, LoaderCircleIcon } from '@modrinth/assets'
 import { computed, ref } from 'vue'
-import { fetchProjectDependencies, type EnrichedDep } from '../helpers/dependencies'
+
+import { type EnrichedDep, fetchProjectDependencies } from '../helpers/dependencies'
 import { navigate } from '../helpers/page-router'
 
 defineOptions({ name: 'DependencyNode' })

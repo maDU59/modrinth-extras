@@ -71,6 +71,7 @@ import {
 	LoaderCircleIcon,
 } from '@modrinth/assets'
 import { computed, onMounted, ref } from 'vue'
+
 import { useBaseFetch } from '../composables/useBaseFetch'
 import DependencyTree from './DependencyTree.vue'
 

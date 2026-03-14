@@ -7,7 +7,12 @@
 				rel="noopener"
 				class="flex min-w-0 flex-1 items-center gap-3 no-underline"
 			>
-				<img :src="browser.runtime.getURL('icon-48.png')" alt="" class="size-9 shrink-0 rounded-lg" aria-hidden="true" />
+				<img
+					:src="browser.runtime.getURL('icon-48.png')"
+					alt=""
+					class="size-9 shrink-0 rounded-lg"
+					aria-hidden="true"
+				/>
 				<div class="flex flex-col gap-0.5">
 					<span class="text-sm font-semibold text-contrast">Modrinth Extras</span>
 					<span class="text-xs text-secondary">by Creeperkatze</span>
@@ -29,9 +34,9 @@
 			</p>
 			<ToggleRow
 				id="toggle-badge"
+				v-model="settings.showBadge"
 				title="Show count on icon"
 				description="Display unread notification count as a badge on the extension icon"
-				v-model="settings.showBadge"
 			/>
 		</div>
 
@@ -41,21 +46,21 @@
 			<p class="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-secondary">Extras</p>
 			<ToggleRow
 				id="toggle-notifications"
+				v-model="settings.showNotificationsIndicator"
 				title="Notifications indicator"
 				description="Bell icon in the header showing your unread notification count"
-				v-model="settings.showNotificationsIndicator"
 			/>
 			<ToggleRow
 				id="toggle-tools"
+				v-model="settings.showToolsSidebar"
 				title="Tools sidebar"
 				description="Adds a Tools card to the sidebar on project, user, organization, and collection pages"
-				v-model="settings.showToolsSidebar"
 			/>
 			<ToggleRow
 				id="toggle-deps"
+				v-model="settings.showDependenciesSidebar"
 				title="Dependency tree"
 				description="Shows a collapsible dependency tree on project pages"
-				v-model="settings.showDependenciesSidebar"
 			/>
 		</div>
 
@@ -71,6 +76,7 @@
 import { ArrowUpRightIcon } from '@modrinth/assets'
 import { ButtonStyled, HorizontalRule } from '@modrinth/ui'
 import { onMounted, reactive, watch } from 'vue'
+
 import { DEFAULTS, loadSettings } from '../../helpers/settings'
 import ToggleRow from './ToggleRow.vue'
 
