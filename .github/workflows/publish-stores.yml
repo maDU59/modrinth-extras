@@ -6,6 +6,18 @@ on:
       tag:
         description: 'Tag to publish to stores'
         required: true
+      chrome:
+        description: 'Publish to Chrome Web Store'
+        type: boolean
+        default: true
+      firefox:
+        description: 'Publish to Firefox Add-Ons'
+        type: boolean
+        default: true
+      edge:
+        description: 'Publish to Edge Add-ons'
+        type: boolean
+        default: true
 
 jobs:
   lint:
@@ -46,6 +58,7 @@ jobs:
   publish-chrome:
     name: Publish to Chrome Web Store
     needs: build
+    if: ${{ inputs.chrome }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -68,6 +81,7 @@ jobs:
   publish-firefox:
     name: Publish to Firefox Add-Ons
     needs: build
+    if: ${{ inputs.firefox }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -87,6 +101,7 @@ jobs:
   publish-edge:
     name: Publish to Edge Add-ons
     needs: build
+    if: ${{ inputs.edge }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
