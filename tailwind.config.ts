@@ -3,9 +3,8 @@ import type { Config } from 'tailwindcss'
 
 const config: Config = {
 	content: [
-		'./components/**/*.{js,vue,ts}',
-		'./entrypoints/**/*.{js,vue,ts}',
-		'../../packages/ui/src/**/*.{js,vue,ts}',
+		'./src/**/*.{js,vue,ts}',
+		'./node_modules/@modrinth/ui/src/**/*.{js,vue,ts}',
 	],
 	presets: [preset],
 }

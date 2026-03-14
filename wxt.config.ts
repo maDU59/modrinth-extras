@@ -2,6 +2,8 @@ import svgLoader from 'vite-svg-loader'
 import { defineConfig } from 'wxt'
 
 export default defineConfig({
+	srcDir: 'src',
+	publicDir: 'src/public',
 	extensionApi: 'chrome',
 	modules: ['@wxt-dev/module-vue'],
 	manifest: {
