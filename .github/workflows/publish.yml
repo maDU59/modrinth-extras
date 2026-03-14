@@ -67,7 +67,7 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           files: zips/*.zip
-          generate_release_notes: true
+          draft: true
 
   publish-chrome:
     name: Publish to Chrome Web Store
@@ -90,7 +90,6 @@ jobs:
           client-id: ${{ secrets.CHROME_CLIENT_ID }}
           client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
           refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
-          upload-only: true
 
   publish-firefox:
     name: Publish to Firefox Add-Ons
@@ -131,4 +130,3 @@ jobs:
           zip-path: ${{ steps.zip.outputs.path }}
           api-key: ${{ secrets.EDGE_API_KEY }}
           client-id: ${{ secrets.EDGE_CLIENT_ID }}
-          upload-only: true

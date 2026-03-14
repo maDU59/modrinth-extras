@@ -29,6 +29,10 @@ export default defineConfig({
 			},
 		},
 	},
+	zip: {
+		artifactTemplate: 'modrinth-extras-{{version}}-{{browser}}.zip',
+		sourcesTemplate: 'modrinth-extras-{{version}}-sources.zip',
+	},
 	vite: () => ({
 		plugins: [
 			svgLoader({
