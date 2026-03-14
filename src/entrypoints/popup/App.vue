@@ -35,8 +35,8 @@
 			<ToggleRow
 				id="toggle-badge"
 				v-model="settings.showBadge"
-				title="Show count on icon"
-				description="Display unread notification count as a badge on the extension icon"
+				title="Notification count on icon"
+				description="Display unread notification count as a badge on the extension icon."
 			/>
 		</div>
 
@@ -48,19 +48,19 @@
 				id="toggle-notifications"
 				v-model="settings.showNotificationsIndicator"
 				title="Notifications indicator"
-				description="Bell icon in the header showing your unread notification count"
+				description="Adds a notification indicator to the header. Clicking it opens a popout where you can view and manage your notifications."
 			/>
 			<ToggleRow
 				id="toggle-tools"
 				v-model="settings.showToolsSidebar"
 				title="Tools sidebar"
-				description="Adds a Tools card to the sidebar on project, user, organization, and collection pages"
+				description="Adds a tools card to the sidebar on project, user, organization, and collection pages."
 			/>
 			<ToggleRow
 				id="toggle-deps"
 				v-model="settings.showDependenciesSidebar"
 				title="Dependency tree sidebar"
-				description="Shows a collapsible dependency tree sidebar on project pages"
+				description="Shows a collapsible dependency tree sidebar on project pages."
 			/>
 		</div>
 
