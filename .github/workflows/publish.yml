@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      release-only:
+        description: 'Create GitHub release without publishing to stores'
+        type: boolean
+        default: false
 
 jobs:
   lint:
@@ -56,8 +62,6 @@ jobs:
     name: GitHub Release
     needs: build
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -68,10 +72,12 @@ jobs:
         with:
           files: zips/*.zip
           draft: true
+          token: ${{ secrets.GH_PAT }}
 
   publish-chrome:
     name: Publish to Chrome Web Store
     needs: build
+    if: ${{ !inputs.release-only }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -94,6 +100,7 @@ jobs:
   publish-firefox:
     name: Publish to Firefox Add-Ons
     needs: build
+    if: ${{ !inputs.release-only }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -113,6 +120,7 @@ jobs:
   publish-edge:
     name: Publish to Edge Add-ons
     needs: build
+    if: ${{ !inputs.release-only }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
