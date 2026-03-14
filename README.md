@@ -93,6 +93,9 @@ pnpm zip:firefox
 
 Then go to `about:debugging#/runtime/this-firefox`, click **Load Temporary Add-on**, and select the zip from the `.output/` folder. After rebuilding, repeat this process.
 
+> [!NOTE]
+> `pnpm dev` can also be used during development to automatically create a temporary browser with the extension pre-loaded. Keep in mind that this browser profile is isolated, requiring you to log in each time. This method also causes issues with Modrinth's dependencies.
+
 ## 🤝 Contributing
 
 Contributions are always welcome!
