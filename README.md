@@ -6,9 +6,6 @@ A browser extension adding unofficial extra features to the [Modrinth](https://m
 ![GitHub Pull Requests](https://img.shields.io/github/issues-pr/creeperkatze/modrinth-extras?labelColor=0d143c)
 ![GitHub Repo stars](https://img.shields.io/github/stars/creeperkatze/modrinth-extras?style=flat&labelColor=0d143c)
 
-> [!IMPORTANT]
-> This repository is a mirror of [`apps/browser-extension`](https://github.com/creeperkatze/modrinth/tree/browser-extension/apps/browser-extension) in the [creeperkatze/modrinth](https://github.com/creeperkatze/modrinth) monorepo, synced via `git subtree`. Pull requests should be created there, while issues should be opened in this repository.
-
 ## 🚀 Installation
 
 Install from your browser's extension store:
@@ -42,44 +39,41 @@ On project pages, a dependencies card shows the project's full dependency tree. 
 
 ## 👨‍💻 Development
 
-> [!IMPORTANT]
-> The extension depends on `@modrinth/ui` and `@modrinth/assets` as local workspace packages, so it must be built from within the [creeperkatze/modrinth](https://github.com/creeperkatze/modrinth/tree/browser-extension) monorepo.
-
 ### Setup
 
 ```bash
-git clone https://github.com/creeperkatze/modrinth.git -b browser-extension
-cd modrinth
+git clone https://github.com/creeperkatze/modrinth-extras.git
+cd modrinth-extras
 
 # Install dependencies
 pnpm install
 
 # Start dev server (Chrome)
-pnpm ext:dev
+pnpm dev
 
 # Start dev server (Firefox)
-pnpm ext:dev:firefox
+pnpm dev:firefox
 ```
 
 Then load the extension:
 
 1. Open `chrome://extensions` (or `about:debugging#/runtime/this-firefox` in Firefox)
 2. Enable **Developer Mode**
-3. Click **Load unpacked** and select `apps/browser-extension/.output/chrome-mv3-dev`
+3. Click **Load unpacked** and select `.output/chrome-mv3-dev`
 
 ### Build
 
 ```bash
 # Production build for Chrome
-pnpm ext:build
+pnpm build
 
 # Production build for Firefox
-pnpm ext:build:firefox
+pnpm build:firefox
 ```
 
 ## 🤝 Contributing
 
-Contributions are always welcome! Open a pull request in the [creeperkatze/modrinth](https://github.com/creeperkatze/modrinth/tree/browser-extension) monorepo against `apps/browser-extension`, as described in the [Development](#‍-development) section.
+Contributions are always welcome! Open a pull request in this repository.
 
 ## 📜 License
 

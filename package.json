@@ -1,33 +1,86 @@
 {
-	"name": "@creeperkatze/modrinth-extras",
-	"version": "1.0.5",
-	"private": true,
-	"type": "module",
-	"scripts": {
-		"dev": "wxt",
-		"dev:firefox": "wxt -b firefox",
-		"build": "wxt build",
-		"build:firefox": "wxt build -b firefox",
-		"zip": "wxt zip",
-		"zip:firefox": "wxt zip -b firefox",
-		"postinstall": "wxt prepare"
-	},
-	"dependencies": {
-		"@modrinth/assets": "workspace:*",
-		"@modrinth/ui": "workspace:*",
-		"@modrinth/utils": "workspace:*",
-		"floating-vue": "^5.2.2",
-		"vue": "^3.5.13"
-	},
-	"devDependencies": {
-		"@modrinth/tooling-config": "workspace:*",
-		"@types/chrome": "^0.1.37",
-		"@wxt-dev/module-vue": "^1.0.0",
-		"autoprefixer": "^10.4.19",
-		"tailwindcss": "^3.4.4",
-		"typescript": "^5.7.3",
-		"vite-svg-loader": "^5.1.0",
-		"vue-tsc": "^2.2.0",
-		"wxt": "^0.20.0"
-	}
+    "name": "@creeperkatze/modrinth-extras",
+    "version": "1.0.5",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "wxt",
+        "dev:firefox": "wxt -b firefox",
+        "build": "wxt build",
+        "build:firefox": "wxt build -b firefox",
+        "zip": "wxt zip",
+        "zip:firefox": "wxt zip -b firefox",
+        "postinstall": "wxt prepare"
+    },
+    "dependencies": {
+        "@modrinth/api-client": "github:modrinth/code#path:packages/api-client",
+        "@modrinth/assets": "github:modrinth/code#path:packages/assets",
+        "@modrinth/ui": "github:modrinth/code#path:packages/ui",
+        "@modrinth/utils": "github:modrinth/code#path:packages/utils",
+        "floating-vue": "^5.2.2",
+        "vue": "^3.5.13"
+    },
+    "devDependencies": {
+        "@modrinth/tooling-config": "github:modrinth/code#path:packages/tooling-config",
+        "@types/chrome": "^0.1.37",
+        "@wxt-dev/module-vue": "^1.0.0",
+        "autoprefixer": "^10.4.19",
+        "tailwindcss": "^3.4.4",
+        "typescript": "^5.7.3",
+        "vite-svg-loader": "^5.1.0",
+        "vue-tsc": "^2.2.0",
+        "wxt": "^0.20.0"
+    },
+    "pnpm": {
+        "overrides": {
+            "@modrinth/ui": "github:modrinth/code#path:packages/ui",
+            "@modrinth/api-client": "github:modrinth/code#path:packages/api-client",
+            "@modrinth/utils": "github:modrinth/code#path:packages/utils",
+            "@modrinth/assets": "github:modrinth/code#path:packages/assets",
+            "@modrinth/tooling-config": "github:modrinth/code#path:packages/tooling-config"
+        },
+        "packageExtensions": {
+            "@modrinth/ui@*": {
+                "dependencies": {
+                    "vue-router": "^4",
+                    "@vueuse/core": "^11",
+                    "@stripe/stripe-js": "^7",
+                    "sass-embedded": "*",
+                    "@tailwindcss/container-queries": "*"
+                }
+            },
+            "@modrinth/tooling-config@*": {
+                "dependencies": {
+                    "tailwindcss": "^3",
+                    "autoprefixer": "^10"
+                }
+            },
+            "@modrinth/assets@*": {
+                "dependencies": {
+                    "vue": "^3"
+                }
+            },
+            "@modrinth/api-client@*": {
+                "dependencies": {
+                    "mitt": "^3",
+                    "ofetch": "^1"
+                }
+            },
+            "@modrinth/utils@*": {
+                "dependencies": {
+                    "vue": "^3",
+                    "@codemirror/commands": "^6",
+                    "@codemirror/lang-markdown": "^6",
+                    "@codemirror/language": "^6",
+                    "@codemirror/state": "^6",
+                    "@codemirror/view": "^6",
+                    "highlight.js": "^11",
+                    "markdown-it": "^14",
+                    "three": "^0.172.0",
+                    "dayjs": "^1",
+                    "xss": "^1"
+                }
+            }
+        }
+    }
 }
