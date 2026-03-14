@@ -6,30 +6,16 @@ on:
       - 'v*'
   workflow_dispatch:
     inputs:
-      release-only:
-        description: 'Create GitHub release without publishing to stores'
-        type: boolean
-        default: false
+      tag:
+        description: 'Tag to release'
+        required: false
 
 jobs:
   lint:
     name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - run: pnpm install --no-frozen-lockfile
-
-      - run: pnpm lint
+    uses: ./.github/workflows/test.yml
+    with:
+      ref: ${{ inputs.tag || github.ref }}
 
   build:
     name: Build
@@ -37,6 +23,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
 
       - uses: pnpm/action-setup@v4
         with:
@@ -73,68 +61,4 @@ jobs:
           files: zips/*.zip
           draft: true
           token: ${{ secrets.GH_PAT }}
-
-  publish-chrome:
-    name: Publish to Chrome Web Store
-    needs: build
-    if: ${{ !inputs.release-only }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: zips
-          path: zips/
-
-      - name: Find Chrome zip
-        id: zip
-        run: echo "path=$(ls zips/*.zip | grep -v firefox | grep -v sources | head -1)" >> $GITHUB_OUTPUT
-
-      - uses: wdzeng/chrome-extension@v1.3.0
-        with:
-          extension-id: ${{ secrets.CHROME_EXTENSION_ID }}
-          zip-path: ${{ steps.zip.outputs.path }}
-          client-id: ${{ secrets.CHROME_CLIENT_ID }}
-          client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
-          refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
-
-  publish-firefox:
-    name: Publish to Firefox Add-Ons
-    needs: build
-    if: ${{ !inputs.release-only }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: zips
-          path: zips/
-
-      - uses: wdzeng/firefox-addon@v1.2.0
-        with:
-          addon-guid: contact@creeperkatze.de
-          xpi-path: zips/*firefox*.zip
-          source-file-path: zips/*sources*.zip
-          license: AGPL-3.0-only
-          jwt-issuer: ${{ secrets.FIREFOX_JWT_ISSUER }}
-          jwt-secret: ${{ secrets.FIREFOX_JWT_SECRET }}
-
-  publish-edge:
-    name: Publish to Edge Add-ons
-    needs: build
-    if: ${{ !inputs.release-only }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: zips
-          path: zips/
-
-      - name: Find Chrome zip (used for Edge)
-        id: zip
-        run: echo "path=$(ls zips/*.zip | grep -v firefox | grep -v sources | head -1)" >> $GITHUB_OUTPUT
-
-      - uses: wdzeng/edge-addon@v2.1.0
-        with:
-          product-id: ${{ secrets.EDGE_PRODUCT_ID }}
-          zip-path: ${{ steps.zip.outputs.path }}
-          api-key: ${{ secrets.EDGE_API_KEY }}
-          client-id: ${{ secrets.EDGE_CLIENT_ID }}
+          tag_name: ${{ inputs.tag || github.ref_name }}
