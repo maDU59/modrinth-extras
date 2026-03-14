@@ -50,6 +50,8 @@ The resulting zips in `.output/` are identical to those attached to the [GitHub 
 
 Adds a live bell icon to the Modrinth header showing your unread notification count. Click it to open a dropdown with your recent unread notifications, accept or decline team/organization invites, mark individual notifications as read, or clear them all at once.
 
+<img src=".github/assets/screenshots/notifications.png" width="400">
+
 ### Tools Sidebar
 
 Adds a tools card to the sidebar on project, user, organization, and collection pages with the following items:
@@ -62,9 +64,15 @@ On project pages, two additional developer utilities are shown:
 - **Copy download URL:** copies the direct download URL of the project's latest primary file to the clipboard.
 - **Copy packwiz:** copies the `packwiz mr add <slug>` command to the clipboard.
 
+<img src=".github/assets/screenshots/tools.png" width="400">
+
 ### Dependency Sidebar
 
 On project pages, a dependencies card shows the project's full dependency tree. Each dependency can be expanded up to two levels deep to inspect transitive dependencies, with lazy loading on expand.
+
+<img src=".github/assets/screenshots/dependencies.png" width="400">
+
+### More features coming soon™!
 
 ## 👨‍💻 Development
 
