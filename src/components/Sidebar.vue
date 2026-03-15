@@ -129,6 +129,7 @@ onMounted(async () => {
 		downloadUrl.value = primaryFile?.url ?? null
 	} catch (err) {
 		console.error('[Modrinth Extras] Failed to fetch download URL:', err)
+	} finally {
 		downloadLoading.value = false
 	}
 })
