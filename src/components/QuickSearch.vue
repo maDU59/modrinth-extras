@@ -105,6 +105,8 @@
 import { CpuIcon, HashIcon, PackageIcon, SearchIcon, TagIcon } from '@modrinth/assets'
 import { type Component, computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
+import { useBaseFetch } from '../composables/useBaseFetch'
+
 interface Tag {
 	facet: string
 	value: string
@@ -124,53 +126,16 @@ interface Example {
 	tags: Tag[]
 }
 
-const LOADERS = ['fabric', 'forge', 'neoforge', 'quilt', 'liteloader', 'modloader']
+const TYPES = ['mod', 'plugin', 'datapack', 'shader', 'resourcepack', 'modpack', 'server']
 
-const CATEGORIES = [
-	'adventure',
-	'cursed',
-	'decoration',
-	'economy',
-	'equipment',
-	'food',
-	'game-mechanics',
-	'library',
-	'magic',
-	'management',
-	'minigame',
-	'mobs',
-	'optimization',
-	'social',
-	'storage',
-	'technology',
-	'transportation',
-	'utility',
-	'worldgen',
-]
-
-const TYPES = ['mod', 'plugin', 'datapack', 'shader', 'resourcepack', 'modpack']
-
-const VERSIONS = [
-	'1.21.5',
-	'1.21.4',
-	'1.21.3',
-	'1.21.1',
-	'1.21',
-	'1.20.6',
-	'1.20.4',
-	'1.20.2',
-	'1.20.1',
-	'1.20',
-	'1.19.4',
-	'1.19.2',
-	'1.18.2',
-	'1.17.1',
-	'1.16.5',
-]
+const loaders = ref<string[]>([])
+const categories = ref<string[]>([])
+const serverCategories = ref<string[]>([])
+const versions = ref<string[]>([])
 
 const EXAMPLES: Example[] = [
 	{
-		label: 'fabric optimization mods',
+		label: 'fabric optimization mod',
 		tags: [
 			{ facet: 'loader', value: 'fabric' },
 			{ facet: 'category', value: 'optimization' },
@@ -185,7 +150,7 @@ const EXAMPLES: Example[] = [
 		],
 	},
 	{
-		label: '1.21.4 shaders',
+		label: '1.21.4 shader',
 		tags: [
 			{ facet: 'version', value: '1.21.4' },
 			{ facet: 'type', value: 'shader' },
@@ -199,10 +164,17 @@ const EXAMPLES: Example[] = [
 		],
 	},
 	{
-		label: 'datapacks food',
+		label: 'datapack food',
 		tags: [
 			{ facet: 'type', value: 'datapack' },
 			{ facet: 'category', value: 'food' },
+		],
+	},
+	{
+		label: 'server skyblock',
+		tags: [
+			{ facet: 'type', value: 'server' },
+			{ facet: 'category', value: 'skyblock' },
 		],
 	},
 ]
@@ -216,6 +188,7 @@ const TYPE_PATH: Record<string, string> = {
 	shader: '/discover/shaders',
 	resourcepack: '/discover/resourcepacks',
 	modpack: '/discover/modpacks',
+	server: '/discover/servers',
 }
 
 const open = ref(false)
@@ -298,24 +271,15 @@ function hasFacet(facet: string) {
 	return tags.value.some((t) => t.facet === facet)
 }
 
+const isServerMode = computed(() =>
+	tags.value.some((t) => t.facet === 'type' && t.value === 'server'),
+)
+
 const suggestions = computed<Suggestion[]>(() => {
 	const q = query.value.trim().toLowerCase()
 	const results: Suggestion[] = []
 
 	if (q) {
-		for (const l of LOADERS) {
-			if (l.includes(q) && !hasTag('loader', l)) {
-				results.push({
-					id: `loader:${l}`,
-					icon: CpuIcon,
-					label: l,
-					facet: 'loader',
-					value: l,
-					action: 'add-tag',
-				})
-			}
-		}
-
 		if (!hasFacet('type')) {
 			for (const t of TYPES) {
 				if (t.includes(q)) {
@@ -331,29 +295,70 @@ const suggestions = computed<Suggestion[]>(() => {
 			}
 		}
 
-		for (const c of CATEGORIES) {
-			if (c.includes(q) && !hasTag('category', c)) {
-				results.push({
-					id: `category:${c}`,
-					icon: TagIcon,
-					label: c,
-					facet: 'category',
-					value: c,
-					action: 'add-tag',
-				})
+		if (isServerMode.value) {
+			for (const c of serverCategories.value) {
+				if (c.includes(q) && !hasTag('category', c)) {
+					results.push({
+						id: `category:${c}`,
+						icon: TagIcon,
+						label: c,
+						facet: 'category',
+						value: c,
+						action: 'add-tag',
+					})
+				}
 			}
-		}
 
-		for (const v of VERSIONS) {
-			if (v.startsWith(q) && !hasTag('version', v)) {
-				results.push({
-					id: `version:${v}`,
-					icon: HashIcon,
-					label: v,
-					facet: 'version',
-					value: v,
-					action: 'add-tag',
-				})
+			for (const v of versions.value) {
+				if (v.startsWith(q) && !hasTag('version', v)) {
+					results.push({
+						id: `version:${v}`,
+						icon: HashIcon,
+						label: v,
+						facet: 'version',
+						value: v,
+						action: 'add-tag',
+					})
+				}
+			}
+		} else {
+			for (const l of loaders.value) {
+				if (l.includes(q) && !hasTag('loader', l)) {
+					results.push({
+						id: `loader:${l}`,
+						icon: CpuIcon,
+						label: l,
+						facet: 'loader',
+						value: l,
+						action: 'add-tag',
+					})
+				}
+			}
+
+			for (const c of categories.value) {
+				if (c.includes(q) && !hasTag('category', c)) {
+					results.push({
+						id: `category:${c}`,
+						icon: TagIcon,
+						label: c,
+						facet: 'category',
+						value: c,
+						action: 'add-tag',
+					})
+				}
+			}
+
+			for (const v of versions.value) {
+				if (v.startsWith(q) && !hasTag('version', v)) {
+					results.push({
+						id: `version:${v}`,
+						icon: HashIcon,
+						label: v,
+						facet: 'version',
+						value: v,
+						action: 'add-tag',
+					})
+				}
 			}
 		}
 
@@ -401,23 +406,21 @@ function selectSuggestion(s: Suggestion) {
 }
 
 function executeSearch() {
-	const loaderTags = tags.value.filter((t) => t.facet === 'loader')
 	const typeTag = tags.value.find((t) => t.facet === 'type')
-	const versionTags = tags.value.filter((t) => t.facet === 'version')
 	const categoryTags = tags.value.filter((t) => t.facet === 'category')
-
+	const versionTags = tags.value.filter((t) => t.facet === 'version')
 	const basePath = typeTag ? (TYPE_PATH[typeTag.value] ?? '/discover/mods') : '/discover/mods'
-
 	const params = new URLSearchParams()
 	if (query.value.trim()) params.set('q', query.value.trim())
-	for (const t of loaderTags) {
-		params.append('g', `categories:${t.value}`)
-	}
-	for (const t of versionTags) {
-		params.append('v', t.value)
-	}
-	for (const t of categoryTags) {
-		params.append('f', `categories:${t.value}`)
+
+	if (isServerMode.value) {
+		for (const t of categoryTags) params.append('sc', t.value)
+		for (const t of versionTags) params.append('sgv', t.value)
+	} else {
+		for (const t of tags.value.filter((t) => t.facet === 'loader'))
+			params.append('g', `categories:${t.value}`)
+		for (const t of categoryTags) params.append('f', `categories:${t.value}`)
+		for (const t of versionTags) params.append('v', t.value)
 	}
 
 	const qs = params.toString()
@@ -465,8 +468,25 @@ function onGlobalKeydown(e: KeyboardEvent) {
 	}
 }
 
-onMounted(() => {
+onMounted(async () => {
 	window.addEventListener('keydown', onGlobalKeydown)
+
+	try {
+		const [loadersRes, categoriesRes, versionsRes] = await Promise.all([
+			useBaseFetch('tag/loader') as Promise<{ name: string }[]>,
+			useBaseFetch('tag/category') as Promise<{ name: string; project_type: string }[]>,
+			useBaseFetch('tag/game_version') as Promise<{ version: string }[]>,
+		])
+		loaders.value = loadersRes.map((l) => l.name)
+		const allCats = categoriesRes.filter((c) => c.project_type !== 'minecraft_java_server')
+		categories.value = [...new Set(allCats.map((c) => c.name))]
+		serverCategories.value = categoriesRes
+			.filter((c) => c.project_type === 'minecraft_java_server')
+			.map((c) => c.name)
+		versions.value = versionsRes.map((v) => v.version)
+	} catch {
+		// silently ignore — suggestions simply won't appear
+	}
 })
 
 onUnmounted(() => {
