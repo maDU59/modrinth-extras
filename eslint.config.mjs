@@ -18,6 +18,9 @@ const browserExtensionGlobals = {
 	clearTimeout: 'readonly',
 	setInterval: 'readonly',
 	clearInterval: 'readonly',
+	HTMLElement: 'readonly',
+	ResizeObserver: 'readonly',
+	MutationObserver: 'readonly',
 	// WebExtension globals
 	browser: 'readonly',
 	chrome: 'readonly',

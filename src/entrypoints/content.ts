@@ -7,6 +7,7 @@ import { browser } from 'wxt/browser'
 
 import ActivitySparkline from '../components/ActivitySparkline.vue'
 import FooterBadge from '../components/FooterBadge.vue'
+import GitHubSidebar from '../components/GitHubSidebar.vue'
 import NotificationsIndicator from '../components/NotificationsIndicator.vue'
 import Sidebar from '../components/Sidebar.vue'
 import { DEFAULTS, type ExtensionSettings, loadSettings } from '../helpers/settings'
@@ -231,6 +232,40 @@ export default defineContentScript({
 			},
 		})
 
+		const gitHubSidebar = createInjection({
+			id: 'modrinth-extras-github-sidebar',
+			isEnabled: () => settings.showGitHubSidebar,
+			settingsKeys: ['showGitHubSidebar'],
+			persistent: false,
+			attach(container) {
+				container.style.display = 'contents'
+				const sidebarExtra = document.getElementById('modrinth-extras-sidebar-extra')
+				if (sidebarExtra) {
+					const depCard = Array.from(sidebarExtra.children).find(
+						(el) => el.querySelector('h2')?.textContent?.trim() === 'Dependencies',
+					) as HTMLElement | undefined
+					if (depCard) {
+						sidebarExtra.insertBefore(container, depCard)
+					} else {
+						sidebarExtra.appendChild(container)
+					}
+					return document.contains(container)
+				}
+				const anchor = findSidebarAnchor()
+				if (!anchor) return false
+				if (anchor.fallback) {
+					anchor.after.appendChild(container)
+				} else {
+					anchor.after.after(container)
+				}
+				return document.contains(container)
+			},
+			createApp() {
+				const pageUrl = window.location.href.split('?')[0].split('#')[0]
+				return createApp(h(GitHubSidebar, { pageUrl }))
+			},
+		})
+
 		const footerBadge = createInjection({
 			id: 'modrinth-extras-footer-badge',
 			isEnabled: () => true,
@@ -254,7 +289,7 @@ export default defineContentScript({
 			createApp: () => createApp(h(FooterBadge)),
 		})
 
-		const injections = [notifications, sidebar, activitySparkline, footerBadge]
+		const injections = [notifications, sidebar, activitySparkline, gitHubSidebar, footerBadge]
 
 		function markHydrated() {
 			if (hydrated) return

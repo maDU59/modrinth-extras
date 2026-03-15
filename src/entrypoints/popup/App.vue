@@ -71,6 +71,12 @@
 					title="Activity sparkline"
 					description="Shows a sparkline graph of version publishing activity over the last two months on project pages."
 				/>
+				<ToggleRow
+					id="toggle-github"
+					v-model="settings.showGitHubSidebar"
+					title="GitHub sidebar"
+					description="Shows a GitHub card in the sidebar with stars, open issues, pull requests, and forks for projects with a GitHub source."
+				/>
 			</div>
 		</div>
 
