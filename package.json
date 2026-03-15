@@ -13,7 +13,9 @@
         "postinstall": "wxt prepare",
         "lint": "eslint src/",
         "lint:fix": "eslint src/ --fix",
-        "release": "pnpm version ${npm_config_bump:-patch} && git push --follow-tags"
+        "release:patch": "pnpm version patch && git push && git push --tags",
+        "release:minor": "pnpm version minor && git push && git push --tags",
+        "release:major": "pnpm version major && git push && git push --tags"
     },
     "dependencies": {
         "@modrinth/api-client": "github:modrinth/code#path:packages/api-client",
