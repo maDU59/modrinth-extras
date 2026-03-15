@@ -5,7 +5,7 @@
 		style="position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: -1"
 	>
 		<svg
-			v-if="svgWidth > 0 && svgHeight > 0"
+			v-if="loaded && svgWidth > 0 && svgHeight > 0"
 			:viewBox="`0 0 ${svgWidth} ${svgHeight}`"
 			xmlns="http://www.w3.org/2000/svg"
 			:style="{ display: 'block', width: svgWidth + 'px', height: svgHeight + 'px' }"
@@ -17,7 +17,14 @@
 				</linearGradient>
 			</defs>
 			<template v-if="hasAnyData">
-				<path :d="areaPath" fill="url(#me-activity-grad)" />
+				<path
+					:d="areaPath"
+					fill="url(#me-activity-grad)"
+					:style="{
+						opacity: animated ? 1 : 0,
+						transition: 'opacity 0.8s ease-out 0.6s',
+					}"
+				/>
 				<path
 					:d="linePath"
 					fill="none"
@@ -26,6 +33,12 @@
 					stroke-width="2.5"
 					stroke-linecap="round"
 					stroke-linejoin="round"
+					pathLength="1"
+					:style="{
+						strokeDasharray: '1',
+						strokeDashoffset: animated ? '0' : '1',
+						transition: 'stroke-dashoffset 1.2s ease-out',
+					}"
 				/>
 			</template>
 			<line
@@ -37,13 +50,19 @@
 				stroke="var(--color-brand)"
 				stroke-opacity="0.2"
 				stroke-width="1.5"
+				pathLength="1"
+				:style="{
+					strokeDasharray: '1',
+					strokeDashoffset: animated ? '0' : '1',
+					transition: 'stroke-dashoffset 1.2s ease-out',
+				}"
 			/>
 		</svg>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
 import { useBaseFetch } from '../composables/useBaseFetch'
 
@@ -65,6 +84,17 @@ let resizeObserver: ResizeObserver | null = null
 
 const dailyCounts = ref<number[]>(Array(DAYS).fill(0))
 const hasAnyData = ref(false)
+const loaded = ref(false)
+const animated = ref(false)
+
+watch(loaded, async (val) => {
+	if (val) {
+		await nextTick()
+		window.requestAnimationFrame(() => {
+			animated.value = true
+		})
+	}
+})
 
 function gaussianSmooth(data: number[], sigma: number): number[] {
 	const radius = Math.ceil(sigma * 3)
@@ -116,6 +146,8 @@ onMounted(async () => {
 		hasAnyData.value = counts.some((c) => c > 0)
 	} catch {
 		// silently ignore errors
+	} finally {
+		loaded.value = true
 	}
 })
 
@@ -132,7 +164,7 @@ const points = computed<[number, number][]>(() => {
 	const w = svgWidth.value
 	const bottom = baseline.value
 	const range = bottom - PAD_TOP
-	return smoothed.map((c, i) => [((i + 0.5) / DAYS) * w, bottom - (c / max) * range])
+	return smoothed.map((c, i) => [(i / (DAYS - 1)) * w, bottom - (c / max) * range])
 })
 
 function catmullRomPath(pts: [number, number][]): string {
