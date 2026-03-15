@@ -10,10 +10,9 @@ import NotificationsIndicator from '../components/NotificationsIndicator.vue'
 import Sidebar from '../components/Sidebar.vue'
 import { DEFAULTS, type ExtensionSettings, loadSettings } from '../helpers/settings'
 
-// Debounce only during initial page load to avoid injecting during Nuxt
-// hydration. Once the first successful injection happens, the page is
-// considered hydrated and all further injections are immediate.
-const HYDRATION_DEBOUNCE_MS = 200
+// Gate injections until Nuxt hydration is complete. The router-bridge
+// (MAIN world) dispatches "modrinth-extras:router-ready" once it hooks
+// into the Nuxt router, which only becomes available after hydration.
 let hydrated = false
 
 interface InjectionConfig {
@@ -28,7 +27,6 @@ interface InjectionConfig {
 function createInjection(config: InjectionConfig) {
 	let container: HTMLElement | null = null
 	let app: App | null = null
-	let timer: ReturnType<typeof setTimeout> | null = null
 
 	function unmount() {
 		if (app) {
@@ -58,7 +56,6 @@ function createInjection(config: InjectionConfig) {
 			vueApp.mount(el)
 			app = vueApp
 			container = el
-			hydrated = true
 			console.log(`[Modrinth Extras] Injected ${config.id}`)
 		} catch {
 			console.error(`[Modrinth Extras] Failed to mount ${config.id}`)
@@ -68,15 +65,8 @@ function createInjection(config: InjectionConfig) {
 	}
 
 	function schedule() {
-		if (hydrated) {
-			inject()
-			return
-		}
-		if (timer) clearTimeout(timer)
-		timer = setTimeout(() => {
-			timer = null
-			inject()
-		}, HYDRATION_DEBOUNCE_MS)
+		if (!hydrated) return
+		inject()
 	}
 
 	function checkDetached(): boolean {
@@ -236,6 +226,14 @@ export default defineContentScript({
 
 		const injections = [notifications, sidebar, footerBadge]
 
+		function markHydrated() {
+			if (hydrated) return
+			hydrated = true
+			for (const inj of injections) inj.schedule()
+		}
+
+		window.addEventListener('modrinth-extras:router-ready', markHydrated, { once: true })
+
 		loadSettings().then((s) => {
 			settings = s
 			console.log('[Modrinth Extras] Settings loaded:', JSON.stringify(s))
@@ -271,7 +269,5 @@ export default defineContentScript({
 			}
 		})
 		domObserver.observe(document.documentElement, { childList: true, subtree: true })
-
-		for (const inj of injections) inj.schedule()
 	},
 })
