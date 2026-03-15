@@ -366,7 +366,6 @@ let refreshInterval: ReturnType<typeof setInterval> | null = null
 
 onMounted(() => {
 	// Watches cookie, signs in when cookie appears, signs out when it disappears
-	// API calls only happen on transitions (cookie absent→present), so it's cheap
 	authWatchInterval = setInterval(async () => {
 		const cookie = hasAuthCookie()
 		if (userId.value && !cookie) {
@@ -402,9 +401,11 @@ async function handleAcceptInvite(notif: PlatformNotification) {
 		}
 		syncBadgeCount()
 		await acceptTeamInvite((notif.body as PlatformNotificationBody).team_id as string)
-		markAsRead([notif.id]).catch((err) => console.error('Error marking as read:', err))
+		markAsRead([notif.id]).catch((err) =>
+			console.error('[Modrinth Extras] Error marking as read:', err),
+		)
 	} catch (err) {
-		console.error('Error accepting invite:', err)
+		console.error('[Modrinth Extras] Error accepting invite:', err)
 	}
 }
 
@@ -419,9 +420,11 @@ async function handleDeclineInvite(notif: PlatformNotification) {
 			(notif.body as PlatformNotificationBody).team_id as string,
 			userId.value as string,
 		)
-		markAsRead([notif.id]).catch((err) => console.error('Error marking as read:', err))
+		markAsRead([notif.id]).catch((err) =>
+			console.error('[Modrinth Extras] Error marking as read:', err),
+		)
 	} catch (err) {
-		console.error('Error declining invite:', err)
+		console.error('[Modrinth Extras] Error declining invite:', err)
 	}
 }
 
@@ -435,9 +438,9 @@ async function handleMarkAsRead(notif: PlatformNotification) {
 			}
 		}
 		syncBadgeCount()
-		markAsRead(ids).catch((err) => console.error('Error marking as read:', err))
+		markAsRead(ids).catch((err) => console.error('[Modrinth Extras] Error marking as read:', err))
 	} catch (err) {
-		console.error('Error marking as read:', err)
+		console.error('[Modrinth Extras] Error marking as read:', err)
 	}
 }
 
@@ -448,9 +451,11 @@ async function handleMarkAllAsRead() {
 			for (const n of notificationsData.value) n.read = true
 		}
 		syncBadgeCount()
-		markAsRead(ids).catch((err) => console.error('Error marking all as read:', err))
+		markAsRead(ids).catch((err) =>
+			console.error('[Modrinth Extras] Error marking all as read:', err),
+		)
 	} catch (err) {
-		console.error('Error marking all as read:', err)
+		console.error('[Modrinth Extras] Error marking all as read:', err)
 	}
 }
 
