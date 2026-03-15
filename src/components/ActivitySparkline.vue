@@ -5,26 +5,38 @@
 		style="position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: -1"
 	>
 		<svg
-			v-if="points.length > 1 && svgWidth > 0 && svgHeight > 0"
+			v-if="svgWidth > 0 && svgHeight > 0"
 			:viewBox="`0 0 ${svgWidth} ${svgHeight}`"
 			xmlns="http://www.w3.org/2000/svg"
 			:style="{ display: 'block', width: svgWidth + 'px', height: svgHeight + 'px' }"
 		>
 			<defs>
 				<linearGradient id="me-activity-grad" x1="0" y1="0" x2="0" y2="1">
-					<stop offset="0%" stop-color="var(--color-brand)" stop-opacity="0.2" />
+					<stop offset="0%" stop-color="var(--color-brand)" stop-opacity="0.15" />
 					<stop offset="100%" stop-color="var(--color-brand)" stop-opacity="0" />
 				</linearGradient>
 			</defs>
-			<path :d="areaPath" fill="url(#me-activity-grad)" />
-			<path
-				:d="linePath"
-				fill="none"
+			<template v-if="hasAnyData">
+				<path :d="areaPath" fill="url(#me-activity-grad)" />
+				<path
+					:d="linePath"
+					fill="none"
+					stroke="var(--color-brand)"
+					stroke-opacity="0.2"
+					stroke-width="2.5"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				/>
+			</template>
+			<line
+				v-else
+				x1="0"
+				:y1="baseline"
+				:x2="svgWidth"
+				:y2="baseline"
 				stroke="var(--color-brand)"
-				stroke-opacity="0.5"
-				stroke-width="2.5"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				stroke-opacity="0.2"
+				stroke-width="1.5"
 			/>
 		</svg>
 	</div>
@@ -38,8 +50,9 @@ import { useBaseFetch } from '../composables/useBaseFetch'
 const props = defineProps<{ projectSlug: string }>()
 
 const DAYS = 60
-const PAD_TOP = 16
-const PAD_BOTTOM = 20
+const PAD_TOP = 10
+const PAD_BOTTOM = 10
+const SMOOTH_SIGMA = 0.8
 
 interface Version {
 	date_published: string
@@ -52,6 +65,26 @@ let resizeObserver: ResizeObserver | null = null
 
 const dailyCounts = ref<number[]>(Array(DAYS).fill(0))
 const hasAnyData = ref(false)
+
+function gaussianSmooth(data: number[], sigma: number): number[] {
+	const radius = Math.ceil(sigma * 3)
+	const kernel: number[] = []
+	for (let k = -radius; k <= radius; k++) {
+		kernel.push(Math.exp(-(k * k) / (2 * sigma * sigma)))
+	}
+	return data.map((_, i) => {
+		let sum = 0
+		let weight = 0
+		for (let k = -radius; k <= radius; k++) {
+			const j = i + k
+			if (j >= 0 && j < data.length) {
+				sum += data[j] * kernel[k + radius]
+				weight += kernel[k + radius]
+			}
+		}
+		return sum / weight
+	})
+}
 
 onMounted(async () => {
 	if (wrapperEl.value) {
@@ -90,72 +123,43 @@ onUnmounted(() => {
 	resizeObserver?.disconnect()
 })
 
+const baseline = computed(() => svgHeight.value - PAD_BOTTOM)
+
 const points = computed<[number, number][]>(() => {
 	if (!hasAnyData.value || svgWidth.value <= 0 || svgHeight.value <= 0) return []
-	const counts = dailyCounts.value
-	const max = Math.max(...counts, 1)
+	const smoothed = gaussianSmooth(dailyCounts.value, SMOOTH_SIGMA)
+	const max = Math.max(...smoothed, 1e-6)
 	const w = svgWidth.value
-	const h = svgHeight.value
-	const bottom = h - PAD_BOTTOM
+	const bottom = baseline.value
 	const range = bottom - PAD_TOP
-	return counts.map((c, i) => [((i + 0.5) / DAYS) * w, bottom - (c / max) * range])
+	return smoothed.map((c, i) => [((i + 0.5) / DAYS) * w, bottom - (c / max) * range])
 })
 
-function monotonicPath(pts: [number, number][]): string {
-	const n = pts.length
-	if (n < 2) return ''
-
-	// Secant slopes between consecutive points
-	const dx = pts.map((p, i) => (i < n - 1 ? pts[i + 1][0] - p[0] : 0))
-	const dy = pts.map((p, i) => (i < n - 1 ? pts[i + 1][1] - p[1] : 0))
-	const s = dx.map((d, i) => (d === 0 ? 0 : dy[i] / d))
-
-	// Tangent slopes via Fritsch-Carlson
-	const m = new Array(n).fill(0)
-	m[0] = s[0]
-	m[n - 1] = s[n - 2]
-	for (let i = 1; i < n - 1; i++) {
-		m[i] = s[i - 1] * s[i] <= 0 ? 0 : (s[i - 1] + s[i]) / 2
-	}
-
-	// Monotonicity adjustment
-	for (let i = 0; i < n - 1; i++) {
-		if (Math.abs(s[i]) < 1e-10) {
-			m[i] = 0
-			m[i + 1] = 0
-		} else {
-			const a = m[i] / s[i]
-			const b = m[i + 1] / s[i]
-			const r = a * a + b * b
-			if (r > 9) {
-				const tau = 3 / Math.sqrt(r)
-				m[i] = tau * a * s[i]
-				m[i + 1] = tau * b * s[i]
-			}
-		}
-	}
-
-	// Cubic bezier
+function catmullRomPath(pts: [number, number][]): string {
+	if (pts.length < 2) return ''
 	let d = `M ${pts[0][0].toFixed(2)} ${pts[0][1].toFixed(2)}`
-	for (let i = 0; i < n - 1; i++) {
-		const h = dx[i]
-		const cp1x = pts[i][0] + h / 3
-		const cp1y = pts[i][1] + (m[i] * h) / 3
-		const cp2x = pts[i + 1][0] - h / 3
-		const cp2y = pts[i + 1][1] - (m[i + 1] * h) / 3
-		d += ` C ${cp1x.toFixed(2)} ${cp1y.toFixed(2)}, ${cp2x.toFixed(2)} ${cp2y.toFixed(2)}, ${pts[i + 1][0].toFixed(2)} ${pts[i + 1][1].toFixed(2)}`
+	for (let i = 1; i < pts.length; i++) {
+		const p0 = pts[Math.max(0, i - 2)]
+		const p1 = pts[i - 1]
+		const p2 = pts[i]
+		const p3 = pts[Math.min(pts.length - 1, i + 1)]
+		const t = 1 / 6
+		const cp1x = p1[0] + (p2[0] - p0[0]) * t
+		const cp1y = p1[1] + (p2[1] - p0[1]) * t
+		const cp2x = p2[0] - (p3[0] - p1[0]) * t
+		const cp2y = p2[1] - (p3[1] - p1[1]) * t
+		d += ` C ${cp1x.toFixed(2)} ${cp1y.toFixed(2)}, ${cp2x.toFixed(2)} ${cp2y.toFixed(2)}, ${p2[0].toFixed(2)} ${p2[1].toFixed(2)}`
 	}
 	return d
 }
 
-const linePath = computed(() => monotonicPath(points.value))
+const linePath = computed(() => catmullRomPath(points.value))
 
 const areaPath = computed(() => {
 	if (!points.value.length) return ''
-	const h = svgHeight.value
-	const bottom = h - PAD_BOTTOM
+	const b = baseline.value.toFixed(2)
 	const first = points.value[0]
 	const last = points.value[points.value.length - 1]
-	return `${linePath.value} L ${last[0].toFixed(2)} ${bottom} L ${first[0].toFixed(2)} ${bottom} Z`
+	return `${linePath.value} L ${last[0].toFixed(2)} ${b} L ${first[0].toFixed(2)} ${b} Z`
 })
 </script>
