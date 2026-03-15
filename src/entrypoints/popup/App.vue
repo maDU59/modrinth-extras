@@ -62,8 +62,14 @@
 				<ToggleRow
 					id="toggle-deps"
 					v-model="settings.showDependenciesSidebar"
-					title="Dependency tree sidebar"
+					title="Dependency sidebar"
 					description="Shows a collapsible dependency tree sidebar on project pages."
+				/>
+				<ToggleRow
+					id="toggle-sparkline"
+					v-model="settings.showActivitySparkline"
+					title="Activity sparkline"
+					description="Shows a sparkline graph of version publishing activity over the last two months on project pages."
 				/>
 			</div>
 		</div>

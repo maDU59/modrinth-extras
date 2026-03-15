@@ -3,6 +3,7 @@ export interface ExtensionSettings {
 	showNotificationsIndicator: boolean
 	showToolsSidebar: boolean
 	showDependenciesSidebar: boolean
+	showActivitySparkline: boolean
 }
 
 export const DEFAULTS: ExtensionSettings = {
@@ -10,6 +11,7 @@ export const DEFAULTS: ExtensionSettings = {
 	showNotificationsIndicator: true,
 	showToolsSidebar: true,
 	showDependenciesSidebar: true,
+	showActivitySparkline: true,
 }
 
 import { browser } from 'wxt/browser'

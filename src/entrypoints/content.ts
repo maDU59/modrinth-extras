@@ -5,6 +5,7 @@ import FloatingVue from 'floating-vue'
 import { type App, createApp, h, ref } from 'vue'
 import { browser } from 'wxt/browser'
 
+import ActivitySparkline from '../components/ActivitySparkline.vue'
 import FooterBadge from '../components/FooterBadge.vue'
 import NotificationsIndicator from '../components/NotificationsIndicator.vue'
 import Sidebar from '../components/Sidebar.vue'
@@ -201,6 +202,35 @@ export default defineContentScript({
 			},
 		})
 
+		const activitySparkline = createInjection({
+			id: 'modrinth-extras-activity-sparkline',
+			isEnabled: () => settings.showActivitySparkline,
+			settingsKeys: ['showActivitySparkline'],
+			persistent: false,
+			attach(container) {
+				const path = window.location.pathname
+				if (!/^\/(mod|plugin|datapack|shader|resourcepack|modpack)\/[^/]+\/?$/.test(path))
+					return false
+				const header = document.querySelector('.normal-page__header')
+				if (!header) return false
+				const borderDiv = header.querySelector<HTMLElement>(
+					'div.border-b.border-solid.border-divider',
+				)
+				if (!borderDiv) return false
+				borderDiv.style.position = 'relative'
+				borderDiv.style.isolation = 'isolate'
+				container.style.display = 'contents'
+				borderDiv.appendChild(container)
+				return document.contains(container)
+			},
+			createApp() {
+				const slug = window.location.pathname.match(
+					/^\/(mod|plugin|datapack|shader|resourcepack|modpack)\/([^/]+)/,
+				)?.[2]
+				return createApp(h(ActivitySparkline, { projectSlug: slug ?? '' }))
+			},
+		})
+
 		const footerBadge = createInjection({
 			id: 'modrinth-extras-footer-badge',
 			isEnabled: () => true,
@@ -224,7 +254,7 @@ export default defineContentScript({
 			createApp: () => createApp(h(FooterBadge)),
 		})
 
-		const injections = [notifications, sidebar, footerBadge]
+		const injections = [notifications, sidebar, activitySparkline, footerBadge]
 
 		function markHydrated() {
 			if (hydrated) return
