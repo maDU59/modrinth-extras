@@ -15,7 +15,7 @@
 				class="qs-panel w-[min(760px,calc(100vw-32px))] overflow-hidden rounded-2xl p-4 border border-solid border-surface-4 bg-surface-3 shadow-[var(--shadow-raised),var(--shadow-inset)]"
 			>
 				<div
-					class="flex min-h-[52px] cursor-text flex-wrap items-center gap-2 rounded-xl border border-solid border-surface-4 bg-surface-4 px-2 py-2.5 focus-within:border-brand"
+					class="flex min-h-[52px] cursor-text flex-wrap items-center gap-2 rounded-xl border-2 border-solid border-surface-4 bg-surface-4 px-2 py-2.5 focus-within:border-brand"
 					@click="inputEl?.focus()"
 				>
 					<div
@@ -157,6 +157,7 @@ const TYPES = ['mod', 'plugin', 'datapack', 'shader', 'resourcepack', 'modpack',
 
 const loaders = ref<string[]>([])
 const categories = ref<string[]>([])
+const gCategories = ref<Set<string>>(new Set())
 const serverCategories = ref<string[]>([])
 const versions = ref<string[]>([])
 
@@ -481,11 +482,12 @@ function executeSearch() {
 	} else {
 		for (const t of tags.value.filter((t) => t.facet === 'loader'))
 			params.append('g', `categories:${t.value}`)
-		for (const t of categoryTags) params.append('f', `categories:${t.value}`)
+		for (const t of categoryTags)
+			params.append(gCategories.value.has(t.value) ? 'g' : 'f', `categories:${t.value}`)
 		for (const t of versionTags) params.append('v', t.value)
 	}
 
-	const qs = params.toString()
+	const qs = params.toString().replaceAll('%3A', ':')
 	navigate(`https://modrinth.com${basePath}${qs ? '?' + qs : ''}`)
 	close()
 }
@@ -496,11 +498,11 @@ function onKeydown(e: KeyboardEvent) {
 
 	if (e.key === 'Escape') {
 		close()
-	} else if (e.key === 'ArrowDown') {
+	} else if (e.key === 'ArrowDown' || (e.key === 'Tab' && !e.shiftKey)) {
 		e.preventDefault()
 		selectedIndex.value = Math.min(selectedIndex.value + 1, listLength - 1)
 		if (!inExamples) suggestionEls.value[selectedIndex.value]?.scrollIntoView({ block: 'nearest' })
-	} else if (e.key === 'ArrowUp') {
+	} else if (e.key === 'ArrowUp' || (e.key === 'Tab' && e.shiftKey)) {
 		e.preventDefault()
 		selectedIndex.value = Math.max(selectedIndex.value - 1, 0)
 		if (!inExamples) suggestionEls.value[selectedIndex.value]?.scrollIntoView({ block: 'nearest' })
@@ -541,12 +543,19 @@ onMounted(async () => {
 	try {
 		const [loadersRes, categoriesRes, versionsRes] = await Promise.all([
 			useBaseFetch('tag/loader') as Promise<{ name: string }[]>,
-			useBaseFetch('tag/category') as Promise<{ name: string; project_type: string }[]>,
+			useBaseFetch('tag/category') as Promise<
+				{ name: string; project_type: string; header: string }[]
+			>,
 			useBaseFetch('tag/game_version') as Promise<{ version: string }[]>,
 		])
 		loaders.value = loadersRes.map((l) => l.name)
 		const allCats = categoriesRes.filter((c) => c.project_type !== 'minecraft_java_server')
 		categories.value = [...new Set(allCats.map((c) => c.name))]
+		gCategories.value = new Set(
+			allCats
+				.filter((c) => c.header === 'resolutions' || c.header === 'loaders')
+				.map((c) => c.name),
+		)
 		serverCategories.value = categoriesRes
 			.filter((c) => c.project_type === 'minecraft_java_server')
 			.map((c) => c.name)
