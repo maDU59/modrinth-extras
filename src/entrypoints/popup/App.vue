@@ -72,7 +72,7 @@
 
 		<HorizontalRule class="shrink-0" />
 
-		<div class="flex shrink-0 items-center gap-1 px-4 py-2">
+		<div class="flex shrink-0 items-center gap-1 px-4 py-2.5">
 			<span class="text-xs text-secondary">v{{ version }}</span>
 			<span v-if="checking" class="flex items-center gap-1 text-xs text-secondary">
 				<LoaderCircleIcon class="size-4 animate-spin" aria-hidden="true" />
@@ -151,7 +151,7 @@ const NAVIGATION_FEATURES: FeatureDef[] = [
 		key: 'showQuickSearch',
 		icon: SearchIcon,
 		title: 'Quick search',
-		description: 'Ctrl+K or / for faceted search',
+		description: 'Ctrl+K or / for a command palette style search',
 	},
 ]
 

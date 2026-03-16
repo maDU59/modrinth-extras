@@ -4,12 +4,12 @@
 		@click="$emit('update:modelValue', !modelValue)"
 	>
 		<div
-			class="flex size-8 shrink-0 items-center justify-center rounded-lg border border-solid border-surface-4 bg-surface-3"
+			class="flex size-10 shrink-0 items-center justify-center rounded-lg border border-solid border-surface-4 bg-surface-3"
 		>
-			<component :is="icon" aria-hidden="true" class="size-4 text-secondary" />
+			<component :is="icon" aria-hidden="true" class="size-8 text-secondary" />
 		</div>
 		<div class="min-w-0 flex-1">
-			<div class="text-sm font-medium text-contrast">{{ title }}</div>
+			<div class="text-sm font-semibold text-contrast">{{ title }}</div>
 			<div class="text-xs text-secondary">{{ description }}</div>
 		</div>
 		<button
