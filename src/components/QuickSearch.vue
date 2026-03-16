@@ -2,7 +2,7 @@
 	<Transition name="quick-search-overlay">
 		<div
 			v-if="open"
-			class="fixed z-[99999] flex items-start justify-center pt-[12vh]"
+			class="fixed z-[99999] flex items-start justify-center pt-[28vh]"
 			style="
 				inset: -5rem;
 				border-radius: 180px;
@@ -14,7 +14,7 @@
 			<div
 				class="qs-panel w-[min(760px,calc(100vw-32px))] overflow-hidden rounded-2xl border border-solid border-surface-4 bg-surface-3 shadow-[var(--shadow-raised),var(--shadow-inset)]"
 			>
-				<div class="p-2">
+				<div class="p-4 pb-0">
 					<div
 						class="flex min-h-[52px] cursor-text flex-wrap items-center gap-2 rounded-xl border border-solid border-surface-4 bg-surface-4 px-2 py-2.5 focus-within:border-brand"
 						@click="inputEl?.focus()"
@@ -43,7 +43,7 @@
 					</div>
 				</div>
 
-				<ul v-if="suggestions.length" class="m-0 list-none p-2">
+				<ul v-if="suggestions.length" class="m-0 list-none p-4 pt-0">
 					<li
 						v-for="(s, i) in suggestions"
 						:key="s.id"
@@ -75,7 +75,12 @@
 					</li>
 				</ul>
 
-				<div v-else-if="!query && !tags.length" class="p-2">
+				<div v-else-if="!query && !tags.length" class="p-4 pt-0">
+					<p
+						class="px-3 pb-1 pt-0 text-[11px] font-semibold uppercase tracking-widest text-secondary"
+					>
+						Examples
+					</p>
 					<div
 						v-for="(ex, i) in EXAMPLES"
 						:key="ex.label"
@@ -100,7 +105,7 @@
 					</div>
 				</div>
 
-				<div v-else-if="tags.length" class="p-2">
+				<div v-else-if="tags.length" class="p-4 pt-0">
 					<div
 						class="flex cursor-pointer items-center gap-3 rounded-xl bg-surface-3 px-3 py-2.5 text-[15px] text-primary"
 						@click="executeSearch"
