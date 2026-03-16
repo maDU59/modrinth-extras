@@ -116,6 +116,7 @@ import { CpuIcon, HashIcon, PackageIcon, SearchIcon, TagIcon } from '@modrinth/a
 import { type Component, computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
 import { useBaseFetch } from '../composables/useBaseFetch'
+import { navigate } from '../helpers/page-router'
 
 const FACET_ICONS: Record<string, Component> = {
 	loader: CpuIcon,
@@ -482,7 +483,7 @@ function executeSearch() {
 	}
 
 	const qs = params.toString()
-	window.location.href = `https://modrinth.com${basePath}${qs ? '?' + qs : ''}`
+	navigate(`https://modrinth.com${basePath}${qs ? '?' + qs : ''}`)
 	close()
 }
 
