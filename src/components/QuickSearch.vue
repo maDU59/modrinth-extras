@@ -8,7 +8,7 @@
 			class="w-[min(760px,calc(100vw-32px))] overflow-hidden rounded-2xl border border-solid border-surface-4 bg-surface-3 shadow-[var(--shadow-raised),var(--shadow-inset)]"
 		>
 			<!-- Input field: tags + real input -->
-			<div class="p-3">
+			<div class="p-2">
 				<div
 					class="flex min-h-[52px] cursor-text flex-wrap items-center gap-2 rounded-xl border border-solid border-surface-4 bg-surface-4 px-2 py-2.5 focus-within:border-brand"
 					@click="inputEl?.focus()"
@@ -38,7 +38,7 @@
 			</div>
 
 			<!-- Suggestions (while typing) -->
-			<ul v-if="suggestions.length" class="m-0 max-h-80 list-none overflow-y-auto px-2 pb-2.5">
+			<ul v-if="suggestions.length" class="m-0 list-none p-2">
 				<li
 					v-for="(s, i) in suggestions"
 					:key="s.id"
@@ -61,15 +61,17 @@
 						><template v-else>{{ s.label }}</template>
 					</span>
 					<kbd
-						v-if="i === selectedIndex"
-						class="shrink-0 rounded-lg border border-solid border-surface-5 px-2 py-1 text-[11px] text-secondary shadow-none [font-family:inherit]"
+						:class="[
+							'shrink-0 rounded-md border border-solid border-surface-5 bg-transparent px-2.5 py-1 text-[13px] text-secondary [box-shadow:0_2px_0_var(--color-surface-5)]',
+							i !== selectedIndex && 'invisible',
+						]"
 						>↵</kbd
 					>
 				</li>
 			</ul>
 
 			<!-- Examples panel (idle state: no query, no tags) -->
-			<div v-else-if="!query && !tags.length" class="px-2 pb-2.5">
+			<div v-else-if="!query && !tags.length" class="p-2">
 				<div
 					v-for="(ex, i) in EXAMPLES"
 					:key="ex.label"
@@ -95,7 +97,7 @@
 			</div>
 
 			<!-- Tags-only state: show search prompt -->
-			<div v-else-if="tags.length" class="px-2 pb-2.5">
+			<div v-else-if="tags.length" class="p-2">
 				<div
 					class="flex cursor-pointer items-center gap-3 rounded-xl bg-surface-3 px-3 py-2.5 text-[15px] text-primary"
 					@click="executeSearch"
@@ -103,7 +105,7 @@
 					<SearchIcon aria-hidden="true" class="size-5 shrink-0 text-secondary" />
 					<span class="flex-1">Search</span>
 					<kbd
-						class="shrink-0 rounded-lg border border-solid border-surface-5 px-2 py-1 text-[11px] text-secondary shadow-none [font-family:inherit]"
+						class="shrink-0 rounded-md border border-solid border-surface-5 bg-transparent px-2.5 py-1 text-[13px] text-secondary [box-shadow:0_2px_0_var(--color-surface-5)]"
 						>↵</kbd
 					>
 				</div>
