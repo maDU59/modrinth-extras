@@ -31,12 +31,20 @@ Adds a live bell icon to the Modrinth header showing your unread notification co
 
 <img src=".github/assets/screenshots/notifications.png" width="400">
 
+### Quick Search
+
+Opens a command palette-style search modal with <kbd>Ctrl+K</kbd> or <kbd>/</kbd>. Supports faceted search with inline tags for loader, category, game version, and project type, with highlighted suggestions and pre-configured examples.
+
+### Activity Sparkline
+
+Adds an animated SVG chart to project pages showing release activity over the past 60 days, giving a quick visual overview of how actively a project is maintained.
+
 ### Tools Sidebar
 
 Adds a tools card to the sidebar on project, user, organization, and collection pages with the following items:
 
 - **Generate embed:** opens [Modfolio](https://modfolio.creeperkatze.de) pre-loaded with the current page URL to generate an embeddable card or badge.
-- **View API response:** opens the raw Modrinth API JSON for the current page in a new tab. Works on projects, users, organizations, and collections.
+- **View API response:** opens the raw Modrinth API JSON for the current page in a new tab.
 
 On project pages, two additional developer utilities are shown:
 
@@ -51,7 +59,17 @@ On project pages, a dependencies card shows the project's full dependency tree. 
 
 <img src=".github/assets/screenshots/dependencies.png" width="400">
 
-### More features coming soon™!
+### GitHub Sidebar
+
+On project pages that link to a GitHub repository, shows a sidebar card with live stats: stars, open issues, open pull requests, and forks — each linking directly to the relevant section on GitHub.
+
+### Discord Sidebar
+
+On project pages that include a Discord invite, shows a sidebar card with the server name, description, member count, online count, and icon, including verified/partnered badges.
+
+### Notification Badge
+
+Shows your unread notification count as a badge on the extension icon. The background script polls for updates every 5 minutes and keeps the badge in sync even when the popup is closed.
 
 ## 🔒 Building from source
 
@@ -60,10 +78,10 @@ If you don't want to trust the store release, you can build the extension yourse
 **Prerequisites:** [Node.js](https://nodejs.org) and [pnpm](https://pnpm.io)
 
 ```bash
-# Clone and check out the version you want to verify (e.g. v1.0.6)
+# Clone and check out the version you want to verify (e.g. v1.0.11)
 git clone https://github.com/creeperkatze/modrinth-extras.git
 cd modrinth-extras
-git checkout v1.0.6
+git checkout v1.0.11
 
 pnpm install
 
