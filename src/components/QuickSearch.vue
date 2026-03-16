@@ -208,7 +208,7 @@ function stopAnimation() {
 	animatedText.value = ''
 }
 
-function startAnimation() {
+function startAnimation(immediate = false) {
 	let exIdx = 0
 	let charIdx = 0
 	let deleting = false
@@ -241,24 +241,26 @@ function startAnimation() {
 		}
 	}
 
-	animTimer = setTimeout(tick, 500)
+	if (immediate) tick()
+	else animTimer = setTimeout(tick, 500)
 }
 
 const activePlaceholder = computed(() => {
 	if (tags.value.length) return ''
-	return animatedText.value || 'Search Modrinth\u2026'
+	return animatedText.value
 })
 
 watch(open, (val) => {
-	if (val) startAnimation()
+	if (val) startAnimation(true)
 	else stopAnimation()
 })
 
 watch([query, tags], () => {
 	if (query.value || tags.value.length) {
 		stopAnimation()
-	} else if (open.value && !animTimer) {
-		startAnimation()
+	} else if (open.value) {
+		stopAnimation()
+		startAnimation(true)
 	}
 })
 // ---
@@ -271,17 +273,32 @@ function hasFacet(facet: string) {
 	return tags.value.some((t) => t.facet === facet)
 }
 
-const isServerMode = computed(() =>
-	tags.value.some((t) => t.facet === 'type' && t.value === 'server'),
-)
+// Server mode: explicit type:server tag OR any selected category is server-specific
+const isServerMode = computed(() => {
+	if (tags.value.some((t) => t.facet === 'type' && t.value === 'server')) return true
+	const serverCatSet = new Set(serverCategories.value)
+	return tags.value.some((t) => t.facet === 'category' && serverCatSet.has(t.value))
+})
+
+// Non-server mode: explicit non-server type tag OR any loader tag
+const isNonServerMode = computed(() => {
+	if (tags.value.some((t) => t.facet === 'type' && t.value !== 'server')) return true
+	return tags.value.some((t) => t.facet === 'loader')
+})
 
 const suggestions = computed<Suggestion[]>(() => {
 	const q = query.value.trim().toLowerCase()
 	const results: Suggestion[] = []
 
 	if (q) {
+		// Types — only if not yet set; filter to only valid types for the inferred mode
 		if (!hasFacet('type')) {
-			for (const t of TYPES) {
+			const validTypes = isServerMode.value
+				? ['server']
+				: isNonServerMode.value
+					? TYPES.filter((t) => t !== 'server')
+					: TYPES
+			for (const t of validTypes) {
 				if (t.includes(q)) {
 					results.push({
 						id: `type:${t}`,
@@ -295,33 +312,8 @@ const suggestions = computed<Suggestion[]>(() => {
 			}
 		}
 
-		if (isServerMode.value) {
-			for (const c of serverCategories.value) {
-				if (c.includes(q) && !hasTag('category', c)) {
-					results.push({
-						id: `category:${c}`,
-						icon: TagIcon,
-						label: c,
-						facet: 'category',
-						value: c,
-						action: 'add-tag',
-					})
-				}
-			}
-
-			for (const v of versions.value) {
-				if (v.startsWith(q) && !hasTag('version', v)) {
-					results.push({
-						id: `version:${v}`,
-						icon: HashIcon,
-						label: v,
-						facet: 'version',
-						value: v,
-						action: 'add-tag',
-					})
-				}
-			}
-		} else {
+		// Loaders, only when not in server mode (neutral or non-server)
+		if (!isServerMode.value) {
 			for (const l of loaders.value) {
 				if (l.includes(q) && !hasTag('loader', l)) {
 					results.push({
@@ -334,7 +326,10 @@ const suggestions = computed<Suggestion[]>(() => {
 					})
 				}
 			}
+		}
 
+		// Regular categories — only when not in server mode
+		if (!isServerMode.value) {
 			for (const c of categories.value) {
 				if (c.includes(q) && !hasTag('category', c)) {
 					results.push({
@@ -347,18 +342,35 @@ const suggestions = computed<Suggestion[]>(() => {
 					})
 				}
 			}
+		}
 
-			for (const v of versions.value) {
-				if (v.startsWith(q) && !hasTag('version', v)) {
+		// Server categories — only when not in non-server mode
+		if (!isNonServerMode.value) {
+			for (const c of serverCategories.value) {
+				if (c.includes(q) && !hasTag('category', c)) {
 					results.push({
-						id: `version:${v}`,
-						icon: HashIcon,
-						label: v,
-						facet: 'version',
-						value: v,
+						id: `server-category:${c}`,
+						icon: TagIcon,
+						label: c,
+						facet: 'category',
+						value: c,
 						action: 'add-tag',
 					})
 				}
+			}
+		}
+
+		// Versions — always
+		for (const v of versions.value) {
+			if (v.startsWith(q) && !hasTag('version', v)) {
+				results.push({
+					id: `version:${v}`,
+					icon: HashIcon,
+					label: v,
+					facet: 'version',
+					value: v,
+					action: 'add-tag',
+				})
 			}
 		}
 
@@ -409,7 +421,11 @@ function executeSearch() {
 	const typeTag = tags.value.find((t) => t.facet === 'type')
 	const categoryTags = tags.value.filter((t) => t.facet === 'category')
 	const versionTags = tags.value.filter((t) => t.facet === 'version')
-	const basePath = typeTag ? (TYPE_PATH[typeTag.value] ?? '/discover/mods') : '/discover/mods'
+	const basePath = isServerMode.value
+		? '/discover/servers'
+		: typeTag
+			? (TYPE_PATH[typeTag.value] ?? '/discover/mods')
+			: '/discover/mods'
 	const params = new URLSearchParams()
 	if (query.value.trim()) params.set('q', query.value.trim())
 
