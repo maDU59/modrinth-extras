@@ -18,13 +18,13 @@
 						:key="`${tag.facet}:${tag.value}`"
 						class="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-solid border-highlight bg-highlight px-3 py-2 text-[13px] font-medium text-brand"
 					>
-						<component :is="FACET_ICONS[tag.facet]" aria-hidden="true" class="size-3.5 shrink-0" />
+						<component :is="FACET_ICONS[tag.facet]" aria-hidden="true" class="size-4 shrink-0" />
 						<span>{{ tag.value }}</span>
 						<button
-							class="cursor-pointer rounded-full border-0 bg-transparent p-0 leading-none text-brand hover:brightness-75"
+							class="flex cursor-pointer items-center rounded-full border-0 bg-transparent p-0 text-brand hover:brightness-75"
 							@click.stop="removeTag(tag.facet, tag.value)"
 						>
-							×
+							<XIcon class="size-3.5" />
 						</button>
 					</div>
 					<input
@@ -83,11 +83,9 @@
 							v-for="t in ex.tags"
 							:key="`${t.facet}:${t.value}`"
 							class="inline-flex items-center gap-1.5 rounded-full border border-solid border-highlight bg-highlight px-3 py-2 text-[13px] font-medium text-brand"
-							><component
-								:is="FACET_ICONS[t.facet]"
-								aria-hidden="true"
-								class="size-3.5 shrink-0"
-							/>{{ t.value }}</span
+							><component :is="FACET_ICONS[t.facet]" aria-hidden="true" class="size-4 shrink-0" />
+								{{ t.value }}
+							</span
 						>
 					</div>
 				</div>
@@ -112,7 +110,7 @@
 </template>
 
 <script setup lang="ts">
-import { CpuIcon, HashIcon, PackageIcon, SearchIcon, TagIcon } from '@modrinth/assets'
+import { CpuIcon, HashIcon, PackageIcon, SearchIcon, TagIcon, XIcon } from '@modrinth/assets'
 import { type Component, computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
 import { useBaseFetch } from '../composables/useBaseFetch'
