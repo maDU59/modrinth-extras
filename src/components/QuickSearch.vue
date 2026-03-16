@@ -12,38 +12,36 @@
 			@mousedown.self="close"
 		>
 			<div
-				class="qs-panel w-[min(760px,calc(100vw-32px))] overflow-hidden rounded-2xl border border-solid border-surface-4 bg-surface-3 shadow-[var(--shadow-raised),var(--shadow-inset)]"
+				class="qs-panel w-[min(760px,calc(100vw-32px))] overflow-hidden rounded-2xl p-4 border border-solid border-surface-4 bg-surface-3 shadow-[var(--shadow-raised),var(--shadow-inset)]"
 			>
-				<div class="p-4 pb-0">
+				<div
+					class="flex min-h-[52px] cursor-text flex-wrap items-center gap-2 rounded-xl border border-solid border-surface-4 bg-surface-4 px-2 py-2.5 focus-within:border-brand"
+					@click="inputEl?.focus()"
+				>
 					<div
-						class="flex min-h-[52px] cursor-text flex-wrap items-center gap-2 rounded-xl border border-solid border-surface-4 bg-surface-4 px-2 py-2.5 focus-within:border-brand"
-						@click="inputEl?.focus()"
+						v-for="tag in tags"
+						:key="`${tag.facet}:${tag.value}`"
+						class="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-solid border-highlight bg-highlight px-3 py-2 text-[13px] font-semibold text-brand"
 					>
-						<div
-							v-for="tag in tags"
-							:key="`${tag.facet}:${tag.value}`"
-							class="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-solid border-highlight bg-highlight px-3 py-2 text-[13px] font-semibold text-brand"
+						<component :is="FACET_ICONS[tag.facet]" aria-hidden="true" class="size-4 shrink-0" />
+						<span>{{ tag.value }}</span>
+						<button
+							class="flex cursor-pointer items-center rounded-full border-0 bg-transparent p-0 text-brand hover:brightness-75"
+							@click.stop="removeTag(tag.facet, tag.value)"
 						>
-							<component :is="FACET_ICONS[tag.facet]" aria-hidden="true" class="size-4 shrink-0" />
-							<span>{{ tag.value }}</span>
-							<button
-								class="flex cursor-pointer items-center rounded-full border-0 bg-transparent p-0 text-brand hover:brightness-75"
-								@click.stop="removeTag(tag.facet, tag.value)"
-							>
-								<XIcon class="size-3.5" />
-							</button>
-						</div>
-						<input
-							ref="inputEl"
-							v-model="query"
-							:placeholder="activePlaceholder"
-							class="min-w-[80px] flex-1 caret-brand !border-0 !bg-transparent p-0 text-base font-semibold text-primary !shadow-none !outline-none focus:!border-0 focus:!ring-0 focus:!shadow-none [font-family:inherit]"
-							@keydown="onKeydown"
-						/>
+							<XIcon class="size-3.5" />
+						</button>
 					</div>
+					<input
+						ref="inputEl"
+						v-model="query"
+						:placeholder="activePlaceholder"
+						class="min-w-[80px] flex-1 caret-brand !border-0 !bg-transparent p-0 text-base font-semibold text-primary !shadow-none !outline-none focus:!border-0 focus:!ring-0 focus:!shadow-none [font-family:inherit]"
+						@keydown="onKeydown"
+					/>
 				</div>
 
-				<ul v-if="suggestions.length" class="m-0 list-none p-4 pt-0">
+				<ul v-if="suggestions.length" class="m-0 p-0 list-none mt-4">
 					<li
 						v-for="(s, i) in suggestions"
 						:key="s.id"
@@ -75,12 +73,8 @@
 					</li>
 				</ul>
 
-				<div v-else-if="!query && !tags.length" class="p-4 pt-0">
-					<p
-						class="px-3 pb-1 pt-0 text-[11px] font-semibold uppercase tracking-widest text-secondary"
-					>
-						Examples
-					</p>
+				<div v-else-if="!query && !tags.length">
+					<p class="ml-1 text-md font-semibold text-primary">Examples</p>
 					<div
 						v-for="(ex, i) in EXAMPLES"
 						:key="ex.label"
@@ -105,9 +99,9 @@
 					</div>
 				</div>
 
-				<div v-else-if="tags.length" class="p-4 pt-0">
+				<div v-else-if="tags.length" class="mt-4">
 					<div
-						class="flex cursor-pointer items-center gap-3 rounded-xl bg-surface-3 px-3 py-2.5 text-[15px] text-primary"
+						class="flex cursor-pointer items-center gap-3 rounded-xl bg-surface-4 px-3 py-2.5 text-[15px] font-semibold text-primary"
 						@click="executeSearch"
 					>
 						<SearchIcon aria-hidden="true" class="size-5 shrink-0 text-secondary" />
