@@ -35,7 +35,7 @@ Adds a live bell icon to the Modrinth header showing your unread notification co
 
 Opens a command palette-style search modal with <kbd>Ctrl+K</kbd> or <kbd>/</kbd>. Supports faceted search with inline tags for loader, category, game version, and project type, with highlighted suggestions and pre-configured examples.
 
-<video src=".github/assets/videos/quicksearch.mp4" controls width="640"></video>
+<img src=".github/assets/quicksearch.gif" width="400">
 
 ### Activity Sparkline
 
