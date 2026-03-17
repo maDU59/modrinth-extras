@@ -402,19 +402,20 @@ const suggestions = computed<Suggestion[]>(() => {
 			}
 		}
 
-		for (const v of versions.value) {
-			if (v.startsWith(q) && !hasTag('version', v)) {
-				results.push({
-					id: `version:${v}`,
-					icon: HashIcon,
-					label: v,
-					facet: 'version',
-					value: v,
-					action: 'add-tag',
-					...matchPos(v, q),
-					...facetMatch('version', q),
-				})
-			}
+		const versionMatches = versions.value
+			.filter((v) => v.startsWith(q) && !hasTag('version', v))
+			.sort((a, b) => a.length - b.length || a.localeCompare(b))
+		for (const v of versionMatches) {
+			results.push({
+				id: `version:${v}`,
+				icon: HashIcon,
+				label: v,
+				facet: 'version',
+				value: v,
+				action: 'add-tag',
+				...matchPos(v, q),
+				...facetMatch('version', q),
+			})
 		}
 
 		results.push({ id: 'search', icon: SearchIcon, label: query.value, action: 'search' })
