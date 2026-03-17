@@ -25,7 +25,7 @@ export default defineContentScript({
 		type VueRouter = {
 			beforeEach: (cb: () => void) => void
 			afterEach: (cb: () => void) => void
-			push: (path: string) => void
+			push: (path: string) => Promise<unknown>
 		}
 
 		function getRouter(): VueRouter | null {
@@ -46,10 +46,19 @@ export default defineContentScript({
 			if (e.data?.type !== 'modrinth-extras:navigate') return
 			const { path, fallbackUrl } = e.data
 			const router = getRouter()
-			if (router) {
-				router.push(path)
-			} else {
+			if (!router) {
 				window.location.href = fallbackUrl
+				return
+			}
+
+			// When the target pathname matches the current one, Vue Router reuses
+			// the keep-alive component and useAsyncData never re-runs. Force a
+			// remount by routing through an intermediate path first.
+			const targetPathname = path.split('?')[0]
+			if (targetPathname === window.location.pathname) {
+				router.push('/').then(() => router.push(path))
+			} else {
+				router.push(path)
 			}
 		})
 
