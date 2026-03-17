@@ -2,13 +2,7 @@
 	<Transition name="quick-search-overlay">
 		<div
 			v-if="open"
-			class="fixed z-[99999] flex items-start justify-center pt-[28vh]"
-			style="
-				inset: -5rem;
-				border-radius: 180px;
-				background: linear-gradient(180deg, #1d302b85 0%, #0e151af2 100%);
-				backdrop-filter: blur(5px);
-			"
+			class="fixed z-[99999] flex items-start justify-center pt-[28vh] inset-[-5rem] rounded-[180px] bg-[linear-gradient(180deg,#1d302b85_0%,#0e151af2_100%)] backdrop-blur-[5px]"
 			@mousedown.self="close"
 		>
 			<div

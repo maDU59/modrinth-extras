@@ -8,7 +8,7 @@
 			@dblclick="handleViewAllNotifications"
 		>
 			<div class="relative flex h-5 flex-shrink-0 items-center justify-center">
-				<BellIcon aria-hidden="true" class="h-5 w-5" style="transform: none" />
+				<BellIcon aria-hidden="true" class="h-5 w-5 transform-none" />
 				<div
 					v-if="unreadCount > 0"
 					class="absolute -top-2 left-3 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-bold text-brand-inverted"
@@ -138,17 +138,17 @@
 										<template #secondary>
 											<ScaleIcon
 												v-if="notif.type === 'moderator_message' || notif.type === 'status_change'"
-												class="moderation-color"
+												class="text-[var(--color-orange)]"
 											/>
 											<UserPlusIcon
 												v-else-if="notif.type === 'team_invite' && notif.extra_data?.project"
-												class="creator-color"
+												class="text-[var(--color-blue)]"
 											/>
 											<UserPlusIcon
 												v-else-if="
 													notif.type === 'organization_invite' && notif.extra_data?.organization
 												"
-												class="creator-color"
+												class="text-[var(--color-blue)]"
 											/>
 											<VersionIcon
 												v-else-if="
@@ -479,14 +479,6 @@ async function handleNotificationClick(notif: PlatformNotification) {
 </script>
 
 <style scoped>
-.moderation-color {
-	color: var(--color-orange);
-}
-
-.creator-color {
-	color: var(--color-blue);
-}
-
 :deep(.page-number-container > div) {
 	color: var(--color-secondary);
 }

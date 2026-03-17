@@ -2,7 +2,7 @@
 	<div
 		ref="wrapperEl"
 		aria-hidden="true"
-		style="position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: -1"
+		class="absolute inset-0 overflow-hidden pointer-events-none z-[-1]"
 	>
 		<svg
 			v-if="loaded && svgWidth > 0 && svgHeight > 0"

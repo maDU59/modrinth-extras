@@ -27,8 +27,7 @@
 					<LoaderCircleIcon v-if="downloadLoading" class="animate-spin shrink-0 text-secondary" />
 					<button
 						v-else-if="downloadUrl"
-						class="min-w-0 flex-1 cursor-pointer truncate border-0 bg-transparent p-0 text-left text-primary hover:underline"
-						style="font: inherit"
+						class="min-w-0 flex-1 cursor-pointer truncate border-0 bg-transparent p-0 text-left text-primary hover:underline font:inherit"
 						:aria-label="downloadCopied ? 'Copied!' : 'Copy download URL'"
 						@click="copyDownloadUrl"
 					>
@@ -43,8 +42,7 @@
 				<div class="details-list__item">
 					<BoxIcon aria-hidden="true" class="shrink-0" />
 					<button
-						class="min-w-0 flex-1 cursor-pointer truncate border-0 bg-transparent p-0 text-left text-primary hover:underline"
-						style="font: inherit"
+						class="min-w-0 flex-1 cursor-pointer truncate border-0 bg-transparent p-0 text-left text-primary hover:underline [font:inherit]"
 						:aria-label="packwizCopied ? 'Copied!' : 'Copy packwiz command'"
 						@click="copyPackwiz"
 					>
@@ -120,10 +118,10 @@ onMounted(async () => {
 	if (!projectSlug.value) return
 	downloadLoading.value = true
 	try {
-		const versions = await useBaseFetch(`project/${projectSlug.value}/version?limit=1`)
-		const primaryFile =
-			versions?.[0]?.files?.find((f: { primary?: boolean; url?: string }) => f.primary) ??
-			versions?.[0]?.files?.[0]
+		const versions = (await useBaseFetch(`project/${projectSlug.value}/version?limit=1`)) as {
+			files?: { primary?: boolean; url?: string }[]
+		}[]
+		const primaryFile = versions?.[0]?.files?.find((f) => f.primary) ?? versions?.[0]?.files?.[0]
 		downloadUrl.value = primaryFile?.url ?? null
 	} catch (err) {
 		console.error('[Modrinth Extras] Failed to fetch download URL:', err)
