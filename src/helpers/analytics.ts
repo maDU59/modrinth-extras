@@ -6,6 +6,7 @@ const POSTHOG_HOST = 'https://hedgehog.creeperkatze.de'
 
 let posthog: PostHog | null = null
 let enabled = true
+const queue: Array<{ event: string; properties?: Record<string, unknown> }> = []
 
 export function setAnalyticsEnabled(value: boolean): void {
 	enabled = value
@@ -35,7 +36,14 @@ async function initAnalytics(persistence: 'localStorage' | 'memory'): Promise<vo
 		bootstrap: { distinctID: distinctId },
 		disable_external_dependency_loading: true,
 		persistence,
+		autocapture: false,
+		capture_pageview: false,
+		capture_pageleave: false,
+		disable_session_recording: true,
 	})
+	for (const { event, properties } of queue.splice(0)) {
+		posthog.capture(event, properties)
+	}
 }
 
 export async function initPopupAnalytics(): Promise<void> {
@@ -48,5 +56,9 @@ export async function initBackgroundAnalytics(): Promise<void> {
 
 export function capture(event: string, properties?: Record<string, unknown>): void {
 	if (!enabled) return
-	posthog?.capture(event, properties)
+	if (posthog) {
+		posthog.capture(event, properties)
+	} else {
+		queue.push({ event, properties })
+	}
 }

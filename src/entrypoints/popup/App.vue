@@ -90,7 +90,7 @@
 				href="https://github.com/creeperkatze/modrinth-extras/releases/latest"
 				target="_blank"
 				rel="noopener"
-				class="flex items-center gap-1 text-xs text-brand no-underline"
+				class="flex items-center gap-1 text-xs text-brand no-underline transition-colors hover:text-green-400"
 			>
 				<CheckCircleIcon class="size-4" aria-hidden="true" />
 				Latest version
@@ -100,7 +100,7 @@
 				href="https://github.com/creeperkatze/modrinth-extras/releases/latest"
 				target="_blank"
 				rel="noopener"
-				class="flex items-center gap-1 text-xs text-yellow-500 no-underline"
+				class="flex items-center gap-1 text-xs text-yellow-500 no-underline transition-colors hover:text-yellow-300"
 			>
 				<ClockIcon class="size-4" aria-hidden="true" />
 				Update available
