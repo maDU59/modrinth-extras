@@ -8,7 +8,7 @@ export interface ExtensionSettings {
 	showGitHubSidebar: boolean
 	showDiscordSidebar: boolean
 	showQuickSearch: boolean
-	analyticsEnabled: boolean
+	telemetryEnabled: boolean
 }
 
 export const DEFAULTS: ExtensionSettings = {
@@ -21,7 +21,7 @@ export const DEFAULTS: ExtensionSettings = {
 	showGitHubSidebar: true,
 	showDiscordSidebar: true,
 	showQuickSearch: true,
-	analyticsEnabled: true,
+	telemetryEnabled: true,
 }
 
 import { browser } from 'wxt/browser'

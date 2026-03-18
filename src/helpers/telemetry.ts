@@ -8,7 +8,7 @@ let posthog: PostHog | null = null
 let enabled = true
 const queue: Array<{ event: string; properties?: Record<string, unknown> }> = []
 
-export function setAnalyticsEnabled(value: boolean): void {
+export function setTelemetryEnabled(value: boolean): void {
 	enabled = value
 	if (!value) posthog?.opt_out_capturing()
 }
@@ -23,9 +23,9 @@ async function getSharedDistinctId(): Promise<string> {
 	return distinctId
 }
 
-async function initAnalytics(persistence: 'localStorage' | 'memory'): Promise<void> {
-	const stored = await browser.storage.local.get(['analyticsEnabled'])
-	if (stored.analyticsEnabled === false) {
+async function initTelemetry(persistence: 'localStorage' | 'memory'): Promise<void> {
+	const stored = await browser.storage.local.get(['telemetryEnabled'])
+	if (stored.telemetryEnabled === false) {
 		enabled = false
 		return
 	}
@@ -52,12 +52,12 @@ async function initAnalytics(persistence: 'localStorage' | 'memory'): Promise<vo
 	}
 }
 
-export async function initPopupAnalytics(): Promise<void> {
-	await initAnalytics('localStorage')
+export async function initPopupTelemetry(): Promise<void> {
+	await initTelemetry('localStorage')
 }
 
-export async function initBackgroundAnalytics(): Promise<void> {
-	await initAnalytics('memory')
+export async function initBackgroundTelemetry(): Promise<void> {
+	await initTelemetry('memory')
 }
 
 export function capture(event: string, properties?: Record<string, unknown>): void {

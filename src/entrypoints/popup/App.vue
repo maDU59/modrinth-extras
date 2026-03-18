@@ -148,8 +148,8 @@ import { ButtonStyled, HorizontalRule } from '@modrinth/ui'
 import { type Component, onMounted, reactive, ref } from 'vue'
 import { browser } from 'wxt/browser'
 
-import { capture, initPopupAnalytics, setAnalyticsEnabled } from '../../helpers/analytics'
 import { DEFAULTS, loadSettings } from '../../helpers/settings'
+import { capture, initPopupTelemetry, setTelemetryEnabled } from '../../helpers/telemetry'
 import FeatureGroup from './FeatureGroup.vue'
 import FeatureRow from './FeatureRow.vue'
 
@@ -236,7 +236,7 @@ const EXTENSION_FEATURES: FeatureDef[] = [
 
 const PRIVACY_FEATURES: FeatureDef[] = [
 	{
-		key: 'analyticsEnabled',
+		key: 'telemetryEnabled',
 		icon: ChartIcon,
 		title: 'Telemetry',
 		description:
@@ -247,8 +247,7 @@ const PRIVACY_FEATURES: FeatureDef[] = [
 function updateSetting(key: string, value: boolean) {
 	;(settings as Record<string, boolean>)[key] = value
 	browser.storage.local.set({ [key]: value })
-	if (key === 'analyticsEnabled') setAnalyticsEnabled(value)
-	capture('setting_changed', { setting: key, value })
+	if (key === 'telemetryEnabled') setTelemetryEnabled(value)
 }
 
 const version = browser.runtime.getManifest().version
@@ -262,7 +261,7 @@ const settings = reactive({ ...DEFAULTS })
 onMounted(async () => {
 	const loaded = await loadSettings()
 	Object.assign(settings, loaded)
-	await initPopupAnalytics()
+	await initPopupTelemetry()
 	capture('popup_opened', { version, ...settings })
 
 	try {
