@@ -18,7 +18,7 @@ export async function showCachedBadge() {
 	const unread = groupNotifications(
 		(notifications as PlatformNotification[]).filter((n) => !n.read),
 	).length
-	console.log(`[Modrinth Extras] Restored cached badge: ${unread} unread`)
+	console.log(`[Modrinth Extras] Badge: Restored cached: ${unread} unread`)
 	await setBadge(unread)
 }
 
@@ -29,7 +29,9 @@ export async function applyNotifications(
 ) {
 	const { showBadge = true } = await browser.storage.local.get('showBadge')
 	const unread = groupNotifications(newNotifs.filter((n) => !n.read)).length
-	console.log(`[Modrinth Extras] Applying ${newNotifs.length} notifications: ${unread} unread`)
+	console.log(
+		`[Modrinth Extras] Badge: Applying ${newNotifs.length} notifications: ${unread} unread`,
+	)
 	if (showBadge) {
 		await setBadge(unread)
 	}
@@ -65,11 +67,7 @@ export async function updateBadge() {
 		}
 
 		const user = (await usePopupFetch('user')) as { id?: string } | null
-		if (!user?.id) {
-			console.log('[Modrinth Extras] Badge: Could not fetch user, clearing badge')
-			browser.action?.setBadgeText({ text: '' })
-			return
-		}
+		if (!user?.id) throw new Error('Failed to fetch user')
 
 		const notifs = await usePopupFetch(`user/${user.id}/notifications`)
 		if (Array.isArray(notifs)) {
