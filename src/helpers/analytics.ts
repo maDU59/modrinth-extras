@@ -1,0 +1,52 @@
+import { PostHog } from 'posthog-js'
+import { browser } from 'wxt/browser'
+
+const POSTHOG_TOKEN = 'phc_oWL7DUqxG3kmN20nWBkie7Eu7i3GJMdvGnvKRWBI7hi'
+const POSTHOG_HOST = 'https://hedgehog.creeperkatze.de'
+
+let posthog: PostHog | null = null
+let enabled = true
+
+export function setAnalyticsEnabled(value: boolean): void {
+	enabled = value
+	if (!value) posthog?.opt_out_capturing()
+}
+
+async function getSharedDistinctId(): Promise<string> {
+	const stored = await browser.storage.local.get(['posthog_distinct_id'])
+	if (stored.posthog_distinct_id) {
+		return stored.posthog_distinct_id as string
+	}
+	const distinctId = crypto.randomUUID()
+	await browser.storage.local.set({ posthog_distinct_id: distinctId })
+	return distinctId
+}
+
+async function initAnalytics(persistence: 'localStorage' | 'memory'): Promise<void> {
+	const stored = await browser.storage.local.get(['analyticsEnabled'])
+	if (stored.analyticsEnabled === false) {
+		enabled = false
+		return
+	}
+	const distinctId = await getSharedDistinctId()
+	posthog = new PostHog()
+	posthog.init(POSTHOG_TOKEN, {
+		api_host: POSTHOG_HOST,
+		bootstrap: { distinctID: distinctId },
+		disable_external_dependency_loading: true,
+		persistence,
+	})
+}
+
+export async function initPopupAnalytics(): Promise<void> {
+	await initAnalytics('localStorage')
+}
+
+export async function initBackgroundAnalytics(): Promise<void> {
+	await initAnalytics('memory')
+}
+
+export function capture(event: string, properties?: Record<string, unknown>): void {
+	if (!enabled) return
+	posthog?.capture(event, properties)
+}

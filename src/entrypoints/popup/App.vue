@@ -19,7 +19,7 @@
 
 		<HorizontalRule class="shrink-0" />
 
-		<div class="min-h-0 flex-1 overflow-y-auto">
+		<div v-if="view === 'main'" class="min-h-0 flex-1 overflow-y-auto">
 			<FeatureGroup label="General">
 				<FeatureRow
 					v-for="f in GENERAL_FEATURES"
@@ -63,9 +63,23 @@
 			</FeatureGroup>
 		</div>
 
+		<div v-else class="min-h-0 flex-1 overflow-y-auto">
+			<FeatureGroup label="Privacy">
+				<FeatureRow
+					v-for="f in PRIVACY_FEATURES"
+					:key="f.key"
+					:icon="f.icon"
+					:title="f.title"
+					:description="f.description"
+					:model-value="(settings as Record<string, boolean>)[f.key]"
+					@update:model-value="updateSetting(f.key, $event)"
+				/>
+			</FeatureGroup>
+		</div>
+
 		<HorizontalRule class="shrink-0" />
 
-		<div class="flex shrink-0 items-center gap-1 px-4 py-2.5">
+		<div class="flex shrink-0 items-center gap-2 px-3 py-1.5">
 			<span class="text-xs text-secondary">v{{ version }}</span>
 			<span v-if="checking" class="flex items-center gap-1 text-xs text-secondary">
 				<LoaderCircleIcon class="size-4 animate-spin" aria-hidden="true" />
@@ -95,10 +109,18 @@
 				href="https://github.com/creeperkatze/modrinth-extras"
 				target="_blank"
 				rel="noopener"
-				class="ml-auto flex items-center gap-1 text-xs text-yellow-500 no-underline"
+				class="ml-auto flex items-center gap-1 text-xs text-yellow-500 no-underline transition-colors hover:text-yellow-300"
 			>
 				★ On GitHub
 			</a>
+			<button
+				type="button"
+				:aria-label="view === 'main' ? 'Settings' : 'Back'"
+				class="cursor-pointer border-0 bg-transparent p-0 text-secondary transition-colors hover:text-contrast"
+				@click="view = view === 'main' ? 'settings' : 'main'"
+			>
+				<component :is="view === 'main' ? SettingsIcon : XIcon" class="size-4" aria-hidden="true" />
+			</button>
 		</div>
 	</div>
 </template>
@@ -118,12 +140,15 @@ import {
 	MonitorIcon,
 	PlayIcon,
 	SearchIcon,
+	SettingsIcon,
 	WrenchIcon,
+	XIcon,
 } from '@modrinth/assets'
 import { ButtonStyled, HorizontalRule } from '@modrinth/ui'
 import { type Component, onMounted, reactive, ref } from 'vue'
 import { browser } from 'wxt/browser'
 
+import { capture, initPopupAnalytics, setAnalyticsEnabled } from '../../helpers/analytics'
 import { DEFAULTS, loadSettings } from '../../helpers/settings'
 import FeatureGroup from './FeatureGroup.vue'
 import FeatureRow from './FeatureRow.vue'
@@ -190,7 +215,7 @@ const EXTENSION_FEATURES: FeatureDef[] = [
 		key: 'showBadge',
 		icon: BellRingIcon,
 		title: 'Notification badge',
-		description: 'Unread count badge on the extension icon',
+		description: 'Unread notification count as a badge on the extension icon',
 	},
 	{
 		key: 'desktopNotifications',
@@ -209,9 +234,21 @@ const EXTENSION_FEATURES: FeatureDef[] = [
 	},
 ]
 
+const PRIVACY_FEATURES: FeatureDef[] = [
+	{
+		key: 'analyticsEnabled',
+		icon: ChartIcon,
+		title: 'Analytics',
+		description:
+			'Help improve the extension by anonymously sharing statistics like the extension version and which features are enabled. No Modrinth data, activity, or personal information is ever collected.',
+	},
+]
+
 function updateSetting(key: string, value: boolean) {
 	;(settings as Record<string, boolean>)[key] = value
 	browser.storage.local.set({ [key]: value })
+	if (key === 'analyticsEnabled') setAnalyticsEnabled(value)
+	capture('setting_changed', { setting: key, value })
 }
 
 const version = browser.runtime.getManifest().version
@@ -219,10 +256,14 @@ const latestVersion = ref<string | null>(null)
 const isLatest = ref(false)
 const checking = ref(true)
 
+const view = ref<'main' | 'settings'>('main')
 const settings = reactive({ ...DEFAULTS })
 
 onMounted(async () => {
-	Object.assign(settings, await loadSettings())
+	const loaded = await loadSettings()
+	Object.assign(settings, loaded)
+	await initPopupAnalytics()
+	capture('popup_opened', { version, ...settings })
 
 	try {
 		const res = await fetch(

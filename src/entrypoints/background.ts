@@ -2,12 +2,14 @@ import { browser } from 'wxt/browser'
 
 import { applyNotifications, showCachedBadge, updateBadge } from '../background/badge'
 import { handleNotificationClick } from '../background/desktop-notifications'
+import { capture, initBackgroundAnalytics } from '../helpers/analytics'
 import type { PlatformNotification } from '../helpers/platform-notifications'
 
 const ALARM_NAME = 'modrinth-extras-poll'
 const POLL_INTERVAL_MINUTES = 5
 
 export default defineBackground(() => {
+	void initBackgroundAnalytics()
 	browser.storage.onChanged.addListener((changes, area) => {
 		if (area !== 'local' || !('showBadge' in changes)) return
 		if (changes.showBadge.newValue === false) {
@@ -48,6 +50,17 @@ export default defineBackground(() => {
 					Array.isArray(prevNotifs) ? (prevNotifs as PlatformNotification[]) : null,
 				)
 			})()
+		}
+	})
+
+	browser.runtime.onInstalled.addListener((details) => {
+		if (details.reason === 'install') {
+			capture('extension_installed')
+		} else if (details.reason === 'update') {
+			capture('extension_updated', {
+				from: details.previousVersion,
+				to: browser.runtime.getManifest().version,
+			})
 		}
 	})
 
