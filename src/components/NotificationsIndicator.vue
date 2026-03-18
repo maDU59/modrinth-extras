@@ -241,7 +241,7 @@ import {
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { browser } from 'wxt/browser'
 
-import { apiFetch } from '../helpers/apiFetch'
+import { apiFetch, invalidateTokenCache } from '../helpers/apiFetch'
 import { navigate, resolveLink } from '../helpers/page-router'
 import {
 	fetchExtraNotificationData,
@@ -379,9 +379,11 @@ onMounted(() => {
 	authWatchInterval = setInterval(async () => {
 		const cookie = hasAuthCookie()
 		if (userId.value && !cookie) {
+			invalidateTokenCache()
 			userId.value = false
 			notificationsData.value = null
 		} else if (!userId.value && cookie) {
+			invalidateTokenCache()
 			await tryAuth()
 		}
 	}, 1_000)

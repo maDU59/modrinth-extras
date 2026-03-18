@@ -3,7 +3,22 @@ import { browser } from 'wxt/browser'
 const API_BASE = 'https://api.modrinth.com'
 const USER_AGENT = `creeperkatze/modrinth-extras/${browser.runtime.getManifest().version} (contact@creeperkatze.de)`
 
-export async function getAuthToken(): Promise<string> {
+// Reads document.cookie synchronously
+let cachedToken: string | null = null
+
+function getContentScriptToken(): string {
+	if (cachedToken !== null) return cachedToken
+	const cookie = document.cookie.split('; ').find((row) => row.startsWith('auth-token='))
+	cachedToken = cookie ? decodeURIComponent(cookie.split('=').slice(1).join('=')) : ''
+	return cachedToken
+}
+
+export function invalidateTokenCache() {
+	cachedToken = null
+}
+
+// Uses the cookies API since document is unavailable in service workers
+export async function getBackgroundAuthToken(): Promise<string> {
 	try {
 		const cookie = await browser.cookies.get({ url: 'https://modrinth.com', name: 'auth-token' })
 		return cookie?.value ? decodeURIComponent(cookie.value) : ''
@@ -14,10 +29,13 @@ export async function getAuthToken(): Promise<string> {
 
 export async function apiFetch(
 	url: string,
-	options: RequestInit & { apiVersion?: number } = {},
+	options: RequestInit & { apiVersion?: number; token?: string } = {},
 ): Promise<unknown> {
-	const { apiVersion = 2, ...fetchOptions } = options as RequestInit & { apiVersion?: number }
-	const token = await getAuthToken()
+	const {
+		apiVersion = 2,
+		token = getContentScriptToken(),
+		...fetchOptions
+	} = options as RequestInit & { apiVersion?: number; token?: string }
 
 	const res = await fetch(`${API_BASE}/v${apiVersion}/${url}`, {
 		...fetchOptions,

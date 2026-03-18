@@ -1,6 +1,6 @@
 import { browser } from 'wxt/browser'
 
-import { apiFetch, getAuthToken } from '../helpers/apiFetch'
+import { apiFetch, getBackgroundAuthToken } from '../helpers/apiFetch'
 import { groupNotifications, type PlatformNotification } from '../helpers/platform-notifications'
 import { sendDesktopNotifications } from './desktop-notifications'
 
@@ -54,7 +54,7 @@ export async function updateBadge() {
 			return
 		}
 
-		const token = await getAuthToken()
+		const token = await getBackgroundAuthToken()
 		if (!token) {
 			console.log('[Modrinth Extras] Badge: No auth token, clearing badge')
 			browser.action?.setBadgeText({ text: '' })
@@ -66,10 +66,10 @@ export async function updateBadge() {
 			return
 		}
 
-		const user = (await apiFetch('user')) as { id?: string } | null
+		const user = (await apiFetch('user', { token })) as { id?: string } | null
 		if (!user?.id) throw new Error('Failed to fetch user')
 
-		const notifs = await apiFetch(`user/${user.id}/notifications`)
+		const notifs = await apiFetch(`user/${user.id}/notifications`, { token })
 		if (Array.isArray(notifs)) {
 			await applyNotifications(
 				notifs as PlatformNotification[],
