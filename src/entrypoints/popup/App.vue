@@ -221,7 +221,7 @@ const EXTENSION_FEATURES: FeatureDef[] = [
 		key: 'desktopNotifications',
 		icon: MonitorIcon,
 		title: 'Desktop notifications',
-		description: 'OS notification for each new unread notification',
+		description: 'Operating system notifications for notifications from Modrinth',
 		actionIcon: PlayIcon,
 		onAction: () => {
 			browser.notifications.create({
