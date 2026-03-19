@@ -8,6 +8,7 @@ export interface ExtensionSettings {
 	showGitHubSidebar: boolean
 	showDiscordSidebar: boolean
 	showQuickSearch: boolean
+	curseforgeRedirect: boolean
 	telemetryEnabled: boolean
 }
 
@@ -21,6 +22,7 @@ export const DEFAULTS: ExtensionSettings = {
 	showGitHubSidebar: true,
 	showDiscordSidebar: true,
 	showQuickSearch: true,
+	curseforgeRedirect: false,
 	telemetryEnabled: true,
 }
 

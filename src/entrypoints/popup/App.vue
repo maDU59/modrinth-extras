@@ -134,6 +134,7 @@ import {
 	ChartIcon,
 	CheckCircleIcon,
 	ClockIcon,
+	CurseForgeIcon,
 	DiscordIcon,
 	GithubIcon,
 	LoaderCircleIcon,
@@ -231,6 +232,12 @@ const EXTENSION_FEATURES: FeatureDef[] = [
 				message: 'This is an examples notification from Modrinth Extras!',
 			})
 		},
+	},
+	{
+		key: 'curseforgeRedirect',
+		icon: CurseForgeIcon,
+		title: 'CurseForge redirect',
+		description: 'Redirect CurseForge project pages to Modrinth when a match is found',
 	},
 ]
 
