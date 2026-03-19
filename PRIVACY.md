@@ -4,7 +4,7 @@ Modrinth Extras shares anonymous statistics to help improve the extension. This 
 
 ## What is collected
 
-- When the extension is installed or updated (version numbers)
+- When the extension starts, is installed, or is updated (extension version numbers only)
 - Which features are enabled or disabled
 
 ## What is not collected
