@@ -19,7 +19,7 @@
 
 		<HorizontalRule class="shrink-0" />
 
-		<div v-if="view === 'main'" class="min-h-0 flex-1 overflow-y-auto">
+		<div class="min-h-0 flex-1 overflow-y-auto">
 			<FeatureGroup label="General">
 				<FeatureRow
 					v-for="f in GENERAL_FEATURES"
@@ -63,20 +63,6 @@
 			</FeatureGroup>
 		</div>
 
-		<div v-else class="min-h-0 flex-1 overflow-y-auto">
-			<FeatureGroup label="Privacy">
-				<FeatureRow
-					v-for="f in PRIVACY_FEATURES"
-					:key="f.key"
-					:icon="f.icon"
-					:title="f.title"
-					:description="f.description"
-					:model-value="(settings as Record<string, boolean>)[f.key]"
-					@update:model-value="updateSetting(f.key, $event)"
-				/>
-			</FeatureGroup>
-		</div>
-
 		<HorizontalRule class="shrink-0" />
 
 		<div class="flex shrink-0 items-center gap-2 px-3 py-1.5">
@@ -113,14 +99,6 @@
 			>
 				★ On GitHub
 			</a>
-			<button
-				type="button"
-				:aria-label="view === 'main' ? 'Settings' : 'Back'"
-				class="cursor-pointer border-0 bg-transparent p-0 text-secondary transition-colors hover:text-contrast"
-				@click="view = view === 'main' ? 'settings' : 'main'"
-			>
-				<component :is="view === 'main' ? SettingsIcon : XIcon" class="size-4" aria-hidden="true" />
-			</button>
 		</div>
 	</div>
 </template>
@@ -141,9 +119,7 @@ import {
 	MonitorIcon,
 	PlayIcon,
 	SearchIcon,
-	SettingsIcon,
 	WrenchIcon,
-	XIcon,
 } from '@modrinth/assets'
 import { ButtonStyled, HorizontalRule } from '@modrinth/ui'
 import { type Component, onMounted, reactive, ref } from 'vue'
@@ -239,9 +215,6 @@ const EXTENSION_FEATURES: FeatureDef[] = [
 		title: 'CurseForge redirect',
 		description: 'Redirect CurseForge project pages to Modrinth when a match is found',
 	},
-]
-
-const PRIVACY_FEATURES: FeatureDef[] = [
 	{
 		key: 'telemetryEnabled',
 		icon: ChartIcon,
@@ -262,7 +235,6 @@ const latestVersion = ref<string | null>(null)
 const isLatest = ref(false)
 const checking = ref(true)
 
-const view = ref<'main' | 'settings'>('main')
 const settings = reactive({ ...DEFAULTS })
 
 onMounted(async () => {
