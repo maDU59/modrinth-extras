@@ -244,15 +244,27 @@ onMounted(async () => {
 	capture('popup_opened', { version, ...settings })
 
 	try {
-		const res = await fetch(
-			'https://api.github.com/repos/creeperkatze/modrinth-extras/releases/latest',
-		)
-		if (res.ok) {
+		const CACHE_KEY = 'updateCheckCache'
+		const CACHE_TTL = 60 * 60 * 1000 // 1 hour
+
+		const cached = await browser.storage.local.get(CACHE_KEY)
+		const entry = cached[CACHE_KEY] as { tag: string; ts: number } | undefined
+		let tag: string
+
+		if (entry && Date.now() - entry.ts < CACHE_TTL) {
+			tag = entry.tag
+		} else {
+			const res = await fetch(
+				'https://api.github.com/repos/creeperkatze/modrinth-extras/releases/latest',
+			)
+			if (!res.ok) throw new Error(`HTTP ${res.status}`)
 			const data = await res.json()
-			const tag: string = data.tag_name?.replace(/^v/, '') ?? ''
-			if (tag && tag !== version) latestVersion.value = tag
-			else if (tag) isLatest.value = true
+			tag = data.tag_name?.replace(/^v/, '') ?? ''
+			await browser.storage.local.set({ [CACHE_KEY]: { tag, ts: Date.now() } })
 		}
+
+		if (tag && tag !== version) latestVersion.value = tag
+		else if (tag) isLatest.value = true
 	} catch (err) {
 		console.error('[Modrinth Extras] Update check failed:', err)
 	} finally {
