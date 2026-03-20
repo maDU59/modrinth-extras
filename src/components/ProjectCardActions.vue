@@ -20,7 +20,12 @@
 		<button v-if="!isLoggedIn" v-tooltip="'Save'" @click.stop="navigate('/auth/sign-in')">
 			<BookmarkIcon fill="none" aria-hidden="true" />
 		</button>
-		<PopoutMenu v-else :tooltip="isSaved ? 'Saved' : 'Save'" placement="bottom-end">
+		<PopoutMenu
+			v-else
+			:tooltip="isSaved ? 'Saved' : 'Save'"
+			placement="bottom-end"
+			@click.stop="ensureProjectId"
+		>
 			<BookmarkIcon :fill="isSaved ? 'currentColor' : 'none'" aria-hidden="true" />
 			<template #menu>
 				<template v-if="collections === null">
@@ -115,12 +120,15 @@ const filteredCollections = computed(() => {
 	return sorted.filter((c) => c.name.toLowerCase().includes(q))
 })
 
-onMounted(async () => {
-	projectId.value = await getProjectId(props.projectSlug)
+onMounted(() => {
 	if (isLoggedIn) initCollections()
 })
 
-// --- Handlers ---
+async function ensureProjectId() {
+	if (projectId.value) return
+	projectId.value = await getProjectId(props.projectSlug)
+}
+
 async function handleDownload() {
 	if (downloadLoading.value) return
 	downloadLoading.value = true
