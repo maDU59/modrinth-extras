@@ -1,10 +1,10 @@
 <template>
 	<div
+		v-tooltip="disabled ? disabledTooltip : undefined"
 		:class="[
 			'flex items-center gap-3 rounded-xl px-2 py-2',
 			disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:bg-surface-3',
 		]"
-		:title="disabled ? disabledTooltip : undefined"
 		@click="!disabled && $emit('update:modelValue', !modelValue)"
 	>
 		<component :is="icon" aria-hidden="true" class="!size-6 shrink-0 text-secondary" />

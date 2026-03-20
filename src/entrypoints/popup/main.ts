@@ -1,7 +1,9 @@
 import '../../assets/popup.scss'
 import '../../assets/tailwind.css'
+import 'floating-vue/dist/style.css'
 
 import { provideI18n } from '@modrinth/ui'
+import FloatingVue from 'floating-vue'
 import { createApp, h, ref } from 'vue'
 
 import App from './App.vue'
@@ -23,4 +25,5 @@ const app = createApp({
 	render: () => h(App),
 })
 
+app.use(FloatingVue)
 app.mount('#app')
