@@ -57,13 +57,18 @@ export async function toggleProjectInCollection(
 		? collection.projects.filter((id) => id !== projectId)
 		: [...collection.projects, projectId]
 
-	// Optimistic update
+	const original = collection.projects
 	collection.projects = newProjects
 
-	await apiFetch(`collection/${collection.id}`, {
-		method: 'PATCH',
-		apiVersion: 3,
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ new_projects: newProjects }),
-	})
+	try {
+		await apiFetch(`collection/${collection.id}`, {
+			method: 'PATCH',
+			apiVersion: 3,
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ new_projects: newProjects }),
+		})
+	} catch (err) {
+		collection.projects = original
+		throw err
+	}
 }
