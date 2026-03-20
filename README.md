@@ -38,6 +38,15 @@ Adds a live bell icon to the Modrinth header showing your unread notification co
 
 <img src=".github/assets/screenshots/notifications.png" width="100%">
 
+### Project card actions
+
+Adds action buttons to project cards on discover pages:
+
+- **Download:** downloads the latest primary file directly.
+- **Follow / Unfollow:** follow or unfollow the project.
+- **Bookmark:** save or remove the project from your personal bookmarks.
+- **Copy link:** copy the project's link to your clipboard.
+
 ### Quick search
 
 Opens a command palette-style search modal with <kbd>Ctrl+K</kbd> or <kbd>/</kbd>. Supports faceted search with inline tags for loader, category, game version, and project type, with highlighted suggestions and pre-configured examples.
