@@ -13,7 +13,7 @@
 				<XIcon aria-hidden="true" />
 				No dependencies
 			</div>
-			<ul v-else class="m-0 flex list-none flex-col gap-3 p-0">
+			<ul v-else class="m-0 flex list-none flex-col gap-3 p-0 max-h-96 overflow-y-auto pr-2">
 				<DependencyNode
 					v-for="dep in roots"
 					:key="dep.project_id ?? dep.version_id"
