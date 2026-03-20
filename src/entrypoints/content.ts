@@ -11,8 +11,10 @@ import DiscordSidebar from '../components/DiscordSidebar.vue'
 import FooterBadge from '../components/FooterBadge.vue'
 import GitHubSidebar from '../components/GitHubSidebar.vue'
 import NotificationsIndicator from '../components/NotificationsIndicator.vue'
+import ProjectCardActions from '../components/ProjectCardActions.vue'
 import QuickSearch from '../components/QuickSearch.vue'
 import ToolsSidebar from '../components/ToolsSidebar.vue'
+import { initFollowState } from '../helpers/followState'
 import { navigate } from '../helpers/page-router'
 import { DEFAULTS, type ExtensionSettings, loadSettings } from '../helpers/settings'
 
@@ -85,6 +87,130 @@ function createInjection(config: InjectionConfig) {
 	}
 
 	return { unmount, schedule, checkDetached, config }
+}
+
+const PROJECT_TYPE_PATTERN = /^\/(mod|plugin|datapack|shader|resourcepack|modpack|map)\/([^/?#]+)/
+
+function createCardActionsInjection(getEnabled: () => boolean) {
+	const injected = new Map<Element, { container: HTMLElement; app: App }>()
+
+	function injectIntoCard(card: HTMLElement): void {
+		if (injected.has(card)) return
+
+		// The <a> link is a sibling of .project-card-container inside the .smart-clickable wrapper,
+		// not a descendant of .project-card-container itself.
+		const link = card.parentElement?.querySelector<HTMLAnchorElement>('a[href]')
+		const href = link?.getAttribute('href') ?? ''
+		const match = href.match(PROJECT_TYPE_PATTERN)
+		if (!match) return
+
+		const [, projectType, projectSlug] = match
+
+		// List layout: card content div has grid-project-card-list class.
+		// The actions div is v-if'd out (slot was empty), so we create it manually.
+		// grid-area must be set inline since scoped CSS won't apply to our injected element.
+		const listCardDiv = card.querySelector<HTMLElement>('.grid-project-card-list')
+		if (listCardDiv) {
+			listCardDiv.classList.add('has-actions')
+			const el = document.createElement('div')
+			el.style.cssText =
+				'grid-area:actions;display:flex;gap:0.25rem;flex-shrink:0;margin-left:auto;align-items:center;pointer-events:auto'
+			listCardDiv.appendChild(el)
+			mountCardApp(card, el, projectSlug, projectType)
+			return
+		}
+
+		// Grid layout: find the empty:hidden actions slot div — exclude the stats div
+		// which also carries empty:hidden but has a grid-project-card-list__ class.
+		let actionsDiv: HTMLElement | null = null
+		for (const el of card.querySelectorAll<HTMLElement>('[class*="empty:hidden"]')) {
+			if (!el.className.includes('grid-project-card-list__')) {
+				actionsDiv = el
+				break
+			}
+		}
+		if (!actionsDiv) return
+
+		const el = document.createElement('div')
+		el.style.cssText = 'display:contents;pointer-events:auto'
+		actionsDiv.appendChild(el)
+		mountCardApp(card, el, projectSlug, projectType)
+	}
+
+	function mountCardApp(
+		card: Element,
+		el: HTMLElement,
+		projectSlug: string,
+		projectType: string,
+	): void {
+		const app = createApp({
+			setup() {
+				provideI18n({ locale: ref('en-US'), t: (key: string) => key, setLocale: () => {} })
+			},
+			render: () => h(ProjectCardActions, { projectSlug, projectType }),
+		})
+		app.use(FloatingVue)
+		try {
+			app.mount(el)
+			injected.set(card, { container: el, app })
+		} catch {
+			app.unmount()
+			el.parentElement?.removeChild(el)
+		}
+	}
+
+	function unmount(): void {
+		for (const { container, app } of injected.values()) {
+			app.unmount()
+			container.parentElement?.removeChild(container)
+		}
+		injected.clear()
+	}
+
+	function schedule(): void {
+		if (!hydrated) return
+		if (!getEnabled()) {
+			unmount()
+			return
+		}
+		// Kick off follow-state fetch once for all cards (fire-and-forget)
+		initFollowState()
+		// Clean stale
+		for (const [card, { container, app }] of injected) {
+			if (!document.contains(card)) {
+				app.unmount()
+				container.parentElement?.removeChild(container)
+				injected.delete(card)
+			}
+		}
+		// Inject new
+		for (const card of document.querySelectorAll<HTMLElement>('.project-card-container')) {
+			injectIntoCard(card)
+		}
+	}
+
+	function checkDetached(): boolean {
+		let any = false
+		for (const [card, { container, app }] of injected) {
+			if (!document.contains(card)) {
+				app.unmount()
+				container.parentElement?.removeChild(container)
+				injected.delete(card)
+				any = true
+			}
+		}
+		return any
+	}
+
+	return {
+		unmount,
+		schedule,
+		checkDetached,
+		config: {
+			settingsKeys: ['showProjectCardActions'] as (keyof ExtensionSettings)[],
+			persistent: false,
+		},
+	}
 }
 
 // Returns the sidebar container to appendChild into, or null if not on a supported page.
@@ -295,6 +421,8 @@ export default defineContentScript({
 			createApp: () => createApp(h(QuickSearch)),
 		})
 
+		const projectCardActions = createCardActionsInjection(() => settings.showProjectCardActions)
+
 		const injections = [
 			notifications,
 			toolsSidebar,
@@ -304,6 +432,7 @@ export default defineContentScript({
 			discordSidebar,
 			footerBadge,
 			quickSearch,
+			projectCardActions,
 		]
 
 		function markHydrated() {

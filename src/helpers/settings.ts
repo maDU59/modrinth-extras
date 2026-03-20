@@ -9,6 +9,7 @@ export interface ExtensionSettings {
 	showDiscordSidebar: boolean
 	showQuickSearch: boolean
 	curseforgeRedirect: boolean
+	showProjectCardActions: boolean
 	telemetryEnabled: boolean
 }
 
@@ -23,6 +24,7 @@ export const DEFAULTS: ExtensionSettings = {
 	showDiscordSidebar: true,
 	showQuickSearch: true,
 	curseforgeRedirect: false,
+	showProjectCardActions: true,
 	telemetryEnabled: true,
 }
 

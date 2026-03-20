@@ -6,7 +6,7 @@ const USER_AGENT = `creeperkatze/modrinth-extras/${browser.runtime.getManifest()
 // Reads document.cookie synchronously
 let cachedToken: string | null = null
 
-function getContentScriptToken(): string {
+export function getAuthToken(): string {
 	if (cachedToken !== null) return cachedToken
 	const cookie = document.cookie.split('; ').find((row) => row.startsWith('auth-token='))
 	cachedToken = cookie ? decodeURIComponent(cookie.split('=').slice(1).join('=')) : ''
@@ -33,7 +33,7 @@ export async function apiFetch(
 ): Promise<unknown> {
 	const {
 		apiVersion = 2,
-		token = getContentScriptToken(),
+		token = getAuthToken(),
 		...fetchOptions
 	} = options as RequestInit & { apiVersion?: number; token?: string }
 

@@ -119,6 +119,7 @@ import {
 	MonitorIcon,
 	PlayIcon,
 	SearchIcon,
+	TagCategoryZapIcon,
 	WrenchIcon,
 } from '@modrinth/assets'
 import { ButtonStyled, HorizontalRule } from '@modrinth/ui'
@@ -151,6 +152,12 @@ const GENERAL_FEATURES: FeatureDef[] = [
 		icon: SearchIcon,
 		title: 'Quick search',
 		description: 'Ctrl+K or / for a command palette style search',
+	},
+	{
+		key: 'showProjectCardActions',
+		icon: TagCategoryZapIcon,
+		title: 'Project card actions',
+		description: 'Download, follow, and bookmark buttons on project cards',
 	},
 ]
 
