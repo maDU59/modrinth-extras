@@ -12,10 +12,7 @@ const POLL_INTERVAL_MINUTES = 5
 export default defineBackground(() => {
 	void initTelemetry()
 	void loadSettings().then((settings) => {
-		capture('extension_started', {
-			extension_version: browser.runtime.getManifest().version,
-			...settings,
-		})
+		capture('extension_started', { ...settings })
 	})
 
 	browser.storage.onChanged.addListener((changes, area) => {
@@ -66,14 +63,9 @@ export default defineBackground(() => {
 
 	browser.runtime.onInstalled.addListener((details) => {
 		if (details.reason === 'install') {
-			capture('extension_installed', {
-				extension_version: browser.runtime.getManifest().version,
-			})
+			capture('extension_installed')
 		} else if (details.reason === 'update') {
-			capture('extension_updated', {
-				from_extension_version: details.previousVersion,
-				extension_version: browser.runtime.getManifest().version,
-			})
+			capture('extension_updated', { from_extension_version: details.previousVersion })
 		}
 	})
 

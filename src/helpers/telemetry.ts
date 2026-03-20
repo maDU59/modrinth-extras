@@ -31,6 +31,13 @@ export async function initTelemetry(): Promise<void> {
 		return
 	}
 	const distinctId = await getSharedDistinctId()
+	const userAgent = navigator.userAgent
+	let browserName = 'unknown'
+	if (userAgent.includes('Firefox')) browserName = 'firefox'
+	else if (userAgent.includes('Edg/')) browserName = 'edge'
+	else if (userAgent.includes('Chrome')) browserName = 'chrome'
+	else if (userAgent.includes('Safari')) browserName = 'safari'
+
 	posthog = new PostHog()
 	posthog.init(POSTHOG_TOKEN, {
 		api_host: POSTHOG_HOST,
@@ -48,6 +55,9 @@ export async function initTelemetry(): Promise<void> {
 			return properties
 		},
 	})
+	const version = browser.runtime.getManifest().version
+	posthog.register({ extension_version: version, browser: browserName })
+
 	for (const { event, properties } of queue.splice(0)) {
 		posthog.capture(event, properties)
 	}
