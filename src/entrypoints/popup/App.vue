@@ -127,7 +127,7 @@ import { type Component, onMounted, reactive, ref } from 'vue'
 import { browser } from 'wxt/browser'
 
 import { DEFAULTS, loadSettings } from '../../helpers/settings'
-import { capture, initPopupTelemetry, setTelemetryEnabled } from '../../helpers/telemetry'
+import { setTelemetryEnabled } from '../../helpers/telemetry'
 import FeatureGroup from './FeatureGroup.vue'
 import FeatureRow from './FeatureRow.vue'
 
@@ -247,8 +247,6 @@ const settings = reactive({ ...DEFAULTS })
 onMounted(async () => {
 	const loaded = await loadSettings()
 	Object.assign(settings, loaded)
-	await initPopupTelemetry()
-	capture('popup_opened', { version, ...settings })
 
 	try {
 		const CACHE_KEY = 'updateCheckCache'

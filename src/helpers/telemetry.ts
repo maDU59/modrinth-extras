@@ -23,7 +23,8 @@ async function getSharedDistinctId(): Promise<string> {
 	return distinctId
 }
 
-async function initTelemetry(persistence: 'localStorage' | 'memory'): Promise<void> {
+export async function initTelemetry(): Promise<void> {
+	const persistence = 'memory'
 	const stored = await browser.storage.local.get(['telemetryEnabled'])
 	if (stored.telemetryEnabled === false) {
 		enabled = false
@@ -50,14 +51,6 @@ async function initTelemetry(persistence: 'localStorage' | 'memory'): Promise<vo
 	for (const { event, properties } of queue.splice(0)) {
 		posthog.capture(event, properties)
 	}
-}
-
-export async function initPopupTelemetry(): Promise<void> {
-	await initTelemetry('localStorage')
-}
-
-export async function initBackgroundTelemetry(): Promise<void> {
-	await initTelemetry('memory')
 }
 
 export function capture(event: string, properties?: Record<string, unknown>): void {
