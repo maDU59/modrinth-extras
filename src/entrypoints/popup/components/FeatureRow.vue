@@ -41,10 +41,7 @@
 		<div class="rounded-b-xl peer-hover:bg-surface-3">
 			<Collapsible :collapsed="!(modelValue && hasOptionsSlot)" overflow-visible>
 				<div class="px-2 pb-2">
-					<div
-						class="flex flex-col gap-1.5 py-1 pl-3"
-						style="border-left: 2px solid var(--surface-5)"
-					>
+					<div class="flex flex-col gap-2 py-1 pl-9">
 						<slot />
 					</div>
 				</div>
@@ -82,7 +79,7 @@ const hasOptionsSlot = computed(() => {
 <style scoped>
 .feature-row-header {
 	border-radius: 0.75rem;
-	transition: border-radius 0s 0.3s;
+	transition: border-radius 0.05s 0.25s;
 }
 
 .feature-row-header.expanded {

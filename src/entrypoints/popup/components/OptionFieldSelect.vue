@@ -1,7 +1,7 @@
 <template>
-	<div class="text-sm flex items-center gap-2" @click.stop>
-		<span class="text-secondary flex-1">{{ label }}</span>
-		<div class="dropdown-wrapper w-48 shrink-0">
+	<div class="option-field relative flex items-center gap-2" @click.stop>
+		<span class="text-sm text-secondary flex-1">{{ label }}</span>
+		<div class="w-40">
 			<DropdownSelect
 				:options="allItems"
 				:name="`field-${label}`"
@@ -58,13 +58,37 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.dropdown-wrapper :deep(.animated-dropdown) {
+.option-field::before {
+	content: '';
+	position: absolute;
+	left: -1.75rem;
+	top: 0;
+	height: 50%;
+	width: 0.5rem;
+	border-left: 2px solid var(--surface-5);
+	border-bottom: 2px solid var(--surface-5);
+	border-bottom-left-radius: 2px;
+}
+
+.option-field:not(:last-child)::after {
+	content: '';
+	position: absolute;
+	left: -1.75rem;
+	top: 50%;
+	bottom: -0.5rem;
+	border-left: 2px solid var(--surface-5);
+}
+
+.option-field :deep(.animated-dropdown) {
 	width: 100%;
 	height: 2rem;
 }
 
-.dropdown-wrapper :deep(.selected) {
+.option-field :deep(.selected) {
 	padding: 0 var(--gap-md);
 	font-size: var(--font-size-sm);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 </style>
