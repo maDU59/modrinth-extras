@@ -1,5 +1,5 @@
 <template>
-	<div v-tooltip="disabled ? disabledTooltip : undefined" class="rounded-xl bg-surface-2">
+	<div v-tooltip="disabled ? disabledTooltip : undefined" class="rounded-xl">
 		<div
 			:class="[
 				'peer feature-row-header flex items-center gap-3 px-2 py-2 transition-colors duration-200',
