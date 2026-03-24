@@ -92,7 +92,7 @@ import {
 } from '../helpers/collectionState'
 import { followedSlugs } from '../helpers/followState'
 import { navigate } from '../helpers/page-router'
-import { loadSettings } from '../helpers/settings'
+import { getSettings } from '../helpers/settings'
 
 const props = defineProps<{
 	projectSlug: string
@@ -134,9 +134,11 @@ async function handleDownload() {
 	if (downloadLoading.value) return
 	downloadLoading.value = true
 	try {
-		const { projectCardActionsModLoader, projectCardActionsPluginLoader } = await loadSettings()
+		const { projectCardActions } = await getSettings()
 		const preferredLoader =
-			props.projectType === 'plugin' ? projectCardActionsPluginLoader : projectCardActionsModLoader
+			props.projectType === 'plugin'
+				? projectCardActions.pluginLoader
+				: projectCardActions.modLoader
 
 		const fetchVersions = async (loader: string) => {
 			const qs = loader ? `?loaders=${encodeURIComponent(JSON.stringify([loader]))}` : ''

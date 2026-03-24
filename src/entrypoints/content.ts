@@ -16,7 +16,7 @@ import QuickSearch from '../components/QuickSearch.vue'
 import ToolsSidebar from '../components/ToolsSidebar.vue'
 import { initFollowState } from '../helpers/followState'
 import { navigate } from '../helpers/page-router'
-import { DEFAULTS, type ExtensionSettings, loadSettings } from '../helpers/settings'
+import { DEFAULTS, type ExtensionSettings, getSettings } from '../helpers/settings'
 
 // Gate injections until Nuxt hydration is complete. The router-bridge
 // (MAIN world) dispatches "modrinth-extras:router-ready" once it hooks
@@ -233,8 +233,8 @@ export default defineContentScript({
 
 		const notifications = createInjection({
 			id: 'modrinth-extras-notifications',
-			isEnabled: () => settings.showNotificationsIndicator,
-			settingsKeys: ['showNotificationsIndicator'],
+			isEnabled: () => settings.notificationsIndicator.enabled,
+			settingsKeys: ['notificationsIndicator'],
 			persistent: true,
 			attach(container) {
 				const header = document.querySelector('header')
@@ -277,8 +277,8 @@ export default defineContentScript({
 
 		const toolsSidebar = createInjection({
 			id: 'modrinth-extras-tools-sidebar',
-			isEnabled: () => settings.showToolsSidebar,
-			settingsKeys: ['showToolsSidebar'],
+			isEnabled: () => settings.toolsSidebar.enabled,
+			settingsKeys: ['toolsSidebar'],
 			persistent: false,
 			attach: attachToSidebar,
 			createApp() {
@@ -289,8 +289,8 @@ export default defineContentScript({
 
 		const dependencySidebar = createInjection({
 			id: 'modrinth-extras-dependency-sidebar',
-			isEnabled: () => settings.showDependenciesSidebar,
-			settingsKeys: ['showDependenciesSidebar'],
+			isEnabled: () => settings.dependenciesSidebar.enabled,
+			settingsKeys: ['dependenciesSidebar'],
 			persistent: false,
 			attach(container) {
 				const path = window.location.pathname
@@ -308,8 +308,8 @@ export default defineContentScript({
 
 		const activitySparkline = createInjection({
 			id: 'modrinth-extras-activity-sparkline',
-			isEnabled: () => settings.showActivitySparkline,
-			settingsKeys: ['showActivitySparkline'],
+			isEnabled: () => settings.activitySparkline.enabled,
+			settingsKeys: ['activitySparkline'],
 			persistent: false,
 			attach(container) {
 				const path = window.location.pathname
@@ -337,8 +337,8 @@ export default defineContentScript({
 
 		const gitHubSidebar = createInjection({
 			id: 'modrinth-extras-github-sidebar',
-			isEnabled: () => settings.showGitHubSidebar,
-			settingsKeys: ['showGitHubSidebar'],
+			isEnabled: () => settings.githubSidebar.enabled,
+			settingsKeys: ['githubSidebar'],
 			persistent: false,
 			attach: attachToSidebar,
 			createApp() {
@@ -349,8 +349,8 @@ export default defineContentScript({
 
 		const discordSidebar = createInjection({
 			id: 'modrinth-extras-discord-sidebar',
-			isEnabled: () => settings.showDiscordSidebar,
-			settingsKeys: ['showDiscordSidebar'],
+			isEnabled: () => settings.discordSidebar.enabled,
+			settingsKeys: ['discordSidebar'],
 			persistent: false,
 			attach: attachToSidebar,
 			createApp() {
@@ -384,8 +384,8 @@ export default defineContentScript({
 
 		const quickSearch = createInjection({
 			id: 'modrinth-extras-quick-search',
-			isEnabled: () => settings.showQuickSearch,
-			settingsKeys: ['showQuickSearch'],
+			isEnabled: () => settings.quickSearch.enabled,
+			settingsKeys: ['quickSearch'],
 			persistent: true,
 			attach(container) {
 				document.body.appendChild(container)
@@ -395,9 +395,9 @@ export default defineContentScript({
 		})
 
 		const projectCardActions = createMultiInjection({
-			settingsKeys: ['showProjectCardActions'],
+			settingsKeys: ['projectCardActions'],
 			persistent: false,
-			isEnabled: () => settings.showProjectCardActions,
+			isEnabled: () => settings.projectCardActions.enabled,
 			targets: '.project-card-container',
 			onSchedule: () => initFollowState(),
 			attach: attachCardActions,
@@ -441,18 +441,17 @@ export default defineContentScript({
 			if (message.type === 'navigate') navigate(message.path as string)
 		})
 
-		loadSettings().then((s) => {
+		getSettings().then((s) => {
 			settings = s
 			console.log('[Modrinth Extras] Settings loaded:', JSON.stringify(s))
 			for (const inj of injections) inj.schedule()
 		})
 
 		browser.storage.onChanged.addListener((changes: Record<string, { newValue?: unknown }>) => {
-			for (const [key, { newValue }] of Object.entries(changes)) {
-				;(settings as unknown as Record<string, unknown>)[key] = newValue
-			}
+			if (!('settings' in changes)) return
+			Object.assign(settings, changes['settings']?.newValue ?? {})
 			for (const inj of injections) {
-				if (inj.config.settingsKeys.some((k) => k in changes)) {
+				if (inj.config.settingsKeys.length > 0) {
 					inj.unmount()
 					inj.schedule()
 				}

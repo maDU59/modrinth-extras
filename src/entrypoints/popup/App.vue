@@ -27,18 +27,18 @@
 					:icon="f.icon"
 					:title="f.title"
 					:description="f.description"
-					:model-value="settings[f.key]"
-					@update:model-value="updateSetting(f.key, $event)"
+					:model-value="settings[f.key].enabled"
+					@update:model-value="updateEnabled(f.key, $event)"
 				>
 					<template v-if="f.options">
 						<OptionFieldSelect
 							v-for="opt in f.options"
 							:key="opt.key"
 							:label="opt.label"
-							:model-value="settings[opt.key] ?? ''"
+							:model-value="(settings[f.key] as unknown as Record<string, string>)[opt.key] ?? ''"
 							:items="opt.items"
 							:fetch-items="opt.fetchItems"
-							@update:model-value="updateSetting(opt.key, $event)"
+							@update:model-value="updateOption(f.key, opt.key, $event)"
 						/>
 					</template>
 				</FeatureRow>
@@ -53,8 +53,8 @@
 					:icon="f.icon"
 					:title="f.title"
 					:description="f.description"
-					:model-value="settings[f.key]"
-					@update:model-value="updateSetting(f.key, $event)"
+					:model-value="settings[f.key].enabled"
+					@update:model-value="updateEnabled(f.key, $event)"
 				/>
 			</FeatureGroup>
 
@@ -69,11 +69,13 @@
 					:description="f.description"
 					:action-icon="f.actionIcon"
 					:model-value="
-						(typeof f.disabled === 'function' ? f.disabled() : f.disabled) ? false : settings[f.key]
+						(typeof f.disabled === 'function' ? f.disabled() : f.disabled)
+							? false
+							: settings[f.key].enabled
 					"
 					:disabled="typeof f.disabled === 'function' ? f.disabled() : f.disabled"
 					:disabled-tooltip="f.disabledTooltip"
-					@update:model-value="updateSetting(f.key, $event)"
+					@update:model-value="updateEnabled(f.key, $event)"
 					@action="f.onAction?.()"
 				/>
 			</FeatureGroup>
@@ -143,20 +145,16 @@ import { type Component, onMounted, reactive, ref } from 'vue'
 import { browser } from 'wxt/browser'
 
 import { apiFetch } from '../../helpers/apiFetch'
-import {
-	DEFAULTS,
-	type ExtensionSettings,
-	type FeatureConfig,
-	type FeatureFlags,
-	loadSettings,
-} from '../../helpers/settings'
+import { DEFAULTS, type ExtensionSettings, getSettings, saveSettings } from '../../helpers/settings'
 import { setTelemetryEnabled } from '../../helpers/telemetry'
 import FeatureGroup from './components/FeatureGroup.vue'
 import FeatureRow from './components/FeatureRow.vue'
 import OptionFieldSelect, { type SelectItem } from './components/OptionFieldSelect.vue'
 
+type FeatureKey = keyof ExtensionSettings
+
 interface FeatureOption {
-	key: keyof FeatureConfig
+	key: string
 	type: 'select'
 	label: string
 	items?: SelectItem[]
@@ -164,7 +162,7 @@ interface FeatureOption {
 }
 
 interface FeatureDef {
-	key: keyof FeatureFlags
+	key: FeatureKey
 	icon: Component
 	title: string
 	description: string
@@ -187,33 +185,33 @@ async function fetchLoadersByType(type: string): Promise<SelectItem[]> {
 
 const GENERAL_FEATURES: FeatureDef[] = [
 	{
-		key: 'showNotificationsIndicator',
+		key: 'notificationsIndicator',
 		icon: BellIcon,
 		title: 'Notifications',
 		description:
 			'View, manage, and clear unread notifications right in the header without leaving the current page.',
 	},
 	{
-		key: 'showQuickSearch',
+		key: 'quickSearch',
 		icon: SearchIcon,
 		title: 'Quick search',
 		description:
 			'Command palette-style search with faceted tags for loader, version, category, and type.',
 	},
 	{
-		key: 'showProjectCardActions',
+		key: 'projectCardActions',
 		icon: TagCategoryZapIcon,
 		title: 'Project card actions',
 		description: 'Download, follow, and bookmark projects right from their project cards.',
 		options: [
 			{
-				key: 'projectCardActionsModLoader',
+				key: 'modLoader',
 				type: 'select',
 				label: 'Mod loader',
 				fetchItems: () => fetchLoadersByType('mod'),
 			},
 			{
-				key: 'projectCardActionsPluginLoader',
+				key: 'pluginLoader',
 				type: 'select',
 				label: 'Plugin loader',
 				fetchItems: () => fetchLoadersByType('plugin'),
@@ -224,32 +222,32 @@ const GENERAL_FEATURES: FeatureDef[] = [
 
 const CONTENT_PAGE_FEATURES: FeatureDef[] = [
 	{
-		key: 'showActivitySparkline',
+		key: 'activitySparkline',
 		icon: ChartIcon,
 		title: 'Activity sparkline',
 		description: 'Release activity chart on project pages.',
 	},
 	{
-		key: 'showToolsSidebar',
+		key: 'toolsSidebar',
 		icon: WrenchIcon,
 		title: 'Tools sidebar',
 		description:
 			'Generate embeds, view raw API responses, copy download URLs and packwiz commands.',
 	},
 	{
-		key: 'showDependenciesSidebar',
+		key: 'dependenciesSidebar',
 		icon: GitGraphIcon,
 		title: 'Dependency sidebar',
 		description: 'Collapsible dependency tree on project pages.',
 	},
 	{
-		key: 'showGitHubSidebar',
+		key: 'githubSidebar',
 		icon: GithubIcon,
 		title: 'GitHub sidebar',
 		description: 'Stars, issues, pull requests, and forks for linked repositories.',
 	},
 	{
-		key: 'showDiscordSidebar',
+		key: 'discordSidebar',
 		icon: DiscordIcon,
 		title: 'Discord sidebar',
 		description:
@@ -259,7 +257,7 @@ const CONTENT_PAGE_FEATURES: FeatureDef[] = [
 
 const EXTENSION_FEATURES: FeatureDef[] = [
 	{
-		key: 'showBadge',
+		key: 'notificationBadge',
 		icon: BellRingIcon,
 		title: 'Notification badge',
 		description: 'Up-to-date unread notification count as a badge on the extension icon.',
@@ -286,7 +284,7 @@ const EXTENSION_FEATURES: FeatureDef[] = [
 		description: 'Redirect CurseForge project pages to Modrinth when available.',
 	},
 	{
-		key: 'telemetryEnabled',
+		key: 'telemetry',
 		icon: ChartIcon,
 		title: 'Telemetry',
 		description:
@@ -296,18 +294,22 @@ const EXTENSION_FEATURES: FeatureDef[] = [
 	},
 ]
 
-async function updateSetting(key: keyof ExtensionSettings, value: boolean | string) {
-	settings[key] = value as never
-	browser.storage.local.set({ [key]: value })
-	if (key === 'telemetryEnabled') setTelemetryEnabled(value as boolean)
-
-	if (key === 'desktopNotifications' && value) {
+async function updateEnabled(key: keyof ExtensionSettings, enabled: boolean) {
+	settings[key].enabled = enabled
+	await saveSettings(settings as ExtensionSettings)
+	if (key === 'telemetry') setTelemetryEnabled(enabled)
+	if (key === 'desktopNotifications' && enabled) {
 		const granted = await browser.permissions.request({ permissions: ['notifications'] })
 		if (!granted) {
-			;(settings as unknown as Record<string, boolean>)[key] = false
-			browser.storage.local.set({ [key]: false })
+			settings.desktopNotifications.enabled = false
+			await saveSettings(settings as ExtensionSettings)
 		}
 	}
+}
+
+async function updateOption(featureKey: keyof ExtensionSettings, optionKey: string, value: string) {
+	;(settings[featureKey] as Record<string, unknown>)[optionKey] = value
+	await saveSettings(settings as ExtensionSettings)
 }
 
 const version = browser.runtime.getManifest().version
@@ -320,7 +322,7 @@ const settings = reactive({ ...DEFAULTS })
 const settingsLoaded = ref(false)
 
 onMounted(async () => {
-	const loaded = await loadSettings()
+	const loaded = await getSettings()
 	Object.assign(settings, loaded)
 	settingsLoaded.value = true
 
@@ -330,11 +332,11 @@ onMounted(async () => {
 		firefoxControlsTelemetry.value = !granted.includes('technicalAndInteraction')
 	}
 
-	if (loaded.desktopNotifications) {
+	if (loaded.desktopNotifications.enabled) {
 		const granted = await browser.permissions.contains({ permissions: ['notifications'] })
 		if (!granted) {
-			settings.desktopNotifications = false
-			browser.storage.local.set({ desktopNotifications: false })
+			settings.desktopNotifications.enabled = false
+			await saveSettings(settings as ExtensionSettings)
 		}
 	}
 

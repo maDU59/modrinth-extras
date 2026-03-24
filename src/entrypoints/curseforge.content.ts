@@ -1,5 +1,5 @@
 import { apiFetch } from '../helpers/apiFetch'
-import { loadSettings } from '../helpers/settings'
+import { getSettings } from '../helpers/settings'
 
 interface ModrinthProject {
 	slug: string
@@ -96,8 +96,8 @@ async function tryRedirect(waitForDom = false): Promise<void> {
 	// Capture title immediately so we can detect when SPA has rendered the new page
 	const titleAtNavigation = document.title
 
-	const settings = await loadSettings()
-	if (!settings.curseforgeRedirect) {
+	const settings = await getSettings()
+	if (!settings.curseforgeRedirect.enabled) {
 		return
 	}
 

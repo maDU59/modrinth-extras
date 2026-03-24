@@ -1,6 +1,8 @@
 import { PostHog } from 'posthog-js'
 import { browser } from 'wxt/browser'
 
+import { getSettings } from './settings'
+
 const POSTHOG_TOKEN = 'phc_oWL7DUqxG3kmN20nWBkie7Eu7i3GJMdvGnvKRWBI7hi'
 const POSTHOG_HOST = 'https://hedgehog.creeperkatze.de'
 
@@ -26,8 +28,8 @@ async function getSharedDistinctId(): Promise<string> {
 
 export async function initTelemetry(): Promise<void> {
 	const persistence = 'memory'
-	const stored = await browser.storage.local.get(['telemetryEnabled'])
-	if (stored.telemetryEnabled === false) {
+	const settings = await getSettings()
+	if (!settings.telemetry.enabled) {
 		enabled = false
 		return
 	}

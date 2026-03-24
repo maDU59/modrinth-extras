@@ -3,7 +3,7 @@ import { browser } from 'wxt/browser'
 import { applyNotifications, setBadge, showCachedBadge, updateBadge } from '../background/badge'
 import { handleNotificationClick } from '../background/desktop-notifications'
 import type { PlatformNotification } from '../helpers/platform-notifications'
-import { loadSettings } from '../helpers/settings'
+import { getSettings } from '../helpers/settings'
 import { capture, initTelemetry } from '../helpers/telemetry'
 
 const ALARM_NAME = 'modrinth-extras-poll'
@@ -11,16 +11,21 @@ const POLL_INTERVAL_MINUTES = 5
 
 export default defineBackground(() => {
 	void initTelemetry()
-	void loadSettings().then((settings) => {
+	void getSettings().then((settings) => {
 		capture('extension_started', { ...settings })
 	})
 
 	browser.storage.onChanged.addListener((changes, area) => {
-		if (area !== 'local' || !('showBadge' in changes)) return
-		if (changes.showBadge.newValue === false) {
-			void setBadge(0)
-		} else {
-			updateBadge()
+		if (area !== 'local' || !('settings' in changes)) return
+		const newSettings = changes.settings?.newValue as
+			| { notificationBadge?: { enabled?: boolean } }
+			| undefined
+		const oldSettings = changes.settings?.oldValue as
+			| { notificationBadge?: { enabled?: boolean } }
+			| undefined
+		if (newSettings?.notificationBadge?.enabled !== oldSettings?.notificationBadge?.enabled) {
+			if (newSettings?.notificationBadge?.enabled === false) void setBadge(0)
+			else updateBadge()
 		}
 	})
 

@@ -2,6 +2,7 @@ import { browser } from 'wxt/browser'
 
 import { apiFetch, getBackgroundAuthToken } from '../helpers/apiFetch'
 import { groupNotifications, type PlatformNotification } from '../helpers/platform-notifications'
+import { getSettings } from '../helpers/settings'
 import { sendDesktopNotifications } from './desktop-notifications'
 
 export async function setBadge(unread: number) {
@@ -12,11 +13,11 @@ export async function setBadge(unread: number) {
 }
 
 export async function showCachedBadge() {
-	const { showBadge = true, notifications } = await browser.storage.local.get([
-		'showBadge',
-		'notifications',
+	const [{ notificationBadge }, { notifications }] = await Promise.all([
+		getSettings(),
+		browser.storage.local.get('notifications'),
 	])
-	if (!showBadge || !Array.isArray(notifications)) return
+	if (!notificationBadge.enabled || !Array.isArray(notifications)) return
 	const unread = groupNotifications(
 		(notifications as PlatformNotification[]).filter((n) => !n.read),
 	).length
@@ -29,12 +30,12 @@ export async function applyNotifications(
 	prevNotifs: PlatformNotification[] | null,
 	userId?: string,
 ) {
-	const { showBadge = true } = await browser.storage.local.get('showBadge')
+	const { notificationBadge } = await getSettings()
 	const unread = groupNotifications(newNotifs.filter((n) => !n.read)).length
 	console.log(
 		`[Modrinth Extras] Badge: Applying ${newNotifs.length} notifications: ${unread} unread`,
 	)
-	if (showBadge) {
+	if (notificationBadge.enabled) {
 		await setBadge(unread)
 	}
 	await sendDesktopNotifications(newNotifs, prevNotifs)
@@ -47,11 +48,11 @@ export async function applyNotifications(
 
 export async function updateBadge() {
 	try {
-		const { showBadge = true, notifications: prevNotifs } = await browser.storage.local.get([
-			'showBadge',
-			'notifications',
+		const [{ notificationBadge }, { notifications: prevNotifs }] = await Promise.all([
+			getSettings(),
+			browser.storage.local.get('notifications'),
 		])
-		if (!showBadge) {
+		if (!notificationBadge.enabled) {
 			await setBadge(0)
 			return
 		}

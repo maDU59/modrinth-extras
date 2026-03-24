@@ -6,6 +6,7 @@ import {
 	groupNotifications,
 	type PlatformNotification,
 } from '../helpers/platform-notifications'
+import { getSettings } from '../helpers/settings'
 
 // Maps notification ID to the relative link so the click handler can open the right page
 export const notificationLinks = new Map<string, string>()
@@ -14,8 +15,8 @@ export async function sendDesktopNotifications(
 	newNotifs: PlatformNotification[],
 	prevNotifs: PlatformNotification[] | null,
 ) {
-	const { desktopNotifications = false } = await browser.storage.local.get('desktopNotifications')
-	if (!desktopNotifications) return
+	const { desktopNotifications } = await getSettings()
+	if (!desktopNotifications.enabled) return
 
 	// No prior state means this is the first run, save baseline without notifying
 	if (prevNotifs === null) {
