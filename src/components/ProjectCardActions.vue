@@ -92,6 +92,7 @@ import {
 } from '../helpers/collectionState'
 import { followedSlugs } from '../helpers/followState'
 import { navigate } from '../helpers/page-router'
+import { loadSettings } from '../helpers/settings'
 
 const props = defineProps<{
 	projectSlug: string
@@ -133,9 +134,20 @@ async function handleDownload() {
 	if (downloadLoading.value) return
 	downloadLoading.value = true
 	try {
-		const versions = (await apiFetch(`project/${props.projectSlug}/version`)) as {
-			files: { url: string; primary: boolean }[]
-		}[]
+		const { projectCardActionsModLoader, projectCardActionsPluginLoader } = await loadSettings()
+		const preferredLoader =
+			props.projectType === 'plugin' ? projectCardActionsPluginLoader : projectCardActionsModLoader
+
+		const fetchVersions = async (loader: string) => {
+			const qs = loader ? `?loaders=${encodeURIComponent(JSON.stringify([loader]))}` : ''
+			return (await apiFetch(`project/${props.projectSlug}/version${qs}`)) as {
+				files: { url: string; primary: boolean }[]
+			}[]
+		}
+
+		let versions = await fetchVersions(preferredLoader)
+		if (preferredLoader && versions.length === 0) versions = await fetchVersions('')
+
 		const file = versions[0]?.files.find((f) => f.primary) ?? versions[0]?.files[0]
 		if (file?.url) window.open(file.url, '_blank')
 	} catch (err) {

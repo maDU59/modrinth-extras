@@ -47,7 +47,7 @@ export async function initTelemetry(): Promise<void> {
 	const userAgent = navigator.userAgent
 	let browserName = 'unknown'
 	if (userAgent.includes('Firefox')) browserName = 'firefox'
-	else if (userAgent.includes('Edg/')) browserName = 'edge'
+	else if (userAgent.includes('Edg')) browserName = 'edge'
 	else if (userAgent.includes('Chrome')) browserName = 'chrome'
 	else if (userAgent.includes('Safari')) browserName = 'safari'
 

@@ -50,10 +50,6 @@ export default defineBackground(() => {
 			})()
 			return true
 		}
-		if (message.type === 'popup_opened') {
-			capture('popup_opened', message as Record<string, unknown>)
-			return
-		}
 		if (message.type === 'notifications-fetched') {
 			const newNotifs = message.notifications as PlatformNotification[]
 			;(async () => {

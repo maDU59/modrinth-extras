@@ -19,7 +19,7 @@
 
 		<HorizontalRule class="shrink-0" />
 
-		<div class="min-h-0 flex-1 overflow-y-auto">
+		<div v-if="settingsLoaded" class="min-h-0 flex-1 overflow-y-auto">
 			<FeatureGroup label="General">
 				<FeatureRow
 					v-for="f in GENERAL_FEATURES"
@@ -27,9 +27,21 @@
 					:icon="f.icon"
 					:title="f.title"
 					:description="f.description"
-					:model-value="(settings as Record<string, boolean>)[f.key]"
+					:model-value="settings[f.key]"
 					@update:model-value="updateSetting(f.key, $event)"
-				/>
+				>
+					<template v-if="f.options">
+						<OptionFieldSelect
+							v-for="opt in f.options"
+							:key="opt.key"
+							:label="opt.label"
+							:model-value="settings[opt.key] ?? ''"
+							:items="opt.items"
+							:fetch-items="opt.fetchItems"
+							@update:model-value="updateSetting(opt.key, $event)"
+						/>
+					</template>
+				</FeatureRow>
 			</FeatureGroup>
 
 			<HorizontalRule />
@@ -41,7 +53,7 @@
 					:icon="f.icon"
 					:title="f.title"
 					:description="f.description"
-					:model-value="(settings as Record<string, boolean>)[f.key]"
+					:model-value="settings[f.key]"
 					@update:model-value="updateSetting(f.key, $event)"
 				/>
 			</FeatureGroup>
@@ -57,9 +69,7 @@
 					:description="f.description"
 					:action-icon="f.actionIcon"
 					:model-value="
-						(typeof f.disabled === 'function' ? f.disabled() : f.disabled)
-							? false
-							: (settings as Record<string, boolean>)[f.key]
+						(typeof f.disabled === 'function' ? f.disabled() : f.disabled) ? false : settings[f.key]
 					"
 					:disabled="typeof f.disabled === 'function' ? f.disabled() : f.disabled"
 					:disabled-tooltip="f.disabledTooltip"
@@ -132,13 +142,29 @@ import { ButtonStyled, HorizontalRule } from '@modrinth/ui'
 import { type Component, onMounted, reactive, ref } from 'vue'
 import { browser } from 'wxt/browser'
 
-import { DEFAULTS, loadSettings } from '../../helpers/settings'
+import { apiFetch } from '../../helpers/apiFetch'
+import {
+	DEFAULTS,
+	type ExtensionSettings,
+	type FeatureConfig,
+	type FeatureFlags,
+	loadSettings,
+} from '../../helpers/settings'
 import { setTelemetryEnabled } from '../../helpers/telemetry'
-import FeatureGroup from './FeatureGroup.vue'
-import FeatureRow from './FeatureRow.vue'
+import FeatureGroup from './components/FeatureGroup.vue'
+import FeatureRow from './components/FeatureRow.vue'
+import OptionFieldSelect, { type SelectItem } from './components/OptionFieldSelect.vue'
+
+interface FeatureOption {
+	key: keyof FeatureConfig
+	type: 'select'
+	label: string
+	items?: SelectItem[]
+	fetchItems?: () => Promise<SelectItem[]>
+}
 
 interface FeatureDef {
-	key: string
+	key: keyof FeatureFlags
 	icon: Component
 	title: string
 	description: string
@@ -146,6 +172,17 @@ interface FeatureDef {
 	onAction?: () => void
 	disabled?: boolean | (() => boolean)
 	disabledTooltip?: string
+	options?: FeatureOption[]
+}
+
+async function fetchLoadersByType(type: string): Promise<SelectItem[]> {
+	const data = (await apiFetch('tag/loader')) as {
+		name: string
+		supported_project_types: string[]
+	}[]
+	return data
+		.filter((l) => l.supported_project_types.includes(type))
+		.map((l) => ({ label: l.name.charAt(0).toUpperCase() + l.name.slice(1), value: l.name }))
 }
 
 const GENERAL_FEATURES: FeatureDef[] = [
@@ -168,6 +205,20 @@ const GENERAL_FEATURES: FeatureDef[] = [
 		icon: TagCategoryZapIcon,
 		title: 'Project card actions',
 		description: 'Download, follow, and bookmark projects right from their project cards.',
+		options: [
+			{
+				key: 'projectCardActionsModLoader',
+				type: 'select',
+				label: 'Mod loader',
+				fetchItems: () => fetchLoadersByType('mod'),
+			},
+			{
+				key: 'projectCardActionsPluginLoader',
+				type: 'select',
+				label: 'Plugin loader',
+				fetchItems: () => fetchLoadersByType('plugin'),
+			},
+		],
 	},
 ]
 
@@ -245,15 +296,15 @@ const EXTENSION_FEATURES: FeatureDef[] = [
 	},
 ]
 
-async function updateSetting(key: string, value: boolean) {
-	;(settings as Record<string, boolean>)[key] = value
+async function updateSetting(key: keyof ExtensionSettings, value: boolean | string) {
+	settings[key] = value as never
 	browser.storage.local.set({ [key]: value })
-	if (key === 'telemetryEnabled') setTelemetryEnabled(value)
+	if (key === 'telemetryEnabled') setTelemetryEnabled(value as boolean)
 
 	if (key === 'desktopNotifications' && value) {
 		const granted = await browser.permissions.request({ permissions: ['notifications'] })
 		if (!granted) {
-			;(settings as Record<string, boolean>)[key] = false
+			;(settings as unknown as Record<string, boolean>)[key] = false
 			browser.storage.local.set({ [key]: false })
 		}
 	}
@@ -266,10 +317,12 @@ const checking = ref(true)
 const firefoxControlsTelemetry = ref(false)
 
 const settings = reactive({ ...DEFAULTS })
+const settingsLoaded = ref(false)
 
 onMounted(async () => {
 	const loaded = await loadSettings()
 	Object.assign(settings, loaded)
+	settingsLoaded.value = true
 
 	const perms = await browser.permissions.getAll()
 	if ('data_collection' in perms) {
