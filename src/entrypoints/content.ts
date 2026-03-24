@@ -134,7 +134,8 @@ function createMultiInjection(config: MultiInjectionConfig) {
 			try {
 				app.mount(container)
 				injected.set(target, { container, app })
-			} catch {
+			} catch (err) {
+				console.error(`[Modrinth Extras] Failed to mount injection for target:`, err)
 				app.unmount()
 				container.parentElement?.removeChild(container)
 			}
@@ -475,5 +476,6 @@ export default defineContentScript({
 			}
 		})
 		domObserver.observe(document.documentElement, { childList: true, subtree: true })
+		window.addEventListener('pagehide', () => domObserver.disconnect(), { once: true })
 	},
 })

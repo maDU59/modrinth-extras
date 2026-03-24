@@ -555,8 +555,8 @@ onMounted(async () => {
 			.filter((c) => c.project_type === 'minecraft_java_server')
 			.map((c) => c.name)
 		versions.value = versionsRes.map((v) => v.version)
-	} catch {
-		// silently ignore, suggestions simply won't appear
+	} catch (err) {
+		console.error('[Modrinth Extras] Failed to load search suggestions:', err)
 	}
 })
 

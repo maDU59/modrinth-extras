@@ -15,7 +15,8 @@ export async function initFollowState(): Promise<void> {
 			const user = (await apiFetch('user')) as { id: string } | null
 			followUserId.value = user?.id ?? null
 			if (!followUserId.value) return
-		} catch {
+		} catch (err) {
+			console.error('[Modrinth Extras] Failed to fetch user for follow state:', err)
 			followUserId.value = null
 			return
 		}
@@ -24,7 +25,8 @@ export async function initFollowState(): Promise<void> {
 				slug: string
 			}[]
 			followedSlugs.value = new Set(follows.map((p) => p.slug))
-		} catch {
+		} catch (err) {
+			console.error('[Modrinth Extras] Failed to fetch followed projects:', err)
 			followedSlugs.value = new Set()
 		}
 	})()

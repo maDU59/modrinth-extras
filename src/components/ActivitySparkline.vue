@@ -142,8 +142,8 @@ onMounted(async () => {
 
 		dailyCounts.value = counts
 		hasAnyData.value = counts.some((c) => c > 0)
-	} catch {
-		// silently ignore errors
+	} catch (err) {
+		console.error('[Modrinth Extras] Failed to load activity data:', err)
 	} finally {
 		loaded.value = true
 	}

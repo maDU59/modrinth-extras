@@ -19,7 +19,8 @@ interface ModrinthSearchResult {
 async function apiGet<T>(path: string): Promise<T | null> {
 	try {
 		return (await apiFetch(path)) as T
-	} catch {
+	} catch (err) {
+		console.error(`[Modrinth Extras] CurseForge redirect: API request failed for "${path}":`, err)
 		return null
 	}
 }

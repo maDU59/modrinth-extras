@@ -115,8 +115,8 @@ onMounted(async () => {
 			partnered: features.includes('PARTNERED'),
 			verified: features.includes('VERIFIED'),
 		}
-	} catch {
-		// silently ignore, card simply won't render
+	} catch (err) {
+		console.error('[Modrinth Extras] Failed to load Discord data:', err)
 	}
 })
 </script>

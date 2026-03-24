@@ -24,7 +24,8 @@ export async function fetchProjectDependencies(slugOrId: string): Promise<Enrich
 		versions = (await apiFetch(`project/${slugOrId}/version?limit=1`)) as {
 			dependencies?: RawDep[]
 		}[]
-	} catch {
+	} catch (err) {
+		console.error('[Modrinth Extras] Failed to fetch project versions for dependencies:', err)
 		return []
 	}
 
@@ -46,8 +47,8 @@ export async function fetchProjectDependencies(slugOrId: string): Promise<Enrich
 		projects = (await apiFetch(
 			`projects?ids=${encodeURIComponent(JSON.stringify(projectIds))}`,
 		)) as ProjectInfo[]
-	} catch {
-		// Return deps with null project info if batch fetch fails
+	} catch (err) {
+		console.error('[Modrinth Extras] Failed to fetch dependency project info:', err)
 	}
 
 	const projectMap = new Map(projects.map((p) => [p.id, p]))

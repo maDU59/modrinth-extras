@@ -149,8 +149,8 @@ onMounted(async () => {
 			prs: prCount,
 			issues: Math.max(0, repoData.open_issues_count - prCount),
 		}
-	} catch {
-		// silently ignore — card simply won't render
+	} catch (err) {
+		console.error('[Modrinth Extras] Failed to load GitHub data:', err)
 	}
 })
 </script>
