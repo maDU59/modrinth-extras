@@ -140,6 +140,10 @@ export async function getSettings(): Promise<ExtensionSettings> {
 }
 
 export async function saveSettings(settings: ExtensionSettings): Promise<void> {
-	cache = settings
-	await browser.storage.local.set({ [STORAGE_KEY]: settings })
+	// Serialize to a plain object before storing. Firefox's structured clone
+	// implementation does not support Proxy objects (e.g. Vue reactive proxies),
+	// so passing one directly causes the write to silently fail.
+	const plain = JSON.parse(JSON.stringify(settings)) as ExtensionSettings
+	cache = plain
+	await browser.storage.local.set({ [STORAGE_KEY]: plain })
 }
