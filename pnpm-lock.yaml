@@ -11,6 +11,11 @@ overrides:
   '@modrinth/assets': workspace:*
   '@modrinth/tooling-config': workspace:*
 
+patchedDependencies:
+  wxt@0.20.20:
+    hash: 45ea8fb572bd433e6335862715601720970f09acb66ef251271b81bd33cb9e68
+    path: patches/wxt@0.20.20.patch
+
 importers:
 
   .:
@@ -54,7 +59,7 @@ importers:
         version: 0.1.38
       '@wxt-dev/module-vue':
         specifier: ^1.0.3
-        version: 1.0.3(vite@8.0.2(@types/node@25.5.0)(esbuild@0.27.4)(jiti@1.21.7)(sass-embedded@1.98.0)(sass@1.98.0)(terser@5.46.1)(yaml@2.8.2))(vue@3.5.31(typescript@5.9.3))(wxt@0.20.20(@types/node@25.5.0)(eslint@10.1.0(jiti@1.21.7))(jiti@1.21.7)(rollup@4.59.0)(sass-embedded@1.98.0)(sass@1.98.0)(terser@5.46.1)(yaml@2.8.2))
+        version: 1.0.3(vite@8.0.2(@types/node@25.5.0)(esbuild@0.27.4)(jiti@1.21.7)(sass-embedded@1.98.0)(sass@1.98.0)(terser@5.46.1)(yaml@2.8.2))(vue@3.5.31(typescript@5.9.3))(wxt@0.20.20(patch_hash=45ea8fb572bd433e6335862715601720970f09acb66ef251271b81bd33cb9e68)(@types/node@25.5.0)(eslint@10.1.0(jiti@1.21.7))(jiti@1.21.7)(rollup@4.59.0)(sass-embedded@1.98.0)(sass@1.98.0)(terser@5.46.1)(yaml@2.8.2))
       autoprefixer:
         specifier: ^10.4.27
         version: 10.4.27(postcss@8.5.8)
@@ -90,7 +95,7 @@ importers:
         version: 3.2.6(typescript@5.9.3)
       wxt:
         specifier: ^0.20.20
-        version: 0.20.20(@types/node@25.5.0)(eslint@10.1.0(jiti@1.21.7))(jiti@1.21.7)(rollup@4.59.0)(sass-embedded@1.98.0)(sass@1.98.0)(terser@5.46.1)(yaml@2.8.2)
+        version: 0.20.20(patch_hash=45ea8fb572bd433e6335862715601720970f09acb66ef251271b81bd33cb9e68)(@types/node@25.5.0)(eslint@10.1.0(jiti@1.21.7))(jiti@1.21.7)(rollup@4.59.0)(sass-embedded@1.98.0)(sass@1.98.0)(terser@5.46.1)(yaml@2.8.2)
 
   modrinth/packages/api-client:
     dependencies:
@@ -7526,10 +7531,10 @@ snapshots:
       '@types/filesystem': 0.0.36
       '@types/har-format': 1.2.16
 
-  '@wxt-dev/module-vue@1.0.3(vite@8.0.2(@types/node@25.5.0)(esbuild@0.27.4)(jiti@1.21.7)(sass-embedded@1.98.0)(sass@1.98.0)(terser@5.46.1)(yaml@2.8.2))(vue@3.5.31(typescript@5.9.3))(wxt@0.20.20(@types/node@25.5.0)(eslint@10.1.0(jiti@1.21.7))(jiti@1.21.7)(rollup@4.59.0)(sass-embedded@1.98.0)(sass@1.98.0)(terser@5.46.1)(yaml@2.8.2))':
+  '@wxt-dev/module-vue@1.0.3(vite@8.0.2(@types/node@25.5.0)(esbuild@0.27.4)(jiti@1.21.7)(sass-embedded@1.98.0)(sass@1.98.0)(terser@5.46.1)(yaml@2.8.2))(vue@3.5.31(typescript@5.9.3))(wxt@0.20.20(patch_hash=45ea8fb572bd433e6335862715601720970f09acb66ef251271b81bd33cb9e68)(@types/node@25.5.0)(eslint@10.1.0(jiti@1.21.7))(jiti@1.21.7)(rollup@4.59.0)(sass-embedded@1.98.0)(sass@1.98.0)(terser@5.46.1)(yaml@2.8.2))':
     dependencies:
       '@vitejs/plugin-vue': 6.0.5(vite@8.0.2(@types/node@25.5.0)(esbuild@0.27.4)(jiti@1.21.7)(sass-embedded@1.98.0)(sass@1.98.0)(terser@5.46.1)(yaml@2.8.2))(vue@3.5.31(typescript@5.9.3))
-      wxt: 0.20.20(@types/node@25.5.0)(eslint@10.1.0(jiti@1.21.7))(jiti@1.21.7)(rollup@4.59.0)(sass-embedded@1.98.0)(sass@1.98.0)(terser@5.46.1)(yaml@2.8.2)
+      wxt: 0.20.20(patch_hash=45ea8fb572bd433e6335862715601720970f09acb66ef251271b81bd33cb9e68)(@types/node@25.5.0)(eslint@10.1.0(jiti@1.21.7))(jiti@1.21.7)(rollup@4.59.0)(sass-embedded@1.98.0)(sass@1.98.0)(terser@5.46.1)(yaml@2.8.2)
     transitivePeerDependencies:
       - vite
       - vue
@@ -10728,7 +10733,7 @@ snapshots:
       is-wsl: 3.1.1
       powershell-utils: 0.1.0
 
-  wxt@0.20.20(@types/node@25.5.0)(eslint@10.1.0(jiti@1.21.7))(jiti@1.21.7)(rollup@4.59.0)(sass-embedded@1.98.0)(sass@1.98.0)(terser@5.46.1)(yaml@2.8.2):
+  wxt@0.20.20(patch_hash=45ea8fb572bd433e6335862715601720970f09acb66ef251271b81bd33cb9e68)(@types/node@25.5.0)(eslint@10.1.0(jiti@1.21.7))(jiti@1.21.7)(rollup@4.59.0)(sass-embedded@1.98.0)(sass@1.98.0)(terser@5.46.1)(yaml@2.8.2):
     dependencies:
       '@1natsu/wait-element': 4.1.2
       '@aklinker1/rollup-plugin-visualizer': 5.12.0(rollup@4.59.0)
