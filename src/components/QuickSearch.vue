@@ -175,17 +175,17 @@ interface Example {
 
 const TYPES = ['mod', 'plugin', 'datapack', 'shader', 'resourcepack', 'modpack', 'server']
 const SORT_OPTIONS = [
-	{ name: 'downloads', display: 'Downloads' },
-	{ name: 'follows', display: 'Followers' },
-	{ name: 'newest', display: 'Date published' },
-	{ name: 'updated', display: 'Date updated' },
+	{ name: 'downloads', display: 'downloads' },
+	{ name: 'follows', display: 'followers' },
+	{ name: 'newest', display: 'date published' },
+	{ name: 'updated', display: 'date updated' },
 ]
 const SERVER_SORT_OPTIONS = [
-	{ name: 'minecraft_java_server.verified_plays_2w', display: 'Verified Plays' },
-	{ name: 'minecraft_java_server.ping.data.players_online', display: 'Players' },
-	{ name: 'follows', display: 'Followers' },
-	{ name: 'date_created', display: 'Date published' },
-	{ name: 'date_modified', display: 'Date updated' },
+	{ name: 'minecraft_java_server.verified_plays_2w', display: 'verified plays' },
+	{ name: 'minecraft_java_server.ping.data.players_online', display: 'players' },
+	{ name: 'follows', display: 'followers' },
+	{ name: 'date_created', display: 'date published' },
+	{ name: 'date_modified', display: 'date updated' },
 ]
 const ENV_OPTIONS = ['client', 'server']
 
