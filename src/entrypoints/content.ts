@@ -303,7 +303,18 @@ export default defineContentScript({
 				const slug = window.location.pathname.match(
 					/^\/(mod|plugin|datapack|shader|resourcepack|modpack)\/([^/]+)/,
 				)?.[2]
-				return createApp(h(DependenciesSidebar, { projectSlug: slug ?? '' }))
+				const app = createApp({
+					setup() {
+						provideI18n({
+							locale: ref('en-US'),
+							t: (key: string) => key,
+							setLocale: () => {},
+						})
+					},
+					render: () => h(DependenciesSidebar, { projectSlug: slug ?? '' }),
+				})
+				app.use(FloatingVue)
+				return app
 			},
 		})
 
