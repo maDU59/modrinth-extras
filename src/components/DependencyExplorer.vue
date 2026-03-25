@@ -345,22 +345,22 @@ function startSimulation() {
 	simulation?.stop()
 
 	simulation = forceSimulation<GraphNode>(nodes.value)
-		.force('charge', forceManyBody<GraphNode>().strength(-900))
+		.force('charge', forceManyBody<GraphNode>().strength(-1200))
 		.force(
 			'link',
 			forceLink<GraphNode, D3Link>(getD3Links())
 				.id((n) => n.id)
-				.distance(200)
-				.strength(0.6),
+				.distance(100)
+				.strength(0.25),
 		)
 		.force(
 			'collide',
 			forceCollide<GraphNode>()
 				.radius((n) => nodeR(n) + 14)
-				.strength(0.85),
+				.strength(0.9),
 		)
-		.force('center', forceCenter(0, 0).strength(0.04))
-		.alphaDecay(0.025)
+		.force('center', forceCenter(0, 0).strength(0.02))
+		.alphaDecay(0.015)
 		.on('tick', () => {
 			renderVersion.value++
 		})
