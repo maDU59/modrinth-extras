@@ -1,10 +1,12 @@
 <template>
-	<div v-tooltip="disabled ? disabledTooltip : undefined" class="rounded-xl">
+	<div
+		v-tooltip="disabled ? disabledTooltip : undefined"
+		:class="['rounded-xl transition-colors duration-200', disabled ? '' : 'hover:bg-surface-3']"
+	>
 		<div
 			:class="[
-				'peer feature-row-header flex items-center gap-3 px-2 py-2 transition-colors duration-200',
-				modelValue && hasOptionsSlot ? 'expanded' : '',
-				disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:bg-surface-3',
+				'flex items-center gap-3 px-2 py-2',
+				disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer',
 			]"
 			@click="!disabled && $emit('update:modelValue', !modelValue)"
 		>
@@ -38,15 +40,13 @@
 				/>
 			</button>
 		</div>
-		<div class="rounded-b-xl peer-hover:bg-surface-3">
-			<Collapsible :collapsed="!(modelValue && hasOptionsSlot)" overflow-visible>
-				<div class="px-2 pb-2">
-					<div class="flex flex-col gap-2 py-1 pl-9">
-						<slot />
-					</div>
+		<Collapsible :collapsed="!(modelValue && hasOptionsSlot)" overflow-visible>
+			<div class="px-2 pb-2">
+				<div class="flex flex-col gap-2 py-1 pl-9">
+					<slot />
 				</div>
-			</Collapsible>
-		</div>
+			</div>
+		</Collapsible>
 	</div>
 </template>
 
@@ -75,15 +75,3 @@ const hasOptionsSlot = computed(() => {
 	return slots.default().some((vnode) => vnode.type !== Comment)
 })
 </script>
-
-<style scoped>
-.feature-row-header {
-	border-radius: 0.75rem;
-	transition: border-radius 0.05s 0.25s;
-}
-
-.feature-row-header.expanded {
-	border-radius: 0.75rem 0.75rem 0 0;
-	transition: border-radius 0s 0s;
-}
-</style>
