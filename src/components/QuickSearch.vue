@@ -69,10 +69,10 @@
 
 				<div v-else-if="!query && !tags.length">
 					<p class="px-2 pt-1 py-0 text-xs font-bold uppercase tracking-wide text-secondary">
-						Examples
+						{{ recentSearches.length ? 'Recent' : 'Examples' }}
 					</p>
 					<div
-						v-for="(ex, i) in EXAMPLES"
+						v-for="(ex, i) in recentSearches.length ? recentSearches : EXAMPLES"
 						:key="ex.label"
 						:class="[
 							'flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5',
@@ -160,6 +160,7 @@ interface Suggestion {
 interface Example {
 	label: string
 	tags: Tag[]
+	query?: string
 }
 
 const TYPES = ['mod', 'plugin', 'datapack', 'shader', 'resourcepack', 'modpack', 'server']
@@ -177,6 +178,30 @@ const SERVER_SORT_OPTIONS = [
 	{ name: 'date_modified', display: 'Date updated' },
 ]
 const ENV_OPTIONS = ['client', 'server']
+
+const MAX_RECENT_SEARCHES = 6
+
+const recentSearches = ref<Example[]>([])
+
+async function loadRecentSearches() {
+	try {
+		const result = await browser.storage.local.get('recentSearches')
+		recentSearches.value = (result.recentSearches as Example[]) ?? []
+	} catch {
+		recentSearches.value = []
+	}
+}
+
+async function saveRecentSearch(entry: Example) {
+	const updated = [entry, ...recentSearches.value.filter((r) => r.label !== entry.label)].slice(
+		0,
+		MAX_RECENT_SEARCHES,
+	)
+	recentSearches.value = updated
+	try {
+		await browser.storage.local.set({ recentSearches: updated })
+	} catch {}
+}
 
 const loaders = ref<string[]>([])
 const categories = ref<string[]>([])
@@ -519,7 +544,7 @@ function removeTag(facet: string, value: string) {
 
 function applyExample(ex: Example) {
 	tags.value = [...ex.tags]
-	query.value = ''
+	query.value = ex.query ?? ''
 	nextTick(() => inputEl.value?.focus())
 }
 
@@ -568,12 +593,26 @@ function executeSearch() {
 
 	const qs = params.toString().replaceAll('%3A', ':')
 	navigate(`https://modrinth.com${basePath}${qs ? '?' + qs : ''}`)
+
+	const labelParts = [
+		...tags.value.map((t) => t.value.replace(/-/g, ' ')),
+		query.value.trim(),
+	].filter(Boolean)
+	if (labelParts.length) {
+		saveRecentSearch({
+			label: labelParts.join(' '),
+			tags: [...tags.value],
+			query: query.value.trim(),
+		})
+	}
+
 	close()
 }
 
 function onKeydown(e: KeyboardEvent) {
 	const inExamples = !query.value && !tags.value.length && !suggestions.value.length
-	const listLength = inExamples ? EXAMPLES.length : suggestions.value.length
+	const displayedList = recentSearches.value.length ? recentSearches.value : EXAMPLES
+	const listLength = inExamples ? displayedList.length : suggestions.value.length
 
 	if (e.key === 'Escape') {
 		close()
@@ -588,7 +627,7 @@ function onKeydown(e: KeyboardEvent) {
 	} else if (e.key === 'Enter') {
 		e.preventDefault()
 		if (inExamples) {
-			applyExample(EXAMPLES[selectedIndex.value])
+			applyExample(displayedList[selectedIndex.value])
 		} else if (suggestions.value.length > 0) {
 			selectSuggestion(suggestions.value[selectedIndex.value])
 		} else {
@@ -618,6 +657,7 @@ function onGlobalKeydown(e: KeyboardEvent) {
 
 onMounted(async () => {
 	window.addEventListener('keydown', onGlobalKeydown)
+	loadRecentSearches()
 
 	try {
 		const [loadersRes, categoriesRes, versionsRes] = await Promise.all([
