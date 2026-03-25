@@ -21,12 +21,13 @@
 					stroke-linecap="round"
 					stroke-linejoin="round"
 				>
-					<path d="M3 7V5a2 2 0 0 1 2-2h2" />
-					<path d="M17 3h2a2 2 0 0 1 2 2v2" />
-					<path d="M21 17v2a2 2 0 0 1-2 2h-2" />
-					<path d="M7 21H5a2 2 0 0 1-2-2v-2" />
-					<circle cx="12" cy="12" r="3" />
-					<path d="m16 16-1.9-1.9" />
+					<path d="m10.586 5.414-5.172 5.172" />
+					<path d="m18.586 13.414-5.172 5.172" />
+					<path d="M6 12h12" />
+					<circle cx="12" cy="20" r="2" />
+					<circle cx="12" cy="4" r="2" />
+					<circle cx="20" cy="12" r="2" />
+					<circle cx="4" cy="12" r="2" />
 				</svg>
 			</button>
 		</div>

@@ -73,6 +73,7 @@
 					<g
 						v-for="node in nodes"
 						:key="node.id"
+						class="mre-node-group"
 						:transform="`translate(${node.x},${node.y})`"
 						:style="{ cursor: draggingNode?.id === node.id ? 'grabbing' : 'pointer' }"
 						@mousedown.stop="onNodeMouseDown($event, node)"
@@ -86,6 +87,17 @@
 							stroke="#1bd96a"
 							stroke-width="1.5"
 							class="mre-explorer-pulse"
+						/>
+
+						<!-- Hover ring -->
+						<circle
+							v-if="!node.loading"
+							class="mre-hover-ring"
+							:r="nodeR(node) + 5"
+							fill="none"
+							stroke="#ccc"
+							stroke-width="1.5"
+							style="pointer-events: none"
 						/>
 
 						<!-- Body -->
@@ -126,7 +138,7 @@
 							class="mre-spinner"
 							:r="nodeR(node) + 4"
 							fill="none"
-							stroke="#666"
+							stroke="#1bd96a"
 							stroke-width="2"
 							stroke-linecap="round"
 							:stroke-dasharray="`${(nodeR(node) + 4) * Math.PI * 0.5} ${(nodeR(node) + 4) * Math.PI * 1.5}`"
@@ -164,9 +176,10 @@
 							:font-size="node.isRoot ? '12' : '10'"
 							:font-weight="node.isRoot ? '600' : '400'"
 							fill="#ccc"
+							:class="node.loaded && node.project && !node.isRoot ? 'mre-nav-label' : ''"
 							style="pointer-events: none; user-select: none"
 						>
-							{{ clamp(node.project?.title ?? node.id, 15) }}
+							{{ clamp(node.project?.title ?? node.id, 22) }}
 						</text>
 					</g>
 				</g>
@@ -620,6 +633,19 @@ defineExpose({ show })
 		opacity: 0.45;
 		transform: scale(1.08);
 	}
+}
+
+.mre-node-group .mre-hover-ring {
+	opacity: 0;
+	transition: opacity 0.15s ease;
+}
+
+.mre-node-group:hover .mre-hover-ring {
+	opacity: 1;
+}
+
+.mre-node-group:hover .mre-nav-label {
+	text-decoration: underline;
 }
 
 .mre-spinner {
