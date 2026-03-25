@@ -126,6 +126,9 @@ The resulting zips in `.output/` are identical to those attached to the [GitHub 
 
 ### Setup
 
+> [!IMPORTANT]
+> The `--recurse-submodules` flag is required as the project imports packages from the [modrinth](https://github.com/modrinth/code) monorepo as a git submodule.
+
 ```bash
 git clone --recurse-submodules https://github.com/creeperkatze/modrinth-extras.git
 cd modrinth-extras
