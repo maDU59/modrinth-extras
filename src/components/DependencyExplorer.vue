@@ -84,9 +84,6 @@
 							class="mre-explorer-pulse"
 						/>
 
-						<!-- Drop shadow -->
-						<circle :r="nodeR(node)" fill="rgba(0,0,0,0.4)" transform="translate(0,3)" />
-
 						<!-- Body -->
 						<circle
 							:r="nodeR(node)"
@@ -119,19 +116,18 @@
 							style="pointer-events: none"
 						/>
 
-						<!-- Loading overlay -->
-						<g v-if="node.loading" style="pointer-events: none">
-							<circle :r="nodeR(node)" fill="rgba(0,0,0,0.6)" />
-							<text
-								text-anchor="middle"
-								dominant-baseline="central"
-								font-size="9"
-								fill="rgba(255,255,255,0.7)"
-								style="user-select: none"
-							>
-								…
-							</text>
-						</g>
+						<!-- Loading spinner ring -->
+						<circle
+							v-if="node.loading"
+							class="mre-spinner"
+							:r="nodeR(node) + 4"
+							fill="none"
+							stroke="#666"
+							stroke-width="2"
+							stroke-linecap="round"
+							:stroke-dasharray="`${(nodeR(node) + 4) * Math.PI * 0.5} ${(nodeR(node) + 4) * Math.PI * 1.5}`"
+							style="pointer-events: none"
+						/>
 
 						<!-- Expand badge (+ icon for unexpanded non-root nodes) -->
 						<g v-if="!node.isRoot && !node.loaded && !node.loading" style="pointer-events: none">
@@ -289,9 +285,8 @@ const LEGEND = [
 
 // Simulation constants
 
-const REPULSION = 4500
-const SPRING_K = 0.055
-const IDEAL_LEN = 180
+const REPULSION = 8000
+const IDEAL_LEN = 240
 const DAMPING = 0.8
 const CENTER_K = 0.018
 const STOP_VEL = 0.12
@@ -386,21 +381,29 @@ function tick() {
 		}
 	}
 
-	// Spring attraction along edges
+	// Position-based link constraints (uniform edge length)
+	const LINK_STRENGTH = 0.18
 	for (const e of edges.value) {
 		const si = idx.get(e.source)
 		const ti = idx.get(e.target)
 		if (si == null || ti == null) continue
-		const dx = ns[ti].x - ns[si].x
-		const dy = ns[ti].y - ns[si].y
+		const ns_s = ns[si]
+		const ns_t = ns[ti]
+		if (ns_s.fx !== null && ns_t.fx !== null) continue
+		const dx = ns_t.x - ns_s.x
+		const dy = ns_t.y - ns_s.y
 		const d = Math.sqrt(dx * dx + dy * dy) || 0.01
-		const f = SPRING_K * (d - IDEAL_LEN) * alpha
-		const fx = (dx / d) * f
-		const fy = (dy / d) * f
-		ax[si] += fx
-		ay[si] += fy
-		ax[ti] -= fx
-		ay[ti] -= fy
+		const correction = ((d - IDEAL_LEN) / d) * LINK_STRENGTH * alpha
+		const cx = dx * correction
+		const cy = dy * correction
+		if (ns_s.fx === null) {
+			ns_s.x += cx * 0.5
+			ns_s.y += cy * 0.5
+		}
+		if (ns_t.fx === null) {
+			ns_t.x -= cx * 0.5
+			ns_t.y -= cy * 0.5
+		}
 	}
 
 	// Centering
@@ -484,7 +487,7 @@ function placeAroundNode(sourceId: string, count: number): { x: number; y: numbe
 	const sy = source?.y ?? 0
 	const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5))
 	// spacing scales with sqrt(n) so area grows linearly with node count
-	const spacing = Math.max(55, 55 * Math.sqrt(count / 6))
+	const spacing = Math.max(100, 100 * Math.sqrt(count / 6))
 	const positions: { x: number; y: number }[] = []
 	for (let i = 0; i < count; i++) {
 		const r = spacing * Math.sqrt(i + 1)
@@ -685,7 +688,7 @@ defineExpose({ show })
 <style scoped>
 .mre-explorer-pulse {
 	animation: mre-explorer-pulse 2.4s ease-in-out infinite;
-	transform-origin: 0 0;
+	transform-origin: center;
 	transform-box: fill-box;
 }
 
@@ -698,6 +701,21 @@ defineExpose({ show })
 	50% {
 		opacity: 0.45;
 		transform: scale(1.08);
+	}
+}
+
+.mre-spinner {
+	animation: mre-spin 0.8s linear infinite;
+	transform-origin: center;
+	transform-box: fill-box;
+}
+
+@keyframes mre-spin {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
 	}
 }
 </style>
