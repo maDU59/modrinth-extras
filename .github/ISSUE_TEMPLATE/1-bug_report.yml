@@ -1,6 +1,6 @@
 name: 🐛 Bug report
 description: Report a bug to help improve the extension
-type: 'bug'
+labels: ['bug']
 body:
   - type: dropdown
     id: browsers
