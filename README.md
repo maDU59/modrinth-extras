@@ -53,7 +53,7 @@ Download, follow, and save projects right from their project cards.
 - **Save:** save or remove the project from your collections.
 - **Copy link:** copy the project's link to your clipboard.
 
-<img src=".github/assets/screenshots/project_card_actions.png" width="100%">
+<img src=".github/assets/screenshots/project-card-actions.png" width="100%">
 
 ### Activity sparkline
 
