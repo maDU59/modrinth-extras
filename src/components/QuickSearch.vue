@@ -187,8 +187,9 @@ async function loadRecentSearches() {
 	try {
 		const result = await browser.storage.local.get('recentSearches')
 		recentSearches.value = (result.recentSearches as Example[]) ?? []
-	} catch {
+	} catch (err) {
 		recentSearches.value = []
+		console.error('[Modrinth Extras] Failed to load recent searches:', err)
 	}
 }
 
@@ -200,7 +201,9 @@ async function saveRecentSearch(entry: Example) {
 	recentSearches.value = updated
 	try {
 		await browser.storage.local.set({ recentSearches: updated })
-	} catch {}
+	} catch (err) {
+		console.error('[Modrinth Extras] Failed to save recent searches:', err)
+	}
 }
 
 const loaders = ref<string[]>([])
@@ -275,7 +278,6 @@ const selectedIndex = ref(0)
 const inputEl = ref<HTMLInputElement | null>(null)
 const suggestionEls = ref<(HTMLElement | null)[]>([])
 
-// --- Placeholder animation ---
 const animatedText = ref('')
 let animTimer: ReturnType<typeof setTimeout> | null = null
 
