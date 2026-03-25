@@ -18,6 +18,10 @@ on:
         description: 'Publish to Edge Add-ons'
         type: boolean
         default: true
+      upload-only:
+        description: 'Upload only'
+        type: boolean
+        default: false
 
 jobs:
   test:
@@ -78,6 +82,7 @@ jobs:
           client-id: ${{ secrets.CHROME_CLIENT_ID }}
           client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
           refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          upload-only: ${{ inputs.upload-only }}
 
   publish-firefox:
     name: Publish to Firefox Add-Ons
@@ -121,3 +126,4 @@ jobs:
           zip-path: ${{ steps.zip.outputs.path }}
           api-key: ${{ secrets.EDGE_API_KEY }}
           client-id: ${{ secrets.EDGE_CLIENT_ID }}
+          upload-only: ${{ inputs.upload-only }}
