@@ -47,7 +47,11 @@
 					@mousedown="onBgMouseDown"
 				/>
 
-				<g v-if="!initialLoading" :transform="`translate(${pan.x},${pan.y}) scale(${zoom})`">
+				<g
+					v-if="!initialLoading"
+					:data-v="renderVersion"
+					:transform="`translate(${pan.x},${pan.y}) scale(${zoom})`"
+				>
 					<!-- Edges -->
 					<g style="pointer-events: none">
 						<line
@@ -238,7 +242,9 @@
 
 <script setup lang="ts">
 import { NewModal } from '@modrinth/ui'
-import { nextTick, onUnmounted, ref, useTemplateRef } from 'vue'
+import type { ForceLink, Simulation, SimulationLinkDatum } from 'd3-force'
+import { forceCenter, forceCollide, forceLink, forceManyBody, forceSimulation } from 'd3-force'
+import { markRaw, nextTick, onUnmounted, ref, useTemplateRef } from 'vue'
 
 import { apiFetch } from '../helpers/apiFetch'
 import {
@@ -261,6 +267,7 @@ interface GraphNode {
 	loading: boolean
 	isRoot: boolean
 	depth: number
+	index?: number
 }
 
 interface GraphEdge {
@@ -269,7 +276,8 @@ interface GraphEdge {
 	type: 'required' | 'optional' | 'embedded'
 }
 
-// Constants
+// d3 mutates source/target to node refs after binding; keep separate from GraphEdge
+type D3Link = SimulationLinkDatum<GraphNode> & { type: GraphEdge['type'] }
 
 const EDGE_COLORS: Record<string, string> = {
 	required: '#4ade80',
@@ -283,23 +291,17 @@ const LEGEND = [
 	{ type: 'embedded', color: '#60a5fa', label: 'Embedded', dashed: false },
 ]
 
-// Simulation constants
-
-const REPULSION = 8000
-const IDEAL_LEN = 240
-const DAMPING = 0.8
-const CENTER_K = 0.018
-const STOP_VEL = 0.12
-
 const props = defineProps<{ projectSlug: string }>()
 
 const modal = useTemplateRef<InstanceType<typeof NewModal>>('modal')
 const svgRef = ref<SVGSVGElement | null>(null)
 const containerRef = ref<HTMLDivElement | null>(null)
 
+// nodes array is reactive for v-for; individual nodes are markRaw so d3 mutates freely
 const nodes = ref<GraphNode[]>([])
 const edges = ref<GraphEdge[]>([])
 const initialLoading = ref(false)
+const renderVersion = ref(0)
 
 const pan = ref({ x: 480, y: 290 })
 const zoom = ref(1)
@@ -312,8 +314,7 @@ let dragMoved = false
 let panning = false
 let panStart = { mx: 0, my: 0, px: 0, py: 0 }
 
-let rafId: number | null = null
-let alpha = 1
+let simulation: Simulation<GraphNode, D3Link> | null = null
 let fitOnSettle = false
 
 // Helpers
@@ -334,114 +335,48 @@ function clamp(s: string, max: number): string {
 	return s.length > max ? s.slice(0, max - 1) + '…' : s
 }
 
-// Force simulation
+// Simulation
 
-function kickSimulation() {
-	alpha = Math.min(alpha + 0.35, 1)
-	if (rafId === null) rafId = requestAnimationFrame(tick)
+function getD3Links(): D3Link[] {
+	return edges.value.map((e) => ({ source: e.source, target: e.target, type: e.type }))
 }
 
-function tick() {
-	const ns = nodes.value
-	if (ns.length < 2) {
-		rafId = null
-		return
-	}
+function startSimulation() {
+	simulation?.stop()
 
-	const n = ns.length
-	const ax = new Float64Array(n)
-	const ay = new Float64Array(n)
-
-	const idx = new Map<string, number>()
-	for (let i = 0; i < n; i++) idx.set(ns[i].id, i)
-
-	// Repulsion + collision avoidance between all node pairs
-	for (let i = 0; i < n; i++) {
-		for (let j = i + 1; j < n; j++) {
-			const dx = ns[j].x - ns[i].x
-			const dy = ns[j].y - ns[i].y
-			const d2 = dx * dx + dy * dy || 0.01
-			const d = Math.sqrt(d2)
-			// Hard collision: push apart if overlapping (ignores alpha so it always applies)
-			const minDist = nodeR(ns[i]) + nodeR(ns[j]) + 18
-			if (d < minDist) {
-				const push = (minDist - d) * 0.6
-				ax[i] -= (dx / d) * push
-				ay[i] -= (dy / d) * push
-				ax[j] += (dx / d) * push
-				ay[j] += (dy / d) * push
+	simulation = forceSimulation<GraphNode>(nodes.value)
+		.force('charge', forceManyBody<GraphNode>().strength(-900))
+		.force(
+			'link',
+			forceLink<GraphNode, D3Link>(getD3Links())
+				.id((n) => n.id)
+				.distance(200)
+				.strength(0.6),
+		)
+		.force(
+			'collide',
+			forceCollide<GraphNode>()
+				.radius((n) => nodeR(n) + 14)
+				.strength(0.85),
+		)
+		.force('center', forceCenter(0, 0).strength(0.04))
+		.alphaDecay(0.025)
+		.on('tick', () => {
+			renderVersion.value++
+		})
+		.on('end', () => {
+			if (fitOnSettle) {
+				fitOnSettle = false
+				zoomToFit()
 			}
-			const f = (REPULSION / d2) * alpha
-			const fx = (dx / d) * f
-			const fy = (dy / d) * f
-			ax[i] -= fx
-			ay[i] -= fy
-			ax[j] += fx
-			ay[j] += fy
-		}
-	}
+		})
+}
 
-	// Position-based link constraints (uniform edge length)
-	const LINK_STRENGTH = 0.18
-	for (const e of edges.value) {
-		const si = idx.get(e.source)
-		const ti = idx.get(e.target)
-		if (si == null || ti == null) continue
-		const ns_s = ns[si]
-		const ns_t = ns[ti]
-		if (ns_s.fx !== null && ns_t.fx !== null) continue
-		const dx = ns_t.x - ns_s.x
-		const dy = ns_t.y - ns_s.y
-		const d = Math.sqrt(dx * dx + dy * dy) || 0.01
-		const correction = ((d - IDEAL_LEN) / d) * LINK_STRENGTH * alpha
-		const cx = dx * correction
-		const cy = dy * correction
-		if (ns_s.fx === null) {
-			ns_s.x += cx * 0.5
-			ns_s.y += cy * 0.5
-		}
-		if (ns_t.fx === null) {
-			ns_t.x -= cx * 0.5
-			ns_t.y -= cy * 0.5
-		}
-	}
-
-	// Centering
-	for (let i = 0; i < n; i++) {
-		ax[i] -= CENTER_K * ns[i].x * alpha
-		ay[i] -= CENTER_K * ns[i].y * alpha
-	}
-
-	// Integrate velocities
-	let maxV = 0
-	for (let i = 0; i < n; i++) {
-		const node = ns[i]
-		if (node.fx !== null) {
-			node.x = node.fx
-			node.y = node.fy!
-			node.vx = 0
-			node.vy = 0
-			continue
-		}
-		node.vx = (node.vx + ax[i]) * DAMPING
-		node.vy = (node.vy + ay[i]) * DAMPING
-		node.x += node.vx
-		node.y += node.vy
-		const v = Math.abs(node.vx) + Math.abs(node.vy)
-		if (v > maxV) maxV = v
-	}
-
-	alpha *= 0.992
-	if (maxV > STOP_VEL || alpha > 0.08) {
-		rafId = requestAnimationFrame(tick)
-	} else {
-		rafId = null
-		alpha = 0
-		if (fitOnSettle) {
-			fitOnSettle = false
-			zoomToFit()
-		}
-	}
+function kickSimulation() {
+	if (!simulation) return
+	simulation.nodes(nodes.value)
+	simulation.force<ForceLink<GraphNode, D3Link>>('link')?.links(getD3Links())
+	simulation.alpha(Math.max(simulation.alpha(), 0.4)).restart()
 }
 
 function zoomToFit(padding = 80) {
@@ -455,7 +390,7 @@ function zoomToFit(padding = 80) {
 		minY = Infinity,
 		maxY = -Infinity
 	for (const node of nodes.value) {
-		const r = nodeR(node) + 14 // Include label height
+		const r = nodeR(node) + 14
 		minX = Math.min(minX, node.x - r)
 		maxX = Math.max(maxX, node.x + r)
 		minY = Math.min(minY, node.y - r)
@@ -472,51 +407,37 @@ function zoomToFit(padding = 80) {
 }
 
 onUnmounted(() => {
-	if (rafId !== null) {
-		cancelAnimationFrame(rafId)
-		rafId = null
-	}
+	simulation?.stop()
 })
 
 // Graph building
 
-// Sunflower (Fibonacci) spiral, distributes nodes evenly regardless of count
-function placeAroundNode(sourceId: string, count: number): { x: number; y: number }[] {
+function addDepsToGraph(sourceId: string, deps: EnrichedDep[], depth: number) {
+	const existingIds = new Set(nodes.value.map((n) => n.id))
 	const source = nodes.value.find((n) => n.id === sourceId)
 	const sx = source?.x ?? 0
 	const sy = source?.y ?? 0
-	const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5))
-	// spacing scales with sqrt(n) so area grows linearly with node count
-	const spacing = Math.max(100, 100 * Math.sqrt(count / 6))
-	const positions: { x: number; y: number }[] = []
-	for (let i = 0; i < count; i++) {
-		const r = spacing * Math.sqrt(i + 1)
-		const theta = GOLDEN_ANGLE * i
-		positions.push({ x: sx + r * Math.cos(theta), y: sy + r * Math.sin(theta) })
-	}
-	return positions
-}
 
-function addDepsToGraph(sourceId: string, deps: EnrichedDep[], depth: number) {
-	const existingIds = new Set(nodes.value.map((n) => n.id))
 	const newDeps = deps.filter((d) => !existingIds.has(d.project_id))
-	const positions = placeAroundNode(sourceId, newDeps.length)
-
 	newDeps.forEach((dep, i) => {
-		nodes.value.push({
-			id: dep.project_id,
-			x: positions[i].x,
-			y: positions[i].y,
-			vx: 0,
-			vy: 0,
-			fx: null,
-			fy: null,
-			project: dep.project,
-			loaded: false,
-			loading: false,
-			isRoot: false,
-			depth,
-		})
+		const angle = (i / Math.max(newDeps.length, 1)) * 2 * Math.PI
+		const r = 80 + 30 * Math.floor(i / 8)
+		nodes.value.push(
+			markRaw({
+				id: dep.project_id,
+				x: sx + r * Math.cos(angle),
+				y: sy + r * Math.sin(angle),
+				vx: 0,
+				vy: 0,
+				fx: null,
+				fy: null,
+				project: dep.project,
+				loaded: false,
+				loading: false,
+				isRoot: false,
+				depth,
+			}),
+		)
 	})
 
 	for (const dep of deps) {
@@ -537,7 +458,6 @@ async function initGraph() {
 	edges.value = []
 	initialLoading.value = true
 	zoom.value = 1
-	alpha = 1
 
 	let rootProject: ProjectInfo | null = null
 	try {
@@ -547,29 +467,29 @@ async function initGraph() {
 	}
 
 	const rootId = rootProject?.id ?? props.projectSlug
-	nodes.value.push({
-		id: rootId,
-		x: 0,
-		y: 0,
-		vx: 0,
-		vy: 0,
-		fx: null,
-		fy: null,
-		project: rootProject,
-		loaded: false,
-		loading: false,
-		isRoot: true,
-		depth: 0,
-	})
+	nodes.value.push(
+		markRaw({
+			id: rootId,
+			x: 0,
+			y: 0,
+			vx: 0,
+			vy: 0,
+			fx: null,
+			fy: null,
+			project: rootProject,
+			loaded: false,
+			loading: false,
+			isRoot: true,
+			depth: 0,
+		}),
+	)
 
 	try {
 		const deps = await fetchProjectDependencies(props.projectSlug)
 		if (deps.length > 0) {
 			addDepsToGraph(rootId, deps, 1)
-			nodes.value[0].loaded = true
-		} else {
-			nodes.value[0].loaded = true
 		}
+		nodes.value[0].loaded = true
 	} catch (err) {
 		console.error('[Modrinth Extras] Failed to fetch dependencies for graph:', err)
 	} finally {
@@ -577,7 +497,7 @@ async function initGraph() {
 	}
 
 	fitOnSettle = true
-	kickSimulation()
+	startSimulation()
 }
 
 // Node expansion
@@ -608,6 +528,7 @@ function onNodeMouseDown(event: MouseEvent, node: GraphNode) {
 	dragMoved = false
 	node.fx = node.x
 	node.fy = node.y
+	simulation?.alphaTarget(0.3).restart()
 }
 
 function onBgMouseDown(event: MouseEvent) {
@@ -624,7 +545,6 @@ function onMouseMove(event: MouseEvent) {
 		draggingNode.fy = dragStartNode.y + dy / zoom.value
 		draggingNode.x = draggingNode.fx
 		draggingNode.y = draggingNode.fy
-		kickSimulation()
 	} else if (panning) {
 		pan.value = {
 			x: panStart.px + (event.clientX - panStart.mx),
@@ -638,7 +558,7 @@ function onMouseUp() {
 		if (dragMoved) {
 			draggingNode.fx = null
 			draggingNode.fy = null
-			kickSimulation()
+			simulation?.alphaTarget(0)
 		}
 		draggingNode = null
 	}
