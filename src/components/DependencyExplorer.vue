@@ -555,11 +555,9 @@ function onMouseMove(event: MouseEvent) {
 
 function onMouseUp() {
 	if (draggingNode) {
-		if (dragMoved) {
-			draggingNode.fx = null
-			draggingNode.fy = null
-			simulation?.alphaTarget(0)
-		}
+		draggingNode.fx = null
+		draggingNode.fy = null
+		simulation?.alphaTarget(0)
 		draggingNode = null
 	}
 	panning = false
