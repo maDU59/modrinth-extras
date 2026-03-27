@@ -1,4 +1,106 @@
 {
+  "feature.activitySparkline.description": {
+    "defaultMessage": "Graph zur Veröffentlichungsaktivität auf Projektseiten."
+  },
+  "feature.activitySparkline.title": {
+    "defaultMessage": "Aktivitäts-Sparkline"
+  },
+  "feature.curseforgeRedirect.description": {
+    "defaultMessage": "Leite CurseForge-Projektseiten zu Modrinth um, falls verfügbar."
+  },
+  "feature.curseforgeRedirect.title": {
+    "defaultMessage": "CurseForge-Weiterleitung"
+  },
+  "feature.dependenciesSidebar.description": {
+    "defaultMessage": "Klappbarer Abhängigkeitsbaum auf Projektseiten."
+  },
+  "feature.dependenciesSidebar.title": {
+    "defaultMessage": "Abhängigkeits-Seitenleiste"
+  },
+  "feature.desktopNotifications.description": {
+    "defaultMessage": "Benachrichtigungen vom Betriebssystem für deine Modrinth-Benachrichtigungen."
+  },
+  "feature.desktopNotifications.exampleMessage": {
+    "defaultMessage": "Das ist eine Beispielbenachrichtigung von Modrinth Extras!"
+  },
+  "feature.desktopNotifications.exampleTitle": {
+    "defaultMessage": "Beispiel-Benachrichtigung"
+  },
+  "feature.desktopNotifications.title": {
+    "defaultMessage": "Desktop-Benachrichtigungen"
+  },
+  "feature.discordSidebar.description": {
+    "defaultMessage": "Servername, Beschreibung, Mitgliederzahl und Anzahl der aktiven Nutzer für verknüpfte Discordserver."
+  },
+  "feature.discordSidebar.title": {
+    "defaultMessage": "Discord-Seitenleiste"
+  },
+  "feature.githubSidebar.description": {
+    "defaultMessage": "Sterne, Issues, Pull Requests und Forks für verknüpfte Repositories."
+  },
+  "feature.githubSidebar.title": {
+    "defaultMessage": "GitHub-Seitenleiste"
+  },
+  "feature.notificationBadge.description": {
+    "defaultMessage": "Aktuelle Anzahl ungelesener Benachrichtigungen als Abzeichen auf dem Erweiterungssymbol."
+  },
+  "feature.notificationBadge.title": {
+    "defaultMessage": "Benachrichtigungsabzeichen"
+  },
+  "feature.notifications.description": {
+    "defaultMessage": "Du kannst ungelesene Benachrichtigungen direkt in der Kopfzeile einsehen, verwalten und löschen, ohne die aktuelle Seite zu verlassen."
+  },
+  "feature.notifications.title": {
+    "defaultMessage": "Benachrichtigungen"
+  },
+  "feature.projectCardActions.description": {
+    "defaultMessage": "Projekte direkt über ihre Projektkarten herunterladen, folgen und speichern."
+  },
+  "feature.projectCardActions.modLoader": {
+    "defaultMessage": "Modloader"
+  },
+  "feature.projectCardActions.pluginLoader": {
+    "defaultMessage": "Pluginloader"
+  },
+  "feature.projectCardActions.title": {
+    "defaultMessage": "Projektkarten-Aktionen"
+  },
+  "feature.quickSearch.description": {
+    "defaultMessage": "Strg+K oder / für eine Suche im Stil einer Befehlspalette mit gefilterten Tags für Loader, Versionen, Kategorien und Typen."
+  },
+  "feature.quickSearch.title": {
+    "defaultMessage": "Schnellsuche"
+  },
+  "feature.telemetry.description": {
+    "defaultMessage": "Hilf mit, die Erweiterung zu verbessern, indem du anonym Statistiken wie die Versionsnummer der Erweiterung und die aktivierten Funktionen teilst. Es werden keine Modrinth-Daten, Aktivitäten oder persönliche Informationen erfasst."
+  },
+  "feature.telemetry.disabledTooltip": {
+    "defaultMessage": "Wird durch die Firefox-Einstellungen zur Datenerfassung gesteuert"
+  },
+  "feature.telemetry.title": {
+    "defaultMessage": "Telemetrie"
+  },
+  "feature.toolsSidebar.description": {
+    "defaultMessage": "Generiere Einbettungen, zeige rohe API-Antworten an, kopiere Download-URLs und Packwiz-Befehle."
+  },
+  "feature.toolsSidebar.title": {
+    "defaultMessage": "Werkzeugleiste"
+  },
+  "popup.footer.checking": {
+    "defaultMessage": "Wird überprüft"
+  },
+  "popup.footer.latestVersion": {
+    "defaultMessage": "Neueste Version"
+  },
+  "popup.footer.starOnGitHub": {
+    "defaultMessage": "★ Auf GitHub"
+  },
+  "popup.footer.updateAvailable": {
+    "defaultMessage": "Aktualisierung verfügbar"
+  },
+  "popup.group.contentPages": {
+    "defaultMessage": "Inhaltsseiten"
+  },
   "popup.group.extension": {
     "defaultMessage": "Erweiterung"
   },
@@ -7,6 +109,9 @@
   },
   "settings.language": {
     "defaultMessage": "Sprache"
+  },
+  "settings.language.description": {
+    "defaultMessage": "Hilf bei der Übersetzung auf <link>Crowdin</link>. Einige Sprachen sind möglicherweise noch unvollständig."
   }
 }
 

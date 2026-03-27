@@ -1,4 +1,7 @@
 {
+  "depNode.collapse": {
+    "defaultMessage": "Abhängigkeiten einklappen"
+  },
   "depNode.embedded": {
     "defaultMessage": "Eingebettet"
   },
@@ -13,6 +16,45 @@
   },
   "depNode.required": {
     "defaultMessage": "Erforderlich"
+  },
+  "deps.loadError": {
+    "defaultMessage": "Fehler beim Laden der Abhängigkeiten"
+  },
+  "deps.loading": {
+    "defaultMessage": "Wird geladen"
+  },
+  "deps.none": {
+    "defaultMessage": "Keine Abhängigkeiten"
+  },
+  "deps.openGraph": {
+    "defaultMessage": "Abhängigkeitsgraph öffnen"
+  },
+  "deps.title": {
+    "defaultMessage": "Abhängigkeiten"
+  },
+  "discord.members": {
+    "defaultMessage": "{count} Mitglieder"
+  },
+  "discord.online": {
+    "defaultMessage": "{count} online"
+  },
+  "discord.partnered": {
+    "defaultMessage": "Gepartnert"
+  },
+  "discord.verified": {
+    "defaultMessage": "Verifiziert"
+  },
+  "github.forks": {
+    "defaultMessage": "{count} Forks"
+  },
+  "github.openIssues": {
+    "defaultMessage": "{count} offene Issues"
+  },
+  "github.openPRs": {
+    "defaultMessage": "{count} offene Pull Requests"
+  },
+  "github.stars": {
+    "defaultMessage": "{count} Sterne"
   },
   "notifications.markAllAsRead": {
     "defaultMessage": "Alle als gelesen markieren"
@@ -41,6 +83,12 @@
   "projectCard.follow": {
     "defaultMessage": "Folgen"
   },
+  "projectCard.newCollection": {
+    "defaultMessage": "Neue Kollektion erstellen"
+  },
+  "projectCard.noCollections": {
+    "defaultMessage": "Keine Kollektionen gefunden."
+  },
   "projectCard.save": {
     "defaultMessage": "Speichern"
   },
@@ -64,6 +112,9 @@
   },
   "tools.copied": {
     "defaultMessage": "Kopiert!"
+  },
+  "tools.copyDownloadUrl": {
+    "defaultMessage": "Download-URL kopieren"
   },
   "tools.copyPackwiz": {
     "defaultMessage": "Packwiz kopieren"
