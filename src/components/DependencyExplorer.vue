@@ -1,7 +1,7 @@
 <template>
 	<NewModal
 		ref="modal"
-		header="Dependency Graph"
+		:header="formatMessage(messages['depExplorer.title'])"
 		:closable="true"
 		:no-padding="true"
 		max-width="min(96vw, 1400px)"
@@ -225,7 +225,7 @@
 					fill="#666"
 					font-size="14"
 				>
-					This project has no dependencies
+					{{ formatMessage(messages['depExplorer.noDependencies']) }}
 				</text>
 			</svg>
 
@@ -249,7 +249,7 @@
 				>
 					<path d="M21 12a9 9 0 1 1-6.219-8.56" />
 				</svg>
-				Loading
+				{{ formatMessage(messages['deps.loading']) }}
 			</div>
 
 			<!-- Legend -->
@@ -271,14 +271,14 @@
 				class="absolute bottom-3 right-3"
 				style="font-size: 11px; color: #555; pointer-events: none"
 			>
-				scroll to zoom · drag to pan · click to expand
+				{{ formatMessage(messages['depExplorer.controls']) }}
 			</div>
 		</div>
 	</NewModal>
 </template>
 
 <script setup lang="ts">
-import { NewModal } from '@modrinth/ui'
+import { defineMessages, NewModal, useVIntl } from '@modrinth/ui'
 import type { ForceLink, Simulation, SimulationLinkDatum } from 'd3-force'
 import { forceCenter, forceCollide, forceLink, forceManyBody, forceSimulation } from 'd3-force'
 import { computed, markRaw, nextTick, onUnmounted, ref, useTemplateRef } from 'vue'
@@ -317,17 +317,34 @@ interface GraphEdge {
 // d3 mutates source/target to node refs after binding; keep separate from GraphEdge
 type D3Link = SimulationLinkDatum<GraphNode> & { type: GraphEdge['type'] }
 
+const { formatMessage } = useVIntl()
+const messages = defineMessages({
+	'depExplorer.title': { id: 'depExplorer.title', defaultMessage: 'Dependency Graph' },
+	'depExplorer.noDependencies': {
+		id: 'depExplorer.noDependencies',
+		defaultMessage: 'This project has no dependencies',
+	},
+	'depExplorer.controls': {
+		id: 'depExplorer.controls',
+		defaultMessage: 'scroll to zoom · drag to pan · click to expand',
+	},
+	'depNode.required': { id: 'depNode.required', defaultMessage: 'Required' },
+	'depNode.optional': { id: 'depNode.optional', defaultMessage: 'Optional' },
+	'depNode.embedded': { id: 'depNode.embedded', defaultMessage: 'Embedded' },
+	'deps.loading': { id: 'deps.loading', defaultMessage: 'Loading' },
+})
+
 const EDGE_COLORS: Record<string, string> = {
 	required: '#4ade80',
 	optional: '#888',
 	embedded: '#60a5fa',
 }
 
-const LEGEND = [
-	{ type: 'required', color: '#4ade80', label: 'Required' },
-	{ type: 'optional', color: '#888', label: 'Optional' },
-	{ type: 'embedded', color: '#60a5fa', label: 'Embedded' },
-]
+const LEGEND = computed(() => [
+	{ type: 'required', color: '#4ade80', label: formatMessage(messages['depNode.required']) },
+	{ type: 'optional', color: '#888', label: formatMessage(messages['depNode.optional']) },
+	{ type: 'embedded', color: '#60a5fa', label: formatMessage(messages['depNode.embedded']) },
+])
 
 const edgesWithCurvature = computed(() => {
 	const counts = new Map<string, number>()

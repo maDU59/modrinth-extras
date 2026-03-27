@@ -1,4 +1,13 @@
 {
+  "depExplorer.controls": {
+    "defaultMessage": "scroll to zoom · drag to pan · click to expand"
+  },
+  "depExplorer.noDependencies": {
+    "defaultMessage": "This project has no dependencies"
+  },
+  "depExplorer.title": {
+    "defaultMessage": "Dependency Graph"
+  },
   "depNode.collapse": {
     "defaultMessage": "Collapse dependencies"
   },
@@ -43,6 +52,9 @@
   },
   "discord.verified": {
     "defaultMessage": "Verified"
+  },
+  "errorNotice.message": {
+    "defaultMessage": "This error might be related to Modrinth Extras. Try disabling the extension and refreshing the page before reporting this to Modrinth. If the error goes away, please report it <link>here</link>."
   },
   "github.forks": {
     "defaultMessage": "{count} forks"

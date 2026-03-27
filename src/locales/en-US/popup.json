@@ -107,6 +107,9 @@
   "popup.group.general": {
     "defaultMessage": "General"
   },
+  "search.any": {
+    "defaultMessage": "Any"
+  },
   "settings.language": {
     "defaultMessage": "Language"
   },

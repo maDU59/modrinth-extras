@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import { DropdownSelect } from '@modrinth/ui'
+import { defineMessages, DropdownSelect, useVIntl } from '@modrinth/ui'
 import { computed, onMounted, ref } from 'vue'
 
 export interface SelectItem {
@@ -23,7 +23,14 @@ export interface SelectItem {
 	value: string
 }
 
-const ANY_ITEM: SelectItem = { label: 'Any', value: '' }
+const { formatMessage } = useVIntl()
+const messages = defineMessages({
+	'search.any': { id: 'search.any', defaultMessage: 'Any' },
+})
+const anyItem = computed<SelectItem>(() => ({
+	label: formatMessage(messages['search.any']),
+	value: '',
+}))
 
 const props = defineProps<{
 	label: string
@@ -42,11 +49,11 @@ const resolvedItems = ref<SelectItem[]>(props.items ?? [])
 const loading = ref(false)
 
 const allItems = computed<SelectItem[]>(() =>
-	props.includeAny !== false ? [ANY_ITEM, ...resolvedItems.value] : resolvedItems.value,
+	props.includeAny !== false ? [anyItem.value, ...resolvedItems.value] : resolvedItems.value,
 )
 
 const selectedItem = computed<SelectItem>(
-	() => allItems.value.find((i) => i.value === props.modelValue) ?? ANY_ITEM,
+	() => allItems.value.find((i) => i.value === props.modelValue) ?? anyItem.value,
 )
 
 onMounted(async () => {
