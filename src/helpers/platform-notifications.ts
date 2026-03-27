@@ -141,28 +141,26 @@ export async function fetchExtraNotificationData(
 }
 
 export function groupNotifications(notifications: PlatformNotification[]): PlatformNotification[] {
-	const grouped: PlatformNotification[] = []
-	for (let i = 0; i < notifications.length; i++) {
-		const current = notifications[i]
-		const next = notifications[i + 1]
-		if (current.body && i < notifications.length - 1 && isSimilar(current, next)) {
-			const groupCopy = { ...current, grouped_notifs: [next] }
-			let j = i + 2
-			while (j < notifications.length && isSimilar(current, notifications[j])) {
-				groupCopy.grouped_notifs.push(notifications[j])
-				j++
+	const byProject = new Map<string, PlatformNotification>()
+	const result: PlatformNotification[] = []
+
+	for (const notif of notifications) {
+		const key = notif.body?.project_id
+		if (key) {
+			const leader = byProject.get(key)
+			if (leader) {
+				;(leader.grouped_notifs ??= []).push(notif)
+			} else {
+				const copy = { ...notif }
+				byProject.set(key, copy)
+				result.push(copy)
 			}
-			grouped.push(groupCopy)
-			i = j - 1
 		} else {
-			grouped.push(current)
+			result.push(notif)
 		}
 	}
-	return grouped
-}
 
-function isSimilar(a: PlatformNotification, b: PlatformNotification | undefined): boolean {
-	return !!a?.body?.project_id && a.body!.project_id === b?.body?.project_id
+	return result
 }
 
 export async function markAsRead(ids: string[], fetcher: Fetcher = apiFetch): Promise<void> {
