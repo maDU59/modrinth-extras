@@ -6,6 +6,7 @@ A browser extension that enhances Modrinth on the website and beyond.
 ![GitHub Issues](https://img.shields.io/github/issues/creeperkatze/modrinth-extras?labelColor=0d143c)
 ![GitHub Pull Requests](https://img.shields.io/github/issues-pr/creeperkatze/modrinth-extras?labelColor=0d143c)
 ![GitHub Repo stars](https://img.shields.io/github/stars/creeperkatze/modrinth-extras?style=flat&labelColor=0d143c)
+[![Crowdin](https://badges.crowdin.net/modrinth-extras/localized.svg)](https://crowdin.com/project/modrinth-extras)
 
 ## 🚀 Installation
 
@@ -154,6 +155,12 @@ Then go to `about:debugging#/runtime/this-firefox`, click **Load Temporary Add-o
 
 > [!NOTE]
 > `pnpm dev` can also be used during development to automatically create a temporary browser with the extension pre-loaded. Keep in mind that this browser profile is isolated, requiring you to log in each time. This method also causes issues with Modrinth's dependencies.
+
+## 🌐 Translating
+
+Translations are managed on [Crowdin](https://crowdin.com/project/modrinth-extras). You can contribute without any technical knowledge, just pick your language and start translating.
+
+New translations are automatically pulled every Monday.
 
 ## 🤝 Contributing
 
