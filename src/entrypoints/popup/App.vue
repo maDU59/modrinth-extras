@@ -24,15 +24,35 @@
 			class="min-h-0 flex-1 [&>.scrollable-pane-wrapper]:h-full [&__.scrollable-pane]:max-h-none [&__.scrollable-pane]:!gap-0 [&__.wrapper-wrapper]:overflow-visible"
 		>
 			<FeatureGroup :label="formatMessage(messages['popup.group.general'])">
-				<div class="rounded-xl px-2 py-2 transition-colors duration-200 hover:bg-surface-3">
-					<OptionFieldSelect
-						:label="formatMessage(messages['settings.language'])"
-						:model-value="settings.locale.value"
-						:items="localeItems"
-						:include-any="false"
-						dropdown-class="w-48"
-						@update:model-value="updateLocale"
-					/>
+				<div class="rounded-xl transition-colors duration-200 hover:bg-surface-3">
+					<div class="flex items-center gap-3 px-2 py-2">
+						<LanguagesIcon aria-hidden="true" class="!size-6 shrink-0 text-secondary" />
+						<div class="min-w-0 flex-1">
+							<div class="text-sm font-semibold text-contrast">
+								{{ formatMessage(messages['settings.language']) }}
+							</div>
+							<div class="text-xs text-secondary">
+								Help translate on
+								<a
+									href="https://crowdin.com/project/modrinth-extras"
+									target="_blank"
+									rel="noopener"
+									class="text-link"
+									@click.stop
+									>Crowdin</a
+								>. Some languages may be incomplete.
+							</div>
+						</div>
+						<div class="language-dropdown">
+							<DropdownSelect
+								:options="localeItems"
+								name="language"
+								:model-value="selectedLocaleItem"
+								:display-name="(item: SelectItem) => item.label"
+								@update:model-value="(item: SelectItem) => updateLocale(item.value)"
+							/>
+						</div>
+					</div>
 				</div>
 				<FeatureRow
 					v-for="f in generalFeatures"
@@ -146,6 +166,7 @@ import {
 	DiscordIcon,
 	GitGraphIcon,
 	GithubIcon,
+	LanguagesIcon,
 	LoaderCircleIcon,
 	MonitorIcon,
 	PlayIcon,
@@ -156,6 +177,7 @@ import {
 import {
 	ButtonStyled,
 	defineMessages,
+	DropdownSelect,
 	HorizontalRule,
 	ScrollablePanel,
 	useVIntl,
@@ -466,6 +488,10 @@ const localeItems = computed<SelectItem[]>(() =>
 	LOCALES.map((l) => ({ label: l.name, value: l.code })),
 )
 
+const selectedLocaleItem = computed<SelectItem>(
+	() => localeItems.value.find((i) => i.value === settings.locale.value) ?? localeItems.value[0],
+)
+
 async function updateLocale(value: string) {
 	settings.locale.value = value
 	await saveSettings(settings as ExtensionSettings)
@@ -529,3 +555,23 @@ onMounted(async () => {
 	}
 })
 </script>
+
+<style scoped>
+.language-dropdown :deep(.animated-dropdown) {
+	width: 100%;
+	height: 2rem;
+}
+
+.language-dropdown :deep(.selected) {
+	padding: 0 var(--gap-md);
+	font-size: var(--font-size-sm);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.language-dropdown :deep(.option) {
+	padding: var(--gap-sm) var(--gap-md);
+	font-size: var(--font-size-sm);
+}
+</style>
