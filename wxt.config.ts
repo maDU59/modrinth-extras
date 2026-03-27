@@ -71,6 +71,7 @@ export default defineConfig({
 		build: {
 			chunkSizeWarningLimit: 2000,
 			rolldownOptions: {
+				external: (id: string) => id.startsWith('@xterm/'),
 				onwarn(warning, warn) {
 					if (warning.code === 'EMPTY_IMPORT_META') return
 					warn(warning)

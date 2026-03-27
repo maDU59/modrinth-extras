@@ -2,10 +2,10 @@ import '../../assets/popup.scss'
 import '../../assets/tailwind.css'
 import 'floating-vue/dist/style.css'
 
-import { provideI18n } from '@modrinth/ui'
 import FloatingVue from 'floating-vue'
-import { createApp, h, ref } from 'vue'
+import { createApp, h } from 'vue'
 
+import { installI18n, loadSavedLocale } from '../../i18n'
 import App from './App.vue'
 
 // Apply the correct theme class to <html> synchronously so CSS custom
@@ -18,12 +18,12 @@ const darkQuery = window.matchMedia('(prefers-color-scheme: dark)')
 applyTheme(darkQuery.matches)
 darkQuery.addEventListener('change', (e) => applyTheme(e.matches))
 
+await loadSavedLocale()
+
 const app = createApp({
-	setup() {
-		provideI18n({ locale: ref('en-US'), t: (key: string) => key, setLocale: () => {} })
-	},
 	render: () => h(App),
 })
 
+installI18n(app)
 app.use(FloatingVue)
 app.mount('#app')

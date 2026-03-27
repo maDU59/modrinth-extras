@@ -23,9 +23,19 @@
 			v-if="settingsLoaded"
 			class="min-h-0 flex-1 [&>.scrollable-pane-wrapper]:h-full [&__.scrollable-pane]:max-h-none [&__.scrollable-pane]:!gap-0 [&__.wrapper-wrapper]:overflow-visible"
 		>
-			<FeatureGroup label="General">
+			<FeatureGroup :label="formatMessage(messages['popup.group.general'])">
+				<div class="rounded-xl px-2 py-2 transition-colors duration-200 hover:bg-surface-3">
+					<OptionFieldSelect
+						:label="formatMessage(messages['settings.language'])"
+						:model-value="settings.locale.value"
+						:items="localeItems"
+						:include-any="false"
+						dropdown-class="w-48"
+						@update:model-value="updateLocale"
+					/>
+				</div>
 				<FeatureRow
-					v-for="f in GENERAL_FEATURES"
+					v-for="f in generalFeatures"
 					:key="f.key"
 					:icon="f.icon"
 					:title="f.title"
@@ -49,9 +59,9 @@
 
 			<HorizontalRule />
 
-			<FeatureGroup label="Content Pages">
+			<FeatureGroup :label="formatMessage(messages['popup.group.contentPages'])">
 				<FeatureRow
-					v-for="f in CONTENT_PAGE_FEATURES"
+					v-for="f in contentPageFeatures"
 					:key="f.key"
 					:icon="f.icon"
 					:title="f.title"
@@ -63,9 +73,9 @@
 
 			<HorizontalRule />
 
-			<FeatureGroup label="Extension">
+			<FeatureGroup :label="formatMessage(messages['popup.group.extension'])">
 				<FeatureRow
-					v-for="f in EXTENSION_FEATURES"
+					v-for="f in extensionFeatures"
 					:key="f.key"
 					:icon="f.icon"
 					:title="f.title"
@@ -90,7 +100,7 @@
 			<span class="text-xs text-secondary">v{{ version }}</span>
 			<span v-if="checking" class="flex items-center gap-1 text-xs text-secondary">
 				<LoaderCircleIcon class="size-4 animate-spin" aria-hidden="true" />
-				Checking
+				{{ formatMessage(messages['popup.footer.checking']) }}
 			</span>
 			<a
 				v-else-if="isLatest"
@@ -100,7 +110,7 @@
 				class="flex items-center gap-1 text-xs text-brand no-underline transition-colors hover:text-green-400"
 			>
 				<CheckCircleIcon class="size-4" aria-hidden="true" />
-				Latest version
+				{{ formatMessage(messages['popup.footer.latestVersion']) }}
 			</a>
 			<a
 				v-else-if="latestVersion"
@@ -110,7 +120,7 @@
 				class="flex items-center gap-1 text-xs text-yellow-500 no-underline transition-colors hover:text-yellow-300"
 			>
 				<ClockIcon class="size-4" aria-hidden="true" />
-				Update available
+				{{ formatMessage(messages['popup.footer.updateAvailable']) }}
 			</a>
 			<a
 				href="https://github.com/creeperkatze/modrinth-extras"
@@ -118,7 +128,7 @@
 				rel="noopener"
 				class="ml-auto flex items-center gap-1 text-xs text-yellow-500 no-underline transition-colors hover:text-yellow-300"
 			>
-				★ On GitHub
+				{{ formatMessage(messages['popup.footer.starOnGitHub']) }}
 			</a>
 		</div>
 	</div>
@@ -143,16 +153,158 @@ import {
 	TagCategoryZapIcon,
 	WrenchIcon,
 } from '@modrinth/assets'
-import { ButtonStyled, HorizontalRule, ScrollablePanel } from '@modrinth/ui'
-import { type Component, onMounted, reactive, ref } from 'vue'
+import {
+	ButtonStyled,
+	defineMessages,
+	HorizontalRule,
+	ScrollablePanel,
+	useVIntl,
+} from '@modrinth/ui'
+import { type Component, computed, onMounted, reactive, ref } from 'vue'
 import { browser } from 'wxt/browser'
 
 import { apiFetch } from '../../helpers/apiFetch'
 import { DEFAULTS, type ExtensionSettings, getSettings, saveSettings } from '../../helpers/settings'
 import { setTelemetryEnabled } from '../../helpers/telemetry'
+import { i18n } from '../../i18n'
+import { LOCALES } from '../../locales'
 import FeatureGroup from './components/FeatureGroup.vue'
 import FeatureRow from './components/FeatureRow.vue'
 import OptionFieldSelect, { type SelectItem } from './components/OptionFieldSelect.vue'
+
+const { formatMessage } = useVIntl()
+
+const messages = defineMessages({
+	'popup.group.general': { id: 'popup.group.general', defaultMessage: 'General' },
+	'popup.group.contentPages': { id: 'popup.group.contentPages', defaultMessage: 'Content Pages' },
+	'popup.group.extension': { id: 'popup.group.extension', defaultMessage: 'Extension' },
+	'popup.footer.checking': { id: 'popup.footer.checking', defaultMessage: 'Checking' },
+	'popup.footer.latestVersion': {
+		id: 'popup.footer.latestVersion',
+		defaultMessage: 'Latest version',
+	},
+	'popup.footer.updateAvailable': {
+		id: 'popup.footer.updateAvailable',
+		defaultMessage: 'Update available',
+	},
+	'popup.footer.starOnGitHub': { id: 'popup.footer.starOnGitHub', defaultMessage: '★ On GitHub' },
+	'feature.notifications.title': {
+		id: 'feature.notifications.title',
+		defaultMessage: 'Notifications',
+	},
+	'feature.notifications.description': {
+		id: 'feature.notifications.description',
+		defaultMessage:
+			'View, manage, and clear unread notifications right in the header without leaving the current page.',
+	},
+	'feature.quickSearch.title': { id: 'feature.quickSearch.title', defaultMessage: 'Quick search' },
+	'feature.quickSearch.description': {
+		id: 'feature.quickSearch.description',
+		defaultMessage:
+			'Ctrl+K or / for a command palette style search with faceted tags for loaders, versions, categories, and types.',
+	},
+	'feature.projectCardActions.title': {
+		id: 'feature.projectCardActions.title',
+		defaultMessage: 'Project card actions',
+	},
+	'feature.projectCardActions.description': {
+		id: 'feature.projectCardActions.description',
+		defaultMessage: 'Download, follow, and save projects right from their project cards.',
+	},
+	'feature.projectCardActions.modLoader': {
+		id: 'feature.projectCardActions.modLoader',
+		defaultMessage: 'Mod loader',
+	},
+	'feature.projectCardActions.pluginLoader': {
+		id: 'feature.projectCardActions.pluginLoader',
+		defaultMessage: 'Plugin loader',
+	},
+	'feature.activitySparkline.title': {
+		id: 'feature.activitySparkline.title',
+		defaultMessage: 'Activity sparkline',
+	},
+	'feature.activitySparkline.description': {
+		id: 'feature.activitySparkline.description',
+		defaultMessage: 'Release activity chart on project pages.',
+	},
+	'feature.toolsSidebar.title': {
+		id: 'feature.toolsSidebar.title',
+		defaultMessage: 'Tools sidebar',
+	},
+	'feature.toolsSidebar.description': {
+		id: 'feature.toolsSidebar.description',
+		defaultMessage:
+			'Generate embeds, view raw API responses, copy download URLs and packwiz commands.',
+	},
+	'feature.dependenciesSidebar.title': {
+		id: 'feature.dependenciesSidebar.title',
+		defaultMessage: 'Dependency sidebar',
+	},
+	'feature.dependenciesSidebar.description': {
+		id: 'feature.dependenciesSidebar.description',
+		defaultMessage: 'Collapsible dependency tree on project pages.',
+	},
+	'feature.githubSidebar.title': {
+		id: 'feature.githubSidebar.title',
+		defaultMessage: 'GitHub sidebar',
+	},
+	'feature.githubSidebar.description': {
+		id: 'feature.githubSidebar.description',
+		defaultMessage: 'Stars, issues, pull requests, and forks for linked repositories.',
+	},
+	'feature.discordSidebar.title': {
+		id: 'feature.discordSidebar.title',
+		defaultMessage: 'Discord sidebar',
+	},
+	'feature.discordSidebar.description': {
+		id: 'feature.discordSidebar.description',
+		defaultMessage:
+			'Server name, description, member count, and online count for linked Discord servers.',
+	},
+	'feature.notificationBadge.title': {
+		id: 'feature.notificationBadge.title',
+		defaultMessage: 'Notification badge',
+	},
+	'feature.notificationBadge.description': {
+		id: 'feature.notificationBadge.description',
+		defaultMessage: 'Up-to-date unread notification count as a badge on the extension icon.',
+	},
+	'feature.desktopNotifications.title': {
+		id: 'feature.desktopNotifications.title',
+		defaultMessage: 'Desktop notifications',
+	},
+	'feature.desktopNotifications.description': {
+		id: 'feature.desktopNotifications.description',
+		defaultMessage: 'Operating system notifications for your Modrinth notifications.',
+	},
+	'feature.desktopNotifications.exampleTitle': {
+		id: 'feature.desktopNotifications.exampleTitle',
+		defaultMessage: 'Example Notification',
+	},
+	'feature.desktopNotifications.exampleMessage': {
+		id: 'feature.desktopNotifications.exampleMessage',
+		defaultMessage: 'This is an example notification from Modrinth Extras!',
+	},
+	'feature.curseforgeRedirect.title': {
+		id: 'feature.curseforgeRedirect.title',
+		defaultMessage: 'CurseForge redirect',
+	},
+	'feature.curseforgeRedirect.description': {
+		id: 'feature.curseforgeRedirect.description',
+		defaultMessage: 'Redirect CurseForge project pages to Modrinth when available.',
+	},
+	'feature.telemetry.title': { id: 'feature.telemetry.title', defaultMessage: 'Telemetry' },
+	'feature.telemetry.description': {
+		id: 'feature.telemetry.description',
+		defaultMessage:
+			'Help improve the extension by anonymously sharing statistics like the extension version and which features are enabled. No Modrinth data, activity, or personal information is ever collected.',
+	},
+	'feature.telemetry.disabledTooltip': {
+		id: 'feature.telemetry.disabledTooltip',
+		defaultMessage: 'Controlled by Firefox data collection settings',
+	},
+	'settings.language': { id: 'settings.language', defaultMessage: 'Language' },
+})
 
 type FeatureKey = keyof ExtensionSettings
 
@@ -186,116 +338,111 @@ async function fetchLoadersByType(type: string): Promise<SelectItem[]> {
 		.map((l) => ({ label: l.name.charAt(0).toUpperCase() + l.name.slice(1), value: l.name }))
 }
 
-const GENERAL_FEATURES: FeatureDef[] = [
+const generalFeatures = computed<FeatureDef[]>(() => [
 	{
 		key: 'notificationsIndicator',
 		icon: BellIcon,
-		title: 'Notifications',
-		description:
-			'View, manage, and clear unread notifications right in the header without leaving the current page.',
+		title: formatMessage(messages['feature.notifications.title']),
+		description: formatMessage(messages['feature.notifications.description']),
 	},
 	{
 		key: 'quickSearch',
 		icon: SearchIcon,
-		title: 'Quick search',
-		description:
-			'Ctrl+K or / for a command palette style search with faceted tags for loaders, versions, categories, and types.',
+		title: formatMessage(messages['feature.quickSearch.title']),
+		description: formatMessage(messages['feature.quickSearch.description']),
 	},
 	{
 		key: 'projectCardActions',
 		icon: TagCategoryZapIcon,
-		title: 'Project card actions',
-		description: 'Download, follow, and save projects right from their project cards.',
+		title: formatMessage(messages['feature.projectCardActions.title']),
+		description: formatMessage(messages['feature.projectCardActions.description']),
 		options: [
 			{
 				key: 'modLoader',
 				type: 'select',
-				label: 'Mod loader',
+				label: formatMessage(messages['feature.projectCardActions.modLoader']),
 				fetchItems: () => fetchLoadersByType('mod'),
 			},
 			{
 				key: 'pluginLoader',
 				type: 'select',
-				label: 'Plugin loader',
+				label: formatMessage(messages['feature.projectCardActions.pluginLoader']),
 				fetchItems: () => fetchLoadersByType('plugin'),
 			},
 		],
 	},
-]
+])
 
-const CONTENT_PAGE_FEATURES: FeatureDef[] = [
+const contentPageFeatures = computed<FeatureDef[]>(() => [
 	{
 		key: 'activitySparkline',
 		icon: ChartIcon,
-		title: 'Activity sparkline',
-		description: 'Release activity chart on project pages.',
+		title: formatMessage(messages['feature.activitySparkline.title']),
+		description: formatMessage(messages['feature.activitySparkline.description']),
 	},
 	{
 		key: 'toolsSidebar',
 		icon: WrenchIcon,
-		title: 'Tools sidebar',
-		description:
-			'Generate embeds, view raw API responses, copy download URLs and packwiz commands.',
+		title: formatMessage(messages['feature.toolsSidebar.title']),
+		description: formatMessage(messages['feature.toolsSidebar.description']),
 	},
 	{
 		key: 'dependenciesSidebar',
 		icon: GitGraphIcon,
-		title: 'Dependency sidebar',
-		description: 'Collapsible dependency tree on project pages.',
+		title: formatMessage(messages['feature.dependenciesSidebar.title']),
+		description: formatMessage(messages['feature.dependenciesSidebar.description']),
 	},
 	{
 		key: 'githubSidebar',
 		icon: GithubIcon,
-		title: 'GitHub sidebar',
-		description: 'Stars, issues, pull requests, and forks for linked repositories.',
+		title: formatMessage(messages['feature.githubSidebar.title']),
+		description: formatMessage(messages['feature.githubSidebar.description']),
 	},
 	{
 		key: 'discordSidebar',
 		icon: DiscordIcon,
-		title: 'Discord sidebar',
-		description:
-			'Server name, description, member count, and online count for linked Discord servers',
+		title: formatMessage(messages['feature.discordSidebar.title']),
+		description: formatMessage(messages['feature.discordSidebar.description']),
 	},
-]
+])
 
-const EXTENSION_FEATURES: FeatureDef[] = [
+const extensionFeatures = computed<FeatureDef[]>(() => [
 	{
 		key: 'notificationBadge',
 		icon: BellRingIcon,
-		title: 'Notification badge',
-		description: 'Up-to-date unread notification count as a badge on the extension icon.',
+		title: formatMessage(messages['feature.notificationBadge.title']),
+		description: formatMessage(messages['feature.notificationBadge.description']),
 	},
 	{
 		key: 'desktopNotifications',
 		icon: MonitorIcon,
-		title: 'Desktop notifications',
-		description: 'Operating system notifications for your Modrinth notifications.',
+		title: formatMessage(messages['feature.desktopNotifications.title']),
+		description: formatMessage(messages['feature.desktopNotifications.description']),
 		actionIcon: PlayIcon,
 		onAction: () => {
 			browser.notifications.create({
 				type: 'basic',
 				iconUrl: browser.runtime.getURL('/icon-128.png'),
-				title: 'Example Notification',
-				message: 'This is an examples notification from Modrinth Extras!',
+				title: formatMessage(messages['feature.desktopNotifications.exampleTitle']),
+				message: formatMessage(messages['feature.desktopNotifications.exampleMessage']),
 			})
 		},
 	},
 	{
 		key: 'curseforgeRedirect',
 		icon: CurseForgeIcon,
-		title: 'CurseForge redirect',
-		description: 'Redirect CurseForge project pages to Modrinth when available.',
+		title: formatMessage(messages['feature.curseforgeRedirect.title']),
+		description: formatMessage(messages['feature.curseforgeRedirect.description']),
 	},
 	{
 		key: 'telemetry',
 		icon: ChartIcon,
-		title: 'Telemetry',
-		description:
-			'Help improve the extension by anonymously sharing statistics like the extension version and which features are enabled. No Modrinth data, activity, or personal information is ever collected.',
+		title: formatMessage(messages['feature.telemetry.title']),
+		description: formatMessage(messages['feature.telemetry.description']),
 		disabled: () => firefoxControlsTelemetry.value,
-		disabledTooltip: 'Controlled by Firefox data collection settings',
+		disabledTooltip: formatMessage(messages['feature.telemetry.disabledTooltip']),
 	},
-]
+])
 
 async function updateEnabled(key: keyof ExtensionSettings, enabled: boolean) {
 	settings[key].enabled = enabled
@@ -313,6 +460,16 @@ async function updateEnabled(key: keyof ExtensionSettings, enabled: boolean) {
 async function updateOption(featureKey: keyof ExtensionSettings, optionKey: string, value: string) {
 	;(settings[featureKey] as Record<string, unknown>)[optionKey] = value
 	await saveSettings(settings as ExtensionSettings)
+}
+
+const localeItems = computed<SelectItem[]>(() =>
+	LOCALES.map((l) => ({ label: l.name, value: l.code })),
+)
+
+async function updateLocale(value: string) {
+	settings.locale.value = value
+	await saveSettings(settings as ExtensionSettings)
+	i18n.global.locale.value = value
 }
 
 const version = browser.runtime.getManifest().version
@@ -366,7 +523,7 @@ onMounted(async () => {
 		if (tag && tag !== version) latestVersion.value = tag
 		else if (tag) isLatest.value = true
 	} catch (err) {
-		console.error('[Modrinth Extras] Update check failed:', err)
+		console.error('[Modrinth Extras] Failed to check for updates:', err)
 	} finally {
 		checking.value = false
 	}

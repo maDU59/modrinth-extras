@@ -26,6 +26,7 @@ function deepMerge<T extends object>(base: T, override: DeepPartial<T>): T {
 }
 
 export interface ExtensionSettings {
+	locale: { value: string }
 	notificationsIndicator: { enabled: boolean }
 	quickSearch: { enabled: boolean }
 	projectCardActions: { enabled: boolean; modLoader: string; pluginLoader: string }
@@ -41,6 +42,7 @@ export interface ExtensionSettings {
 }
 
 export const DEFAULTS: ExtensionSettings = {
+	locale: { value: 'en-US' },
 	notificationsIndicator: { enabled: true },
 	quickSearch: { enabled: true },
 	projectCardActions: { enabled: true, modLoader: '', pluginLoader: '' },

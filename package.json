@@ -11,6 +11,7 @@
         "zip": "wxt zip",
         "zip:firefox": "wxt zip -b firefox",
         "postinstall": "wxt prepare",
+        "intl:extract": "formatjs extract \"src/**/*.{vue,ts,tsx,js,jsx}\" --ignore \"src/**/*.d.ts\" --out-file src/locales/en-US/index.json --preserve-whitespace",
         "lint": "eslint src/",
         "lint:fix": "eslint src/ --fix",
         "release:patch": "pnpm version patch && git push && git push --tags",
@@ -25,10 +26,12 @@
         "d3-force": "^3.0.0",
         "floating-vue": "^5.2.2",
         "posthog-js": "^1.363.5",
-        "vue": "^3.5.31"
+        "vue": "^3.5.31",
+        "vue-i18n": "^10.0.0"
     },
     "devDependencies": {
         "@eslint/js": "^10.0.1",
+        "@formatjs/cli": "^6.2.12",
         "@modrinth/tooling-config": "workspace:*",
         "@tailwindcss/container-queries": "^0.1.1",
         "@tailwindcss/postcss": "^4.2.2",

@@ -1,7 +1,7 @@
 <template>
 	<div class="option-field relative flex items-center gap-2" @click.stop>
 		<span class="text-sm text-secondary flex-1">{{ label }}</span>
-		<div class="w-40">
+		<div :class="dropdownClass ?? 'w-40'">
 			<DropdownSelect
 				:options="allItems"
 				:name="`field-${label}`"
@@ -30,6 +30,8 @@ const props = defineProps<{
 	modelValue: string
 	items?: SelectItem[]
 	fetchItems?: () => Promise<SelectItem[]>
+	includeAny?: boolean
+	dropdownClass?: string
 }>()
 
 defineEmits<{
@@ -39,7 +41,9 @@ defineEmits<{
 const resolvedItems = ref<SelectItem[]>(props.items ?? [])
 const loading = ref(false)
 
-const allItems = computed<SelectItem[]>(() => [ANY_ITEM, ...resolvedItems.value])
+const allItems = computed<SelectItem[]>(() =>
+	props.includeAny !== false ? [ANY_ITEM, ...resolvedItems.value] : resolvedItems.value,
+)
 
 const selectedItem = computed<SelectItem>(
 	() => allItems.value.find((i) => i.value === props.modelValue) ?? ANY_ITEM,
