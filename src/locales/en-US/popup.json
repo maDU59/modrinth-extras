@@ -109,5 +109,8 @@
   },
   "settings.language": {
     "defaultMessage": "Language"
+  },
+  "settings.language.description": {
+    "defaultMessage": "Help translate on <link>Crowdin</link>. Some languages may be incomplete."
   }
 }

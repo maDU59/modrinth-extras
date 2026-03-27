@@ -32,15 +32,19 @@
 								{{ formatMessage(messages['settings.language']) }}
 							</div>
 							<div class="text-xs text-secondary">
-								Help translate on
-								<a
-									href="https://crowdin.com/project/modrinth-extras"
-									target="_blank"
-									rel="noopener"
-									class="text-link"
-									@click.stop
-									>Crowdin</a
-								>. Some languages may be incomplete.
+								<IntlFormatted :message-id="messages['settings.language.description']">
+									<template #link="{ children }">
+										<a
+											href="https://crowdin.com/project/modrinth-extras"
+											target="_blank"
+											rel="noopener"
+											class="text-link"
+											@click.stop
+										>
+											<component :is="() => children" />
+										</a>
+									</template>
+								</IntlFormatted>
 							</div>
 						</div>
 						<div class="language-dropdown">
@@ -179,6 +183,7 @@ import {
 	defineMessages,
 	DropdownSelect,
 	HorizontalRule,
+	IntlFormatted,
 	ScrollablePanel,
 	useVIntl,
 } from '@modrinth/ui'
@@ -326,6 +331,10 @@ const messages = defineMessages({
 		defaultMessage: 'Controlled by Firefox data collection settings',
 	},
 	'settings.language': { id: 'settings.language', defaultMessage: 'Language' },
+	'settings.language.description': {
+		id: 'settings.language.description',
+		defaultMessage: 'Help translate on <link>Crowdin</link>. Some languages may be incomplete.',
+	},
 })
 
 type FeatureKey = keyof ExtensionSettings
