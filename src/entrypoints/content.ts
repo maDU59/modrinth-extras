@@ -8,6 +8,7 @@ import { browser } from 'wxt/browser'
 import ActivitySparkline from '../components/ActivitySparkline.vue'
 import DependenciesSidebar from '../components/DependenciesSidebar.vue'
 import DiscordSidebar from '../components/DiscordSidebar.vue'
+import ErrorNotice from '../components/ErrorNotice.vue'
 import FooterBadge from '../components/FooterBadge.vue'
 import GitHubSidebar from '../components/GitHubSidebar.vue'
 import NotificationsIndicator from '../components/NotificationsIndicator.vue'
@@ -373,6 +374,21 @@ export default defineContentScript({
 			},
 		})
 
+		const errorNotice = createInjection({
+			id: 'modrinth-extras-error-notice',
+			isEnabled: () => true,
+			settingsKeys: [],
+			persistent: false,
+			attach(container) {
+				const errorBox = document.querySelector('.error-box')
+				if (!errorBox) return false
+
+				errorBox.appendChild(container)
+				return true
+			},
+			createApp: () => createApp(h(ErrorNotice)),
+		})
+
 		const footerBadge = createInjection({
 			id: 'modrinth-extras-footer-badge',
 			isEnabled: () => true,
@@ -438,6 +454,7 @@ export default defineContentScript({
 			activitySparkline,
 			gitHubSidebar,
 			discordSidebar,
+			errorNotice,
 			footerBadge,
 			quickSearch,
 			projectCardActions,
