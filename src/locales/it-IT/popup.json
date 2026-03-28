@@ -1,2 +1,120 @@
-{}
+{
+  "feature.activitySparkline.description": {
+    "defaultMessage": "Grafico delle attività di rilascio nelle pagine dei progetti."
+  },
+  "feature.activitySparkline.title": {
+    "defaultMessage": "Sparkline dell'attività"
+  },
+  "feature.curseforgeRedirect.description": {
+    "defaultMessage": "Reindirizza le pagine del progetto CurseForge a Modrinth quando disponibili."
+  },
+  "feature.curseforgeRedirect.title": {
+    "defaultMessage": "Reindirizzamento CurseForge"
+  },
+  "feature.dependenciesSidebar.description": {
+    "defaultMessage": "Riduci l'albero delle dipendenze sulle pagine del progetto."
+  },
+  "feature.dependenciesSidebar.title": {
+    "defaultMessage": "Barra laterale delle dipendenze"
+  },
+  "feature.desktopNotifications.description": {
+    "defaultMessage": "Notifiche del sistema operativo per le tue notifiche Modrinth."
+  },
+  "feature.desktopNotifications.exampleMessage": {
+    "defaultMessage": "Questa è una notifica di esempio da Modrinth Extras!"
+  },
+  "feature.desktopNotifications.exampleTitle": {
+    "defaultMessage": "Notifiche di esempio"
+  },
+  "feature.desktopNotifications.title": {
+    "defaultMessage": "Notifiche desktop"
+  },
+  "feature.discordSidebar.description": {
+    "defaultMessage": "Nome del server, descrizione, numero di membri e numero di utenti online per i server Discord collegati."
+  },
+  "feature.discordSidebar.title": {
+    "defaultMessage": "Barra laterale di Discord"
+  },
+  "feature.githubSidebar.description": {
+    "defaultMessage": "Stelle, problemi, richieste di pull e fork per i repository collegati."
+  },
+  "feature.githubSidebar.title": {
+    "defaultMessage": "Barra laterale di GitHub"
+  },
+  "feature.notificationBadge.description": {
+    "defaultMessage": "Numero di notifiche non lette aggiornate come distintivo sull'icona dell'estensione."
+  },
+  "feature.notificationBadge.title": {
+    "defaultMessage": "Simboli di notifica"
+  },
+  "feature.notifications.description": {
+    "defaultMessage": "Visualizza, gestisci e cancella le notifiche non lette direttamente dall'intestazione senza uscire dalla pagina corrente."
+  },
+  "feature.notifications.title": {
+    "defaultMessage": "Notifiche"
+  },
+  "feature.projectCardActions.description": {
+    "defaultMessage": "Scarica, segui e salva i progetti direttamente dalle loro schede."
+  },
+  "feature.projectCardActions.modLoader": {
+    "defaultMessage": "Caricatore di mod"
+  },
+  "feature.projectCardActions.pluginLoader": {
+    "defaultMessage": "Caricatore dei plugin"
+  },
+  "feature.projectCardActions.title": {
+    "defaultMessage": "Azioni della scheda del progetto"
+  },
+  "feature.quickSearch.description": {
+    "defaultMessage": "Ctrl+K o / per una ricerca in stile palette dei comandi con filtri per caricatori, versioni, categorie e tipi."
+  },
+  "feature.quickSearch.title": {
+    "defaultMessage": "Ricerca rapida"
+  },
+  "feature.telemetry.description": {
+    "defaultMessage": "Aiutaci a migliorare l'estensione condividendo in modo anonimo statistiche come la versione dell'estensione e quali funzioni sono attivate. Non vengono mai raccolti dati Modrinth, attività o informazioni personali."
+  },
+  "feature.telemetry.disabledTooltip": {
+    "defaultMessage": "Controllato dalle impostazioni di raccolta dati di Firefox"
+  },
+  "feature.telemetry.title": {
+    "defaultMessage": "Telemetria"
+  },
+  "feature.toolsSidebar.description": {
+    "defaultMessage": "Genera contenuti incorporati, visualizza le risposte API grezze, copia gli URL di download e i comandi Packwiz."
+  },
+  "feature.toolsSidebar.title": {
+    "defaultMessage": "Barra laterale degli strumenti"
+  },
+  "popup.footer.checking": {
+    "defaultMessage": "Controllo in corso"
+  },
+  "popup.footer.latestVersion": {
+    "defaultMessage": "Ultima versione"
+  },
+  "popup.footer.starOnGitHub": {
+    "defaultMessage": "★ Su GitHub"
+  },
+  "popup.footer.updateAvailable": {
+    "defaultMessage": "Aggiornamento disponibile"
+  },
+  "popup.group.contentPages": {
+    "defaultMessage": "Pagine di contenuto"
+  },
+  "popup.group.extension": {
+    "defaultMessage": "Estensione"
+  },
+  "popup.group.general": {
+    "defaultMessage": "Generale"
+  },
+  "search.any": {
+    "defaultMessage": "Qualsiasi"
+  },
+  "settings.language": {
+    "defaultMessage": "Lingua"
+  },
+  "settings.language.description": {
+    "defaultMessage": "Aiutaci a tradurre su <link>Crowdin</link>. Alcune lingue potrebbero essere incomplete."
+  }
+}
 
