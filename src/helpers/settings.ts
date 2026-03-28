@@ -42,7 +42,7 @@ export interface ExtensionSettings {
 }
 
 export const DEFAULTS: ExtensionSettings = {
-	locale: { value: 'en-US' },
+	locale: { value: '' },
 	notificationsIndicator: { enabled: true },
 	quickSearch: { enabled: true },
 	projectCardActions: { enabled: true, modLoader: '', pluginLoader: '' },
@@ -77,6 +77,7 @@ async function migrateFromFlatStorage(): Promise<ExtensionSettings> {
 	const b = (key: string, def: boolean) => (old[key] as boolean | undefined) ?? def
 	const s = (key: string, def: string) => (old[key] as string | undefined) ?? def
 	return {
+		locale: DEFAULTS.locale,
 		notificationsIndicator: {
 			enabled: b('showNotificationsIndicator', DEFAULTS.notificationsIndicator.enabled),
 		},

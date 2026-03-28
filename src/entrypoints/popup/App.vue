@@ -193,7 +193,7 @@ import { browser } from 'wxt/browser'
 import { apiFetch } from '../../helpers/apiFetch'
 import { DEFAULTS, type ExtensionSettings, getSettings, saveSettings } from '../../helpers/settings'
 import { setTelemetryEnabled } from '../../helpers/telemetry'
-import { i18n } from '../../i18n'
+import { detectBrowserLocale, i18n } from '../../i18n'
 import { LOCALES } from '../../locales'
 import FeatureGroup from './components/FeatureGroup.vue'
 import FeatureRow from './components/FeatureRow.vue'
@@ -497,9 +497,10 @@ const localeItems = computed<SelectItem[]>(() =>
 	LOCALES.map((l) => ({ label: l.name, value: l.code })),
 )
 
-const selectedLocaleItem = computed<SelectItem>(
-	() => localeItems.value.find((i) => i.value === settings.locale.value) ?? localeItems.value[0],
-)
+const selectedLocaleItem = computed<SelectItem>(() => {
+	const val = settings.locale.value || detectBrowserLocale()
+	return localeItems.value.find((i) => i.value === val) ?? localeItems.value[0]
+})
 
 async function updateLocale(value: string) {
 	settings.locale.value = value
@@ -519,6 +520,7 @@ const settingsLoaded = ref(false)
 onMounted(async () => {
 	const loaded = await getSettings()
 	Object.assign(settings, loaded)
+	i18n.global.locale.value = loaded.locale?.value || detectBrowserLocale()
 	settingsLoaded.value = true
 
 	const perms = await browser.permissions.getAll()

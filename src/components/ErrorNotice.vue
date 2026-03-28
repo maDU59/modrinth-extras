@@ -6,8 +6,8 @@
 					href="https://github.com/creeperkatze/modrinth-extras/issues"
 					target="_blank"
 					class="text-link"
-					>{{ children }}</a
-				>
+					><component :is="() => children"
+				/></a>
 			</template>
 		</IntlFormatted>
 	</Admonition>

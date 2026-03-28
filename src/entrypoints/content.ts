@@ -17,7 +17,7 @@ import ToolsSidebar from '../components/ToolsSidebar.vue'
 import { initFollowState } from '../helpers/followState'
 import { navigate } from '../helpers/page-router'
 import { DEFAULTS, type ExtensionSettings, getSettings } from '../helpers/settings'
-import { installI18n, loadSavedLocale } from '../i18n'
+import { detectBrowserLocale, i18n, installI18n, loadSavedLocale } from '../i18n'
 
 // Gate injections until Nuxt hydration is complete. The router-bridge
 // (MAIN world) dispatches "modrinth-extras:router-ready" once it hooks
@@ -481,7 +481,10 @@ export default defineContentScript({
 
 		browser.storage.onChanged.addListener((changes: Record<string, { newValue?: unknown }>) => {
 			if (!('settings' in changes)) return
-			Object.assign(settings, changes['settings']?.newValue ?? {})
+			const newSettings = changes['settings']?.newValue as ExtensionSettings | undefined
+			Object.assign(settings, newSettings ?? {})
+			const newLocale = newSettings?.locale?.value
+			i18n.global.locale.value = newLocale || detectBrowserLocale()
 			for (const inj of injections) {
 				if (inj.config.settingsKeys.length > 0) {
 					inj.unmount()

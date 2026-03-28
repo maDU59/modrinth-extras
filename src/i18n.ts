@@ -40,13 +40,22 @@ export const i18n = createI18n({
 	messages: buildMessages(),
 })
 
+export function detectBrowserLocale(): string {
+	const langs = navigator.languages?.length ? navigator.languages : [navigator.language]
+	for (const lang of langs) {
+		const exact = LOCALES.find((l) => l.code.toLowerCase() === lang.toLowerCase())
+		if (exact) return exact.code
+		const prefix = lang.split('-')[0].toLowerCase()
+		const match = LOCALES.find((l) => l.code.split('-')[0].toLowerCase() === prefix)
+		if (match) return match.code
+	}
+	return 'en-US'
+}
+
 export async function loadSavedLocale(): Promise<void> {
 	try {
 		const settings = await getSettings()
-		const locale = settings.locale.value
-		if (locale) {
-			i18n.global.locale.value = locale
-		}
+		i18n.global.locale.value = settings.locale?.value || detectBrowserLocale()
 	} catch (err) {
 		console.error('[Modrinth Extras] Failed to load saved locale:', err)
 	}
