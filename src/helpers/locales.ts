@@ -20,7 +20,7 @@ export const LOCALES: LocaleDefinition[] = [
 	// { code: 'el-GR', name: 'Ελληνικά' },
 	// { code: 'he-IL', name: 'עברית', dir: 'rtl' },
 	// { code: 'hu-HU', name: 'Magyar' },
-	// { code: 'it-IT', name: 'Italiano' },
+	{ code: 'it-IT', name: 'Italiano' },
 	// { code: 'ja-JP', name: '日本語' },
 	// { code: 'ko-KR', name: '한국어' },
 	// { code: 'no-NO', name: 'Norsk' },
