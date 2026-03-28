@@ -1,0 +1,8 @@
+{
+  "summary": {
+    "defaultMessage": "A browser extension that enhances Modrinth on the website and beyond."
+  },
+  "description": {
+    "defaultMessage": "General features:\n- Notifications: View, manage, and clear unread notifications right in the header without leaving the current page.\n- Quick search: Ctrl+K or / for a command palette style search with faceted tags for loaders, versions, categories, and types.\n- Project card actions: Download, follow, and save projects right from their project cards.\n\nContent page features:\n- Activity sparkline: Release activity chart on project pages.\n- Tools sidebar: Generate embeds, view raw API responses, copy download URLs and packwiz commands.\n- Dependency sidebar: Collapsible dependency tree on project pages.\n- GitHub sidebar: Stars, issues, pull requests, and forks for linked repositories.\n- Discord sidebar: Server name, description, member count, and online count for linked Discord servers.\n\nExtension features:\n- Notification badge: Up-to-date unread notification count as a badge on the extension icon.\n- Desktop notifications: Operating system notifications for your Modrinth notifications.\n- CurseForge redirect: Redirect CurseForge project pages to Modrinth when available.\n\nAll features are optional and can be toggled individually from the extension popup.\n\nModrinth Extras is open source."
+  }
+}
