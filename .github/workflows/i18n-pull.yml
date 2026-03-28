@@ -18,7 +18,6 @@ jobs:
       cancel-in-progress: true
     permissions:
       contents: write
-      pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -42,12 +41,7 @@ jobs:
         shell: bash
         run: sudo chown -R $USER:$USER .
 
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v7
+      - name: Commit translations
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          title: 'New translations from Crowdin'
-          commit-message: 'New translations from Crowdin'
-          body-path: .github/templates/crowdin-pr.md
-          branch: crowdin-pull/main
-          labels: sync
-          token: ${{ secrets.GITHUB_TOKEN }}
+          commit_message: 'New translations from Crowdin'
