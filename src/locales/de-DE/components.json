@@ -1,116 +1,119 @@
 {
-  "depExplorer.controls": {
-    "defaultMessage": "scrollen zum zoomen · ziehen zum verschieben · klicken zum expandieren"
-  },
-  "depExplorer.noDependencies": {
-    "defaultMessage": "Dieses Projekt hat keine Abhängigkeiten"
-  },
-  "depExplorer.title": {
-    "defaultMessage": "Abhängigkeitsgraph"
-  },
-  "depNode.collapse": {
-    "defaultMessage": "Abhängigkeiten einklappen"
-  },
-  "depNode.embedded": {
-    "defaultMessage": "Eingebettet"
-  },
-  "depNode.expand": {
-    "defaultMessage": "Abhängigkeiten erweitern"
-  },
-  "depNode.incompatible": {
-    "defaultMessage": "Inkompatibel"
-  },
-  "depNode.optional": {
-    "defaultMessage": "Optional"
-  },
-  "depNode.required": {
-    "defaultMessage": "Erforderlich"
-  },
-  "deps.loadError": {
+  "dependenciesSidebar.loadError": {
     "defaultMessage": "Fehler beim Laden der Abhängigkeiten"
   },
-  "deps.loading": {
+  "dependenciesSidebar.loading": {
     "defaultMessage": "Wird geladen"
   },
-  "deps.none": {
+  "dependenciesSidebar.none": {
     "defaultMessage": "Keine Abhängigkeiten"
   },
-  "deps.openGraph": {
+  "dependenciesSidebar.openGraph": {
     "defaultMessage": "Abhängigkeitsgraph öffnen"
   },
-  "deps.title": {
+  "dependenciesSidebar.title": {
     "defaultMessage": "Abhängigkeiten"
   },
-  "discord.members": {
+  "dependencyExplorer.controls": {
+    "defaultMessage": "scrollen zum zoomen · ziehen zum verschieben · klicken zum expandieren"
+  },
+  "dependencyExplorer.dependencyNode.collapse": {
+    "defaultMessage": "Abhängigkeiten einklappen"
+  },
+  "dependencyExplorer.dependencyNode.embedded": {
+    "defaultMessage": "Eingebettet"
+  },
+  "dependencyExplorer.dependencyNode.expand": {
+    "defaultMessage": "Abhängigkeiten erweitern"
+  },
+  "dependencyExplorer.dependencyNode.incompatible": {
+    "defaultMessage": "Inkompatibel"
+  },
+  "dependencyExplorer.dependencyNode.optional": {
+    "defaultMessage": "Optional"
+  },
+  "dependencyExplorer.dependencyNode.required": {
+    "defaultMessage": "Erforderlich"
+  },
+  "dependencyExplorer.loading": {
+    "defaultMessage": "Wird geladen"
+  },
+  "dependencyExplorer.noDependencies": {
+    "defaultMessage": "Dieses Projekt hat keine Abhängigkeiten"
+  },
+  "dependencyExplorer.title": {
+    "defaultMessage": "Abhängigkeitsgraph"
+  },
+  "discordSidebar.members": {
     "defaultMessage": "{count} Mitglieder"
   },
-  "discord.online": {
+  "discordSidebar.online": {
     "defaultMessage": "{count} online"
   },
-  "discord.partnered": {
+  "discordSidebar.partnered": {
     "defaultMessage": "Gepartnert"
   },
-  "discord.verified": {
+  "discordSidebar.verified": {
     "defaultMessage": "Verifiziert"
   },
   "errorNotice.message": {
     "defaultMessage": "Dieser Fehler hängt eventuell mit Modrinth Extras zusammen. Versuche, die Erweiterung zu deaktivieren und die Seite neu zu laden, bevor du dies Modrinth meldest. Falls der Fehler verschwindet, melde ihn bitte <link>hier</link>."
   },
-  "github.forks": {
+  "githubSidebar.forks": {
     "defaultMessage": "{count} Forks"
   },
-  "github.openIssues": {
+  "githubSidebar.openIssues": {
     "defaultMessage": "{count} offene Issues"
   },
-  "github.openPRs": {
+  "githubSidebar.openPRs": {
     "defaultMessage": "{count} offene Pull Requests"
   },
-  "github.stars": {
+  "githubSidebar.stars": {
     "defaultMessage": "{count} Sterne"
   },
-  "notifications.markAllAsRead": {
+  "notificationsIndicator.markAllAsRead": {
     "defaultMessage": "Alle als gelesen markieren"
   },
-  "notifications.noUnread": {
+  "notificationsIndicator.noUnread": {
     "defaultMessage": "Keine ungelesenen Benachrichtigungen"
   },
-  "notifications.projectUpdated": {
+  "notificationsIndicator.projectUpdated": {
     "defaultMessage": "{title} wurde aktualisiert"
   },
-  "notifications.viewAll": {
+  "notificationsIndicator.viewAll": {
     "defaultMessage": "Alle anzeigen"
   },
-  "notifications.viewHistory": {
+  "notificationsIndicator.viewHistory": {
     "defaultMessage": "Verlauf anzeigen"
   },
-  "projectCard.copied": {
+  "projectCardActions.copied": {
     "defaultMessage": "Kopiert!"
   },
-  "projectCard.copyLink": {
+  "projectCardActions.copyLink": {
     "defaultMessage": "Link kopieren"
   },
-  "projectCard.download": {
+  "projectCardActions.download": {
     "defaultMessage": "Herunterladen"
   },
-  "projectCard.follow": {
+  "projectCardActions.follow": {
     "defaultMessage": "Folgen"
   },
-  "projectCard.newCollection": {
+  "projectCardActions.newCollection": {
     "defaultMessage": "Neue Kollektion erstellen"
   },
-  "projectCard.noCollections": {
+  "projectCardActions.noCollections": {
     "defaultMessage": "Keine Kollektionen gefunden."
   },
-  "projectCard.save": {
+  "projectCardActions.save": {
     "defaultMessage": "Speichern"
   },
-  "projectCard.saved": {
+  "projectCardActions.saved": {
     "defaultMessage": "Gespeichert"
   },
-  "projectCard.searchPlaceholder": {
+  "projectCardActions.searchPlaceholder": {
     "defaultMessage": "Suchen..."
   },
-  "projectCard.unfollow": {
+  "projectCardActions.unfollow": {
     "defaultMessage": "Entfolgen"
   },
   "quickSearch.examples": {
@@ -122,22 +125,22 @@
   "quickSearch.search": {
     "defaultMessage": "Suchen"
   },
-  "tools.copied": {
+  "toolsSidebar.copied": {
     "defaultMessage": "Kopiert!"
   },
-  "tools.copyDownloadUrl": {
+  "toolsSidebar.copyDownloadUrl": {
     "defaultMessage": "Download-URL kopieren"
   },
-  "tools.copyPackwiz": {
+  "toolsSidebar.copyPackwiz": {
     "defaultMessage": "Packwiz kopieren"
   },
-  "tools.generateEmbed": {
+  "toolsSidebar.generateEmbed": {
     "defaultMessage": "Einbettung generieren"
   },
-  "tools.title": {
+  "toolsSidebar.title": {
     "defaultMessage": "Tools"
   },
-  "tools.viewApiResponse": {
+  "toolsSidebar.viewApiResponse": {
     "defaultMessage": "API-Antwort anzeigen"
   }
 }
