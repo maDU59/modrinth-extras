@@ -160,17 +160,23 @@ Then go to `about:debugging#/runtime/this-firefox`, click **Load Temporary Add-o
 > [!NOTE]
 > `pnpm dev` can also be used during development to automatically create a temporary browser with the extension pre-loaded. Keep in mind that this browser profile is isolated, requiring you to log in each time. This method also causes issues with Modrinth's dependencies.
 
-## 🤝 Contributing
-
-Contributions are always welcome!
-
-Please ensure you run `pnpm lint` before opening a pull request.
-
 ## 🌐 Translating
 
 Translations are managed on [Crowdin](https://crowdin.com/project/modrinth-extras). You can contribute without any technical knowledge, just pick your language and start translating.
 
 New translations are automatically pulled every Monday.
+
+### Contributors ❤️
+
+| Language | Translators |
+|----------|------------|
+| Italian | emanuelplaysofficial |
+
+## 🤝 Contributing
+
+Contributions are always welcome!
+
+Please ensure you run `pnpm lint` before opening a pull request.
 
 ## 📜 License
 
