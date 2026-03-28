@@ -20,7 +20,7 @@
 			<span class="details-list__item">
 				<UsersIcon aria-hidden="true" />
 				{{
-					formatMessage(messages['discord.members'], {
+					formatMessage(messages['discordSidebar.members'], {
 						count: formatNum(invite.approximate_member_count),
 					})
 				}}
@@ -28,18 +28,18 @@
 			<span class="details-list__item">
 				<OnlineIndicatorIcon aria-hidden="true" class="text-green" />
 				{{
-					formatMessage(messages['discord.online'], {
+					formatMessage(messages['discordSidebar.online'], {
 						count: formatNum(invite.approximate_presence_count),
 					})
 				}}
 			</span>
 			<span v-if="invite.partnered" class="details-list__item font-semibold text-blue">
 				<AffiliateIcon aria-hidden="true" />
-				{{ formatMessage(messages['discord.partnered']) }}
+				{{ formatMessage(messages['discordSidebar.partnered']) }}
 			</span>
 			<span v-else-if="invite.verified" class="details-list__item font-semibold text-green">
 				<ShieldCheckIcon aria-hidden="true" />
-				{{ formatMessage(messages['discord.verified']) }}
+				{{ formatMessage(messages['discordSidebar.verified']) }}
 			</span>
 		</div>
 	</div>
@@ -62,10 +62,16 @@ import { apiFetch } from '../helpers/apiFetch'
 
 const { formatMessage } = useVIntl()
 const messages = defineMessages({
-	'discord.members': { id: 'discord.members', defaultMessage: '{count} members' },
-	'discord.online': { id: 'discord.online', defaultMessage: '{count} online' },
-	'discord.partnered': { id: 'discord.partnered', defaultMessage: 'Partnered' },
-	'discord.verified': { id: 'discord.verified', defaultMessage: 'Verified' },
+	'discordSidebar.members': {
+		id: 'discordSidebar.members',
+		defaultMessage: '{count} members',
+	},
+	'discordSidebar.online': { id: 'discordSidebar.online', defaultMessage: '{count} online' },
+	'discordSidebar.partnered': {
+		id: 'discordSidebar.partnered',
+		defaultMessage: 'Partnered',
+	},
+	'discordSidebar.verified': { id: 'discordSidebar.verified', defaultMessage: 'Verified' },
 })
 
 const props = defineProps<{ pageUrl: string }>()

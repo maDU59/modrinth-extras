@@ -22,11 +22,11 @@
 					<div class="flex items-center justify-between gap-2 rounded-lg">
 						<button class="iconified-button" @click="handleViewAllNotifications">
 							<BellIcon aria-hidden="true" />
-							{{ formatMessage(messages['notifications.viewAll']) }}
+							{{ formatMessage(messages['notificationsIndicator.viewAll']) }}
 						</button>
 						<button class="iconified-button" @click="handleViewHistory">
 							<HistoryIcon />
-							{{ formatMessage(messages['notifications.viewHistory']) }}
+							{{ formatMessage(messages['notificationsIndicator.viewHistory']) }}
 						</button>
 						<button
 							v-if="unreadCount > 0"
@@ -34,7 +34,7 @@
 							@click="handleMarkAllAsRead"
 						>
 							<CheckCheckIcon />
-							{{ formatMessage(messages['notifications.markAllAsRead']) }}
+							{{ formatMessage(messages['notificationsIndicator.markAllAsRead']) }}
 						</button>
 					</div>
 					<div class="mt-4 border-t border-divider"></div>
@@ -42,7 +42,7 @@
 						v-if="recentNotifications.length === 0"
 						class="flex items-center justify-center rounded-lg bg-transparent py-4 text-secondary"
 					>
-						{{ formatMessage(messages['notifications.noUnread']) }}
+						{{ formatMessage(messages['notificationsIndicator.noUnread']) }}
 					</div>
 					<ScrollablePanel style="--_fade-height: 1rem" class="[&__.scrollable-pane]:max-h-[500px]">
 						<div class="flex flex-col gap-2">
@@ -165,7 +165,7 @@
 										<div class="break-words font-semibold text-contrast">
 											{{
 												notif.type === 'project_update' && notif.extra_data?.project
-													? formatMessage(messages['notifications.projectUpdated'], {
+													? formatMessage(messages['notificationsIndicator.projectUpdated'], {
 															title: (notif.extra_data as PlatformNotificationExtraData).project!
 																.title,
 														})
@@ -260,18 +260,24 @@ import { acceptTeamInvite, removeSelfFromTeam } from '../helpers/teams'
 
 const { formatMessage } = useVIntl()
 const messages = defineMessages({
-	'notifications.viewAll': { id: 'notifications.viewAll', defaultMessage: 'View all' },
-	'notifications.viewHistory': { id: 'notifications.viewHistory', defaultMessage: 'View history' },
-	'notifications.markAllAsRead': {
-		id: 'notifications.markAllAsRead',
+	'notificationsIndicator.viewAll': {
+		id: 'notificationsIndicator.viewAll',
+		defaultMessage: 'View all',
+	},
+	'notificationsIndicator.viewHistory': {
+		id: 'notificationsIndicator.viewHistory',
+		defaultMessage: 'View history',
+	},
+	'notificationsIndicator.markAllAsRead': {
+		id: 'notificationsIndicator.markAllAsRead',
 		defaultMessage: 'Mark all as read',
 	},
-	'notifications.noUnread': {
-		id: 'notifications.noUnread',
+	'notificationsIndicator.noUnread': {
+		id: 'notificationsIndicator.noUnread',
 		defaultMessage: 'No unread notifications',
 	},
-	'notifications.projectUpdated': {
-		id: 'notifications.projectUpdated',
+	'notificationsIndicator.projectUpdated': {
+		id: 'notificationsIndicator.projectUpdated',
 		defaultMessage: '{title} has been updated',
 	},
 })

@@ -3,15 +3,15 @@
 		<button :disabled="downloadLoading" @click.stop="handleDownload">
 			<LoaderCircleIcon v-if="downloadLoading" class="animate-spin" />
 			<DownloadIcon v-else />
-			{{ formatMessage(messages['projectCard.download']) }}
+			{{ formatMessage(messages['projectCardActions.download']) }}
 		</button>
 	</ButtonStyled>
 	<ButtonStyled circular :color="isFollowed ? 'brand' : undefined">
 		<button
 			v-tooltip="
 				isFollowed
-					? formatMessage(messages['projectCard.unfollow'])
-					: formatMessage(messages['projectCard.follow'])
+					? formatMessage(messages['projectCardActions.unfollow'])
+					: formatMessage(messages['projectCardActions.follow'])
 			"
 			:disabled="followLoading"
 			@click.stop="handleFollow"
@@ -23,7 +23,7 @@
 	<ButtonStyled circular :color="isSaved ? 'brand' : undefined">
 		<button
 			v-if="!isLoggedIn"
-			v-tooltip="formatMessage(messages['projectCard.save'])"
+			v-tooltip="formatMessage(messages['projectCardActions.save'])"
 			@click.stop="navigate('/auth/sign-in')"
 		>
 			<BookmarkIcon fill="none" aria-hidden="true" />
@@ -32,8 +32,8 @@
 			v-else
 			:tooltip="
 				isSaved
-					? formatMessage(messages['projectCard.saved'])
-					: formatMessage(messages['projectCard.save'])
+					? formatMessage(messages['projectCardActions.saved'])
+					: formatMessage(messages['projectCardActions.save'])
 			"
 			placement="bottom-end"
 			@click.stop="ensureProjectId"
@@ -48,7 +48,7 @@
 				<template v-else>
 					<StyledInput
 						v-model="collectionsSearch"
-						:placeholder="formatMessage(messages['projectCard.searchPlaceholder'])"
+						:placeholder="formatMessage(messages['projectCardActions.searchPlaceholder'])"
 						wrapper-class="menu-search"
 					/>
 					<div v-if="filteredCollections.length > 0" class="collections-list">
@@ -63,11 +63,11 @@
 						</Checkbox>
 					</div>
 					<div v-else class="menu-text">
-						<p class="popout-text">{{ formatMessage(messages['projectCard.noCollections']) }}</p>
+						<p class="popout-text">{{ formatMessage(messages['projectCardActions.noCollections']) }}</p>
 					</div>
 					<button class="btn collection-button" @click.stop="handleNewCollection">
 						<PlusIcon />
-						{{ formatMessage(messages['projectCard.newCollection']) }}
+						{{ formatMessage(messages['projectCardActions.newCollection']) }}
 					</button>
 				</template>
 			</template>
@@ -77,8 +77,8 @@
 		<button
 			v-tooltip="
 				copied
-					? formatMessage(messages['projectCard.copied'])
-					: formatMessage(messages['projectCard.copyLink'])
+					? formatMessage(messages['projectCardActions.copied'])
+					: formatMessage(messages['projectCardActions.copyLink'])
 			"
 			@click.stop="handleCopyLink"
 		>
@@ -122,25 +122,34 @@ import { getSettings } from '../helpers/settings'
 
 const { formatMessage } = useVIntl()
 const messages = defineMessages({
-	'projectCard.download': { id: 'projectCard.download', defaultMessage: 'Download' },
-	'projectCard.follow': { id: 'projectCard.follow', defaultMessage: 'Follow' },
-	'projectCard.unfollow': { id: 'projectCard.unfollow', defaultMessage: 'Unfollow' },
-	'projectCard.save': { id: 'projectCard.save', defaultMessage: 'Save' },
-	'projectCard.saved': { id: 'projectCard.saved', defaultMessage: 'Saved' },
-	'projectCard.searchPlaceholder': {
-		id: 'projectCard.searchPlaceholder',
+	'projectCardActions.download': {
+		id: 'projectCardActions.download',
+		defaultMessage: 'Download',
+	},
+	'projectCardActions.follow': { id: 'projectCardActions.follow', defaultMessage: 'Follow' },
+	'projectCardActions.unfollow': {
+		id: 'projectCardActions.unfollow',
+		defaultMessage: 'Unfollow',
+	},
+	'projectCardActions.save': { id: 'projectCardActions.save', defaultMessage: 'Save' },
+	'projectCardActions.saved': { id: 'projectCardActions.saved', defaultMessage: 'Saved' },
+	'projectCardActions.searchPlaceholder': {
+		id: 'projectCardActions.searchPlaceholder',
 		defaultMessage: 'Search...',
 	},
-	'projectCard.noCollections': {
-		id: 'projectCard.noCollections',
+	'projectCardActions.noCollections': {
+		id: 'projectCardActions.noCollections',
 		defaultMessage: 'No collections found.',
 	},
-	'projectCard.newCollection': {
-		id: 'projectCard.newCollection',
+	'projectCardActions.newCollection': {
+		id: 'projectCardActions.newCollection',
 		defaultMessage: 'Create new collection',
 	},
-	'projectCard.copyLink': { id: 'projectCard.copyLink', defaultMessage: 'Copy link' },
-	'projectCard.copied': { id: 'projectCard.copied', defaultMessage: 'Copied!' },
+	'projectCardActions.copyLink': {
+		id: 'projectCardActions.copyLink',
+		defaultMessage: 'Copy link',
+	},
+	'projectCardActions.copied': { id: 'projectCardActions.copied', defaultMessage: 'Copied!' },
 })
 
 const props = defineProps<{

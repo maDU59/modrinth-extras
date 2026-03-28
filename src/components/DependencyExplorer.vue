@@ -1,7 +1,7 @@
 <template>
 	<NewModal
 		ref="modal"
-		:header="formatMessage(messages['dependency-explorer.title'])"
+		:header="formatMessage(messages['dependencyExplorer.title'])"
 		:closable="true"
 		:no-padding="true"
 		max-width="min(96vw, 1400px)"
@@ -225,7 +225,7 @@
 					fill="#666"
 					font-size="14"
 				>
-					{{ formatMessage(messages['dependency-explorer.no-dependencies']) }}
+					{{ formatMessage(messages['dependencyExplorer.noDependencies']) }}
 				</text>
 			</svg>
 
@@ -249,7 +249,7 @@
 				>
 					<path d="M21 12a9 9 0 1 1-6.219-8.56" />
 				</svg>
-				{{ formatMessage(messages['dependency-explorer.loading']) }}
+				{{ formatMessage(messages['dependencyExplorer.loading']) }}
 			</div>
 
 			<!-- Legend -->
@@ -271,7 +271,7 @@
 				class="absolute bottom-3 right-3"
 				style="font-size: 11px; color: #555; pointer-events: none"
 			>
-				{{ formatMessage(messages['dependency-explorer.controls']) }}
+				{{ formatMessage(messages['dependencyExplorer.controls']) }}
 			</div>
 		</div>
 	</NewModal>
@@ -319,32 +319,32 @@ type D3Link = SimulationLinkDatum<GraphNode> & { type: GraphEdge['type'] }
 
 const { formatMessage } = useVIntl()
 const messages = defineMessages({
-	'dependency-explorer.title': {
-		id: 'dependency-explorer.title',
+	'dependencyExplorer.title': {
+		id: 'dependencyExplorer.title',
 		defaultMessage: 'Dependency Graph',
 	},
-	'dependency-explorer.no-dependencies': {
-		id: 'dependency-explorer.no-dependencies',
+	'dependencyExplorer.noDependencies': {
+		id: 'dependencyExplorer.noDependencies',
 		defaultMessage: 'This project has no dependencies',
 	},
-	'dependency-explorer.controls': {
-		id: 'dependency-explorer.controls',
+	'dependencyExplorer.controls': {
+		id: 'dependencyExplorer.controls',
 		defaultMessage: 'scroll to zoom · drag to pan · click to expand',
 	},
-	'dependency-explorer.required': {
-		id: 'dependency-explorer.required',
+	'dependencyExplorer.dependencyNode.required': {
+		id: 'dependencyExplorer.dependencyNode.required',
 		defaultMessage: 'Required',
 	},
-	'dependency-explorer.optional': {
-		id: 'dependency-explorer.optional',
+	'dependencyExplorer.dependencyNode.optional': {
+		id: 'dependencyExplorer.dependencyNode.optional',
 		defaultMessage: 'Optional',
 	},
-	'dependency-explorer.embedded': {
-		id: 'dependency-explorer.embedded',
+	'dependencyExplorer.dependencyNode.embedded': {
+		id: 'dependencyExplorer.dependencyNode.embedded',
 		defaultMessage: 'Embedded',
 	},
-	'dependency-explorer.loading': {
-		id: 'dependency-explorer.loading',
+	'dependencyExplorer.loading': {
+		id: 'dependencyExplorer.loading',
 		defaultMessage: 'Loading',
 	},
 })
@@ -359,17 +359,17 @@ const LEGEND = computed(() => [
 	{
 		type: 'required',
 		color: '#4ade80',
-		label: formatMessage(messages['dependency-explorer.required']),
+		label: formatMessage(messages['dependencyExplorer.dependencyNode.required']),
 	},
 	{
 		type: 'optional',
 		color: '#888',
-		label: formatMessage(messages['dependency-explorer.optional']),
+		label: formatMessage(messages['dependencyExplorer.dependencyNode.optional']),
 	},
 	{
 		type: 'embedded',
 		color: '#60a5fa',
-		label: formatMessage(messages['dependency-explorer.embedded']),
+		label: formatMessage(messages['dependencyExplorer.dependencyNode.embedded']),
 	},
 ])
 

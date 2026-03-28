@@ -1,10 +1,10 @@
 <template>
 	<div class="card flex-card experimental-styles-within">
 		<div class="flex items-center justify-between gap-2">
-			<h2>{{ formatMessage(messages['dependency-sidebar.title']) }}</h2>
+			<h2>{{ formatMessage(messages['dependenciesSidebar.title']) }}</h2>
 			<button
 				v-if="!loading && !error && roots.length > 0"
-				v-tooltip="formatMessage(messages['dependency-sidebar.open-graph'])"
+				v-tooltip="formatMessage(messages['dependenciesSidebar.openGraph'])"
 				class="btn btn-transparent p-1"
 				style="height: auto; line-height: 1"
 				@click="explorerRef?.show()"
@@ -32,14 +32,14 @@
 		<div class="details-list">
 			<div v-if="loading" class="details-list__item">
 				<LoaderCircleIcon class="animate-spin" />
-				{{ formatMessage(messages['dependency-sidebar.loading']) }}
+				{{ formatMessage(messages['dependenciesSidebar.loading']) }}
 			</div>
 			<div v-else-if="error" class="details-list__item font-normal text-secondary">
-				{{ formatMessage(messages['dependency-sidebar.load-error']) }}
+				{{ formatMessage(messages['dependenciesSidebar.loadError']) }}
 			</div>
 			<div v-else-if="roots.length === 0" class="details-list__item text-secondary">
 				<XIcon aria-hidden="true" />
-				{{ formatMessage(messages['dependency-sidebar.none']) }}
+				{{ formatMessage(messages['dependenciesSidebar.none']) }}
 			</div>
 			<ScrollablePanel v-else class="[&__.scrollable-pane]:max-h-96">
 				<ul class="m-0 flex list-none flex-col gap-3 p-0 pr-2">
@@ -77,17 +77,17 @@ import DependencyNode from './DependencyNode.vue'
 
 const { formatMessage } = useVIntl()
 const messages = defineMessages({
-	'dependency-sidebar.title': { id: 'dependency-sidebar.title', defaultMessage: 'Dependencies' },
-	'dependency-sidebar.open-graph': {
-		id: 'dependency-sidebar.open-graph',
+	'dependenciesSidebar.title': { id: 'dependenciesSidebar.title', defaultMessage: 'Dependencies' },
+	'dependenciesSidebar.openGraph': {
+		id: 'dependenciesSidebar.openGraph',
 		defaultMessage: 'Open dependency graph',
 	},
-	'dependency-sidebar.loading': { id: 'dependency-sidebar.loading', defaultMessage: 'Loading' },
-	'dependency-sidebar.load-error': {
-		id: 'dependency-sidebar.load-error',
+	'dependenciesSidebar.loading': { id: 'dependenciesSidebar.loading', defaultMessage: 'Loading' },
+	'dependenciesSidebar.loadError': {
+		id: 'dependenciesSidebar.loadError',
 		defaultMessage: 'Failed to load dependencies',
 	},
-	'dependency-sidebar.none': { id: 'dependency-sidebar.none', defaultMessage: 'No dependencies' },
+	'dependenciesSidebar.none': { id: 'dependenciesSidebar.none', defaultMessage: 'No dependencies' },
 })
 
 const props = defineProps<{

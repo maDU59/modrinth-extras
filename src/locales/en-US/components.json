@@ -1,128 +1,119 @@
 {
-  "dependency-explorer.controls": {
-    "defaultMessage": "scroll to zoom · drag to pan · click to expand"
-  },
-  "dependency-explorer.dependency-node.collapse": {
-    "defaultMessage": "Collapse dependencies"
-  },
-  "dependency-explorer.dependency-node.embedded": {
-    "defaultMessage": "Embedded"
-  },
-  "dependency-explorer.dependency-node.expand": {
-    "defaultMessage": "Expand dependencies"
-  },
-  "dependency-explorer.dependency-node.incompatible": {
-    "defaultMessage": "Incompatible"
-  },
-  "dependency-explorer.dependency-node.optional": {
-    "defaultMessage": "Optional"
-  },
-  "dependency-explorer.dependency-node.required": {
-    "defaultMessage": "Required"
-  },
-  "dependency-explorer.embedded": {
-    "defaultMessage": "Embedded"
-  },
-  "dependency-explorer.loading": {
-    "defaultMessage": "Loading"
-  },
-  "dependency-explorer.no-dependencies": {
-    "defaultMessage": "This project has no dependencies"
-  },
-  "dependency-explorer.optional": {
-    "defaultMessage": "Optional"
-  },
-  "dependency-explorer.required": {
-    "defaultMessage": "Required"
-  },
-  "dependency-explorer.title": {
-    "defaultMessage": "Dependency Graph"
-  },
-  "dependency-sidebar.load-error": {
+  "dependenciesSidebar.loadError": {
     "defaultMessage": "Failed to load dependencies"
   },
-  "dependency-sidebar.loading": {
+  "dependenciesSidebar.loading": {
     "defaultMessage": "Loading"
   },
-  "dependency-sidebar.none": {
+  "dependenciesSidebar.none": {
     "defaultMessage": "No dependencies"
   },
-  "dependency-sidebar.open-graph": {
+  "dependenciesSidebar.openGraph": {
     "defaultMessage": "Open dependency graph"
   },
-  "dependency-sidebar.title": {
+  "dependenciesSidebar.title": {
     "defaultMessage": "Dependencies"
   },
-  "discord.members": {
+  "dependencyExplorer.controls": {
+    "defaultMessage": "scroll to zoom · drag to pan · click to expand"
+  },
+  "dependencyExplorer.dependencyNode.collapse": {
+    "defaultMessage": "Collapse dependencies"
+  },
+  "dependencyExplorer.dependencyNode.embedded": {
+    "defaultMessage": "Embedded"
+  },
+  "dependencyExplorer.dependencyNode.expand": {
+    "defaultMessage": "Expand dependencies"
+  },
+  "dependencyExplorer.dependencyNode.incompatible": {
+    "defaultMessage": "Incompatible"
+  },
+  "dependencyExplorer.dependencyNode.optional": {
+    "defaultMessage": "Optional"
+  },
+  "dependencyExplorer.dependencyNode.required": {
+    "defaultMessage": "Required"
+  },
+  "dependencyExplorer.loading": {
+    "defaultMessage": "Loading"
+  },
+  "dependencyExplorer.noDependencies": {
+    "defaultMessage": "This project has no dependencies"
+  },
+  "dependencyExplorer.title": {
+    "defaultMessage": "Dependency Graph"
+  },
+  "discordSidebar.members": {
     "defaultMessage": "{count} members"
   },
-  "discord.online": {
+  "discordSidebar.online": {
     "defaultMessage": "{count} online"
   },
-  "discord.partnered": {
+  "discordSidebar.partnered": {
     "defaultMessage": "Partnered"
   },
-  "discord.verified": {
+  "discordSidebar.verified": {
     "defaultMessage": "Verified"
   },
   "errorNotice.message": {
     "defaultMessage": "This error might be related to Modrinth Extras. Try disabling the extension and refreshing the page before reporting this to Modrinth. If the error goes away, please report it <link>here</link>."
   },
-  "github.forks": {
+  "githubSidebar.forks": {
     "defaultMessage": "{count} forks"
   },
-  "github.openIssues": {
+  "githubSidebar.openIssues": {
     "defaultMessage": "{count} open issues"
   },
-  "github.openPRs": {
+  "githubSidebar.openPRs": {
     "defaultMessage": "{count} open pull requests"
   },
-  "github.stars": {
+  "githubSidebar.stars": {
     "defaultMessage": "{count} stars"
   },
-  "notifications.markAllAsRead": {
+  "notificationsIndicator.markAllAsRead": {
     "defaultMessage": "Mark all as read"
   },
-  "notifications.noUnread": {
+  "notificationsIndicator.noUnread": {
     "defaultMessage": "No unread notifications"
   },
-  "notifications.projectUpdated": {
+  "notificationsIndicator.projectUpdated": {
     "defaultMessage": "{title} has been updated"
   },
-  "notifications.viewAll": {
+  "notificationsIndicator.viewAll": {
     "defaultMessage": "View all"
   },
-  "notifications.viewHistory": {
+  "notificationsIndicator.viewHistory": {
     "defaultMessage": "View history"
   },
-  "projectCard.copied": {
+  "projectCardActions.copied": {
     "defaultMessage": "Copied!"
   },
-  "projectCard.copyLink": {
+  "projectCardActions.copyLink": {
     "defaultMessage": "Copy link"
   },
-  "projectCard.download": {
+  "projectCardActions.download": {
     "defaultMessage": "Download"
   },
-  "projectCard.follow": {
+  "projectCardActions.follow": {
     "defaultMessage": "Follow"
   },
-  "projectCard.newCollection": {
+  "projectCardActions.newCollection": {
     "defaultMessage": "Create new collection"
   },
-  "projectCard.noCollections": {
+  "projectCardActions.noCollections": {
     "defaultMessage": "No collections found."
   },
-  "projectCard.save": {
+  "projectCardActions.save": {
     "defaultMessage": "Save"
   },
-  "projectCard.saved": {
+  "projectCardActions.saved": {
     "defaultMessage": "Saved"
   },
-  "projectCard.searchPlaceholder": {
+  "projectCardActions.searchPlaceholder": {
     "defaultMessage": "Search..."
   },
-  "projectCard.unfollow": {
+  "projectCardActions.unfollow": {
     "defaultMessage": "Unfollow"
   },
   "quickSearch.examples": {
@@ -134,22 +125,22 @@
   "quickSearch.search": {
     "defaultMessage": "Search"
   },
-  "tools.copied": {
+  "toolsSidebar.copied": {
     "defaultMessage": "Copied!"
   },
-  "tools.copyDownloadUrl": {
+  "toolsSidebar.copyDownloadUrl": {
     "defaultMessage": "Copy download URL"
   },
-  "tools.copyPackwiz": {
+  "toolsSidebar.copyPackwiz": {
     "defaultMessage": "Copy packwiz"
   },
-  "tools.generateEmbed": {
+  "toolsSidebar.generateEmbed": {
     "defaultMessage": "Generate embed"
   },
-  "tools.title": {
+  "toolsSidebar.title": {
     "defaultMessage": "Tools"
   },
-  "tools.viewApiResponse": {
+  "toolsSidebar.viewApiResponse": {
     "defaultMessage": "View API response"
   }
 }

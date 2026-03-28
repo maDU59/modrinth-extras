@@ -9,7 +9,7 @@
 				class="details-list__item hover:underline"
 			>
 				<StarIcon aria-hidden="true" />
-				{{ formatMessage(messages['github.stars'], { count: formatNum(stats.stars) }) }}
+				{{ formatMessage(messages['githubSidebar.stars'], { count: formatNum(stats.stars) }) }}
 				<ExternalIcon aria-hidden="true" class="external-icon" />
 			</a>
 			<a
@@ -19,7 +19,7 @@
 				class="details-list__item hover:underline"
 			>
 				<IssuesIcon aria-hidden="true" />
-				{{ formatMessage(messages['github.openIssues'], { count: stats.issues }) }}
+				{{ formatMessage(messages['githubSidebar.openIssues'], { count: stats.issues }) }}
 				<ExternalIcon aria-hidden="true" class="external-icon" />
 			</a>
 			<a
@@ -46,7 +46,7 @@
 					<path d="M13 6h3a2 2 0 0 1 2 2v7" />
 					<line x1="6" y1="9" x2="6" y2="21" />
 				</svg>
-				{{ formatMessage(messages['github.openPRs'], { count: stats.prs }) }}
+				{{ formatMessage(messages['githubSidebar.openPRs'], { count: stats.prs }) }}
 				<ExternalIcon aria-hidden="true" class="external-icon" />
 			</a>
 			<a
@@ -74,7 +74,7 @@
 					<path d="M6 9v2a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V9" />
 					<line x1="12" y1="12" x2="12" y2="15" />
 				</svg>
-				{{ formatMessage(messages['github.forks'], { count: formatNum(stats.forks) }) }}
+				{{ formatMessage(messages['githubSidebar.forks'], { count: formatNum(stats.forks) }) }}
 				<ExternalIcon aria-hidden="true" class="external-icon" />
 			</a>
 		</div>
@@ -90,10 +90,16 @@ import { apiFetch } from '../helpers/apiFetch'
 
 const { formatMessage } = useVIntl()
 const messages = defineMessages({
-	'github.stars': { id: 'github.stars', defaultMessage: '{count} stars' },
-	'github.openIssues': { id: 'github.openIssues', defaultMessage: '{count} open issues' },
-	'github.openPRs': { id: 'github.openPRs', defaultMessage: '{count} open pull requests' },
-	'github.forks': { id: 'github.forks', defaultMessage: '{count} forks' },
+	'githubSidebar.stars': { id: 'githubSidebar.stars', defaultMessage: '{count} stars' },
+	'githubSidebar.openIssues': {
+		id: 'githubSidebar.openIssues',
+		defaultMessage: '{count} open issues',
+	},
+	'githubSidebar.openPRs': {
+		id: 'githubSidebar.openPRs',
+		defaultMessage: '{count} open pull requests',
+	},
+	'githubSidebar.forks': { id: 'githubSidebar.forks', defaultMessage: '{count} forks' },
 })
 
 const props = defineProps<{ pageUrl: string }>()

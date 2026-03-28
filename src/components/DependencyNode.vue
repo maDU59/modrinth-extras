@@ -10,8 +10,8 @@
 				:aria-expanded="expanded"
 				:aria-label="
 					expanded
-						? formatMessage(messages['dependency-explorer.dependency-node.collapse'])
-						: formatMessage(messages['dependency-explorer.dependency-node.expand'])
+						? formatMessage(messages['dependencyExplorer.dependencyNode.collapse'])
+						: formatMessage(messages['dependencyExplorer.dependencyNode.expand'])
 				"
 				@click="toggle"
 			>
@@ -71,28 +71,28 @@ defineOptions({ name: 'DependencyNode' })
 
 const { formatMessage } = useVIntl()
 const messages = defineMessages({
-	'dependency-explorer.dependency-node.collapse': {
-		id: 'dependency-explorer.dependency-node.collapse',
+	'dependencyExplorer.dependencyNode.collapse': {
+		id: 'dependencyExplorer.dependencyNode.collapse',
 		defaultMessage: 'Collapse dependencies',
 	},
-	'dependency-explorer.dependency-node.expand': {
-		id: 'dependency-explorer.dependency-node.expand',
+	'dependencyExplorer.dependencyNode.expand': {
+		id: 'dependencyExplorer.dependencyNode.expand',
 		defaultMessage: 'Expand dependencies',
 	},
-	'dependency-explorer.dependency-node.required': {
-		id: 'dependency-explorer.dependency-node.required',
+	'dependencyExplorer.dependencyNode.required': {
+		id: 'dependencyExplorer.dependencyNode.required',
 		defaultMessage: 'Required',
 	},
-	'dependency-explorer.dependency-node.optional': {
-		id: 'dependency-explorer.dependency-node.optional',
+	'dependencyExplorer.dependencyNode.optional': {
+		id: 'dependencyExplorer.dependencyNode.optional',
 		defaultMessage: 'Optional',
 	},
-	'dependency-explorer.dependency-node.incompatible': {
-		id: 'dependency-explorer.dependency-node.incompatible',
+	'dependencyExplorer.dependencyNode.incompatible': {
+		id: 'dependencyExplorer.dependencyNode.incompatible',
 		defaultMessage: 'Incompatible',
 	},
-	'dependency-explorer.dependency-node.embedded': {
-		id: 'dependency-explorer.dependency-node.embedded',
+	'dependencyExplorer.dependencyNode.embedded': {
+		id: 'dependencyExplorer.dependencyNode.embedded',
 		defaultMessage: 'Embedded',
 	},
 })
@@ -117,10 +117,10 @@ const projectHref = computed(() => {
 const typeLabel = computed(
 	() =>
 		({
-			required: formatMessage(messages['dependency-explorer.dependency-node.required']),
-			optional: formatMessage(messages['dependency-explorer.dependency-node.optional']),
-			incompatible: formatMessage(messages['dependency-explorer.dependency-node.incompatible']),
-			embedded: formatMessage(messages['dependency-explorer.dependency-node.embedded']),
+			required: formatMessage(messages['dependencyExplorer.dependencyNode.required']),
+			optional: formatMessage(messages['dependencyExplorer.dependencyNode.optional']),
+			incompatible: formatMessage(messages['dependencyExplorer.dependencyNode.incompatible']),
+			embedded: formatMessage(messages['dependencyExplorer.dependencyNode.embedded']),
 		})[props.dep.dependency_type] ?? props.dep.dependency_type,
 )
 

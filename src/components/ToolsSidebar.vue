@@ -1,11 +1,11 @@
 <template>
 	<div class="card flex-card experimental-styles-within">
-		<h2>{{ formatMessage(messages['tools.title']) }}</h2>
+		<h2>{{ formatMessage(messages['toolsSidebar.title']) }}</h2>
 		<div class="details-list">
 			<div class="details-list__item">
 				<CodeIcon aria-hidden="true" />
 				<a :href="modfolioUrl" target="_blank" rel="noopener" class="hover:underline">
-					{{ formatMessage(messages['tools.generateEmbed']) }}
+					{{ formatMessage(messages['toolsSidebar.generateEmbed']) }}
 					<ExternalIcon aria-hidden="true" class="external-icon" />
 				</a>
 			</div>
@@ -17,7 +17,7 @@
 					rel="noopener"
 					class="min-w-0 flex-1 truncate hover:underline"
 				>
-					{{ formatMessage(messages['tools.viewApiResponse']) }}
+					{{ formatMessage(messages['toolsSidebar.viewApiResponse']) }}
 					<ExternalIcon aria-hidden="true" class="external-icon" />
 				</a>
 			</div>
@@ -30,15 +30,15 @@
 						class="min-w-0 flex-1 cursor-pointer truncate border-0 bg-transparent p-0 text-left text-primary hover:underline [font:inherit]"
 						:aria-label="
 							downloadCopied
-								? formatMessage(messages['tools.copied'])
-								: formatMessage(messages['tools.copyDownloadUrl'])
+								? formatMessage(messages['toolsSidebar.copied'])
+								: formatMessage(messages['toolsSidebar.copyDownloadUrl'])
 						"
 						@click="copyDownloadUrl"
 					>
 						{{
 							downloadCopied
-								? formatMessage(messages['tools.copied'])
-								: formatMessage(messages['tools.copyDownloadUrl'])
+								? formatMessage(messages['toolsSidebar.copied'])
+								: formatMessage(messages['toolsSidebar.copyDownloadUrl'])
 						}}
 					</button>
 					<ClipboardCopyIcon
@@ -53,15 +53,15 @@
 						class="min-w-0 flex-1 cursor-pointer truncate border-0 bg-transparent p-0 text-left text-primary hover:underline [font:inherit]"
 						:aria-label="
 							packwizCopied
-								? formatMessage(messages['tools.copied'])
-								: formatMessage(messages['tools.copyPackwiz'])
+								? formatMessage(messages['toolsSidebar.copied'])
+								: formatMessage(messages['toolsSidebar.copyPackwiz'])
 						"
 						@click="copyPackwiz"
 					>
 						{{
 							packwizCopied
-								? formatMessage(messages['tools.copied'])
-								: formatMessage(messages['tools.copyPackwiz'])
+								? formatMessage(messages['toolsSidebar.copied'])
+								: formatMessage(messages['toolsSidebar.copyPackwiz'])
 						}}
 					</button>
 					<ClipboardCopyIcon v-if="!packwizCopied" class="shrink-0 text-secondary" />
@@ -90,12 +90,24 @@ import { apiFetch } from '../helpers/apiFetch'
 
 const { formatMessage } = useVIntl()
 const messages = defineMessages({
-	'tools.title': { id: 'tools.title', defaultMessage: 'Tools' },
-	'tools.generateEmbed': { id: 'tools.generateEmbed', defaultMessage: 'Generate embed' },
-	'tools.viewApiResponse': { id: 'tools.viewApiResponse', defaultMessage: 'View API response' },
-	'tools.copyDownloadUrl': { id: 'tools.copyDownloadUrl', defaultMessage: 'Copy download URL' },
-	'tools.copyPackwiz': { id: 'tools.copyPackwiz', defaultMessage: 'Copy packwiz' },
-	'tools.copied': { id: 'tools.copied', defaultMessage: 'Copied!' },
+	'toolsSidebar.title': { id: 'toolsSidebar.title', defaultMessage: 'Tools' },
+	'toolsSidebar.generateEmbed': {
+		id: 'toolsSidebar.generateEmbed',
+		defaultMessage: 'Generate embed',
+	},
+	'toolsSidebar.viewApiResponse': {
+		id: 'toolsSidebar.viewApiResponse',
+		defaultMessage: 'View API response',
+	},
+	'toolsSidebar.copyDownloadUrl': {
+		id: 'toolsSidebar.copyDownloadUrl',
+		defaultMessage: 'Copy download URL',
+	},
+	'toolsSidebar.copyPackwiz': {
+		id: 'toolsSidebar.copyPackwiz',
+		defaultMessage: 'Copy packwiz',
+	},
+	'toolsSidebar.copied': { id: 'toolsSidebar.copied', defaultMessage: 'Copied!' },
 })
 
 const props = defineProps<{
