@@ -78,7 +78,7 @@
     "defaultMessage": "Nessuna notifica non letta"
   },
   "notificationsIndicator.projectUpdated": {
-    "defaultMessage": "%{title} è stato/a aggiornato/a"
+    "defaultMessage": "{title} è stato aggiornato"
   },
   "notificationsIndicator.viewAll": {
     "defaultMessage": "Visualizza tutto"
