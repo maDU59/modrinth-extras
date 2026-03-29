@@ -5,7 +5,7 @@ Modrinth Extras shares anonymous statistics to help improve the extension. This 
 ## What is collected
 
 - When the extension starts, is installed, or is updated (extension version and platform)
-- Which features are enabled or disabled
+- Which features of the extension are used
 
 ## What is not collected
 
@@ -15,7 +15,7 @@ Modrinth Extras shares anonymous statistics to help improve the extension. This 
 
 ## Where data is sent
 
-Data is sent to a self-hosted [PostHog](https://posthog.com) instance operated by the extension author. It is not shared with third parties.
+Data is sent to a [PostHog](https://posthog.com) instance operated by the extension author. It is not shared with third parties.
 
 ## Contact
 
