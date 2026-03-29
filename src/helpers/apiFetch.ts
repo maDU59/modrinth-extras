@@ -3,7 +3,8 @@ import { browser } from 'wxt/browser'
 const API_BASE = 'https://api.modrinth.com'
 const USER_AGENT = `creeperkatze/modrinth-extras/${browser.runtime.getManifest().version} (contact@creeperkatze.de)`
 
-// Reads document.cookie synchronously
+export type ApiFetchOptions = RequestInit & { apiVersion?: number; token?: string }
+
 let cachedToken: string | null = null
 
 export function getAuthToken(): string {
@@ -27,15 +28,8 @@ export async function getBackgroundAuthToken(): Promise<string> {
 	}
 }
 
-export async function apiFetch(
-	url: string,
-	options: RequestInit & { apiVersion?: number; token?: string } = {},
-): Promise<unknown> {
-	const {
-		apiVersion = 2,
-		token = getAuthToken(),
-		...fetchOptions
-	} = options as RequestInit & { apiVersion?: number; token?: string }
+export async function apiFetch(url: string, options: ApiFetchOptions = {}): Promise<unknown> {
+	const { apiVersion = 2, token = getAuthToken(), ...fetchOptions } = options
 
 	const res = await fetch(`${API_BASE}/v${apiVersion}/${url}`, {
 		...fetchOptions,

@@ -1,19 +1,19 @@
 import { browser } from 'wxt/browser'
 
-import { apiFetch, getBackgroundAuthToken } from '../helpers/apiFetch'
+import { getBackgroundAuthToken } from '../helpers/apiFetch'
 import {
 	fetchExtraNotificationData,
 	groupNotifications,
-	type PlatformNotification,
-} from '../helpers/platform-notifications'
+	type Notification,
+} from '../helpers/notifications'
 import { getSettings } from '../helpers/settings'
 
 // Maps notification ID to the relative link so the click handler can open the right page
 export const notificationLinks = new Map<string, string>()
 
 export async function sendDesktopNotifications(
-	newNotifs: PlatformNotification[],
-	prevNotifs: PlatformNotification[] | null,
+	newNotifs: Notification[],
+	prevNotifs: Notification[] | null,
 ) {
 	const { desktopNotifications } = await getSettings()
 	if (!desktopNotifications.enabled) return
@@ -37,7 +37,7 @@ export async function sendDesktopNotifications(
 		`[Modrinth Extras] Desktop notifications: ${brandNew.length} new, fetching extra data`,
 	)
 	const token = await getBackgroundAuthToken()
-	await fetchExtraNotificationData(brandNew, (url, options) => apiFetch(url, { ...options, token }))
+	await fetchExtraNotificationData(brandNew, { token })
 
 	const grouped = groupNotifications(brandNew)
 	console.log(

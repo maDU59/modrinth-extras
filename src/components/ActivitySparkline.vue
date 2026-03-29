@@ -77,6 +77,8 @@ interface Version {
 	date_published: string
 }
 
+const dataCache = new Map<string, { counts: number[]; hasData: boolean }>()
+
 const wrapperEl = ref<HTMLElement | null>(null)
 const svgWidth = ref(0)
 const svgHeight = ref(0)
@@ -125,6 +127,16 @@ onMounted(async () => {
 		resizeObserver.observe(wrapperEl.value)
 	}
 
+	const cached = dataCache.get(props.projectSlug)
+	if (cached) {
+		dailyCounts.value = cached.counts
+		hasAnyData.value = cached.hasData
+		loaded.value = true
+		// Show immediately without animation on re-mount
+		animated.value = true
+		return
+	}
+
 	try {
 		const now = Date.now()
 		const cutoff = now - DAYS * 24 * 60 * 60 * 1000
@@ -142,6 +154,7 @@ onMounted(async () => {
 
 		dailyCounts.value = counts
 		hasAnyData.value = counts.some((c) => c > 0)
+		dataCache.set(props.projectSlug, { counts, hasData: hasAnyData.value })
 	} catch (err) {
 		console.error('[Modrinth Extras] Failed to load activity data:', err)
 	} finally {

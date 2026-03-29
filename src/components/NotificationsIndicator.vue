@@ -67,22 +67,20 @@
 												v-if="notif.extra_data?.project"
 												:href="
 													resolveLink(
-														`/project/${(notif.extra_data as PlatformNotificationExtraData).project!.slug}`,
+														`/project/${(notif.extra_data as NotificationExtraData).project!.slug}`,
 													)
 												"
 												tabindex="-1"
 												class="smart-clickable:allow-pointer-events"
 												@click.stop.prevent="
 													navigate(
-														`/project/${(notif.extra_data as PlatformNotificationExtraData).project!.slug}`,
+														`/project/${(notif.extra_data as NotificationExtraData).project!.slug}`,
 													)
 												"
 											>
 												<Avatar
 													size="xs"
-													:src="
-														(notif.extra_data as PlatformNotificationExtraData).project!.icon_url
-													"
+													:src="(notif.extra_data as NotificationExtraData).project!.icon_url"
 													aria-hidden="true"
 												/>
 											</a>
@@ -90,23 +88,20 @@
 												v-else-if="notif.extra_data?.organization"
 												:href="
 													resolveLink(
-														`/organization/${(notif.extra_data as PlatformNotificationExtraData).organization!.slug}`,
+														`/organization/${(notif.extra_data as NotificationExtraData).organization!.slug}`,
 													)
 												"
 												tabindex="-1"
 												class="smart-clickable:allow-pointer-events"
 												@click.stop.prevent="
 													navigate(
-														`/organization/${(notif.extra_data as PlatformNotificationExtraData).organization!.slug}`,
+														`/organization/${(notif.extra_data as NotificationExtraData).organization!.slug}`,
 													)
 												"
 											>
 												<Avatar
 													size="xs"
-													:src="
-														(notif.extra_data as PlatformNotificationExtraData).organization!
-															.icon_url
-													"
+													:src="(notif.extra_data as NotificationExtraData).organization!.icon_url"
 													aria-hidden="true"
 												/>
 											</a>
@@ -114,22 +109,20 @@
 												v-else-if="notif.extra_data?.user"
 												:href="
 													resolveLink(
-														`/user/${(notif.extra_data as PlatformNotificationExtraData).user!.username}`,
+														`/user/${(notif.extra_data as NotificationExtraData).user!.username}`,
 													)
 												"
 												tabindex="-1"
 												class="smart-clickable:allow-pointer-events"
 												@click.stop.prevent="
 													navigate(
-														`/user/${(notif.extra_data as PlatformNotificationExtraData).user!.username}`,
+														`/user/${(notif.extra_data as NotificationExtraData).user!.username}`,
 													)
 												"
 											>
 												<Avatar
 													size="xs"
-													:src="
-														(notif.extra_data as PlatformNotificationExtraData).user!.avatar_url
-													"
+													:src="(notif.extra_data as NotificationExtraData).user!.avatar_url"
 													aria-hidden="true"
 												/>
 											</a>
@@ -166,8 +159,7 @@
 											{{
 												notif.type === 'project_update' && notif.extra_data?.project
 													? formatMessage(messages['notificationsIndicator.projectUpdated'], {
-															title: (notif.extra_data as PlatformNotificationExtraData).project!
-																.title,
+															title: (notif.extra_data as NotificationExtraData).project!.title,
 														})
 													: notif.title
 											}}
@@ -247,15 +239,17 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { browser } from 'wxt/browser'
 
 import { apiFetch, invalidateTokenCache } from '../helpers/apiFetch'
-import { navigate, resolveLink } from '../helpers/page-router'
 import {
 	fetchExtraNotificationData,
+	fetchNotifications,
 	groupNotifications,
-	markAsRead,
-	type PlatformNotification,
-	type PlatformNotificationBody,
-	type PlatformNotificationExtraData,
-} from '../helpers/platform-notifications'
+	markNotificationsAsRead,
+	type Notification,
+	type NotificationBody,
+	type NotificationExtraData,
+	syncToBackground,
+} from '../helpers/notifications'
+import { navigate, resolveLink } from '../helpers/page-router'
 import { acceptTeamInvite, removeSelfFromTeam } from '../helpers/teams'
 
 const { formatMessage } = useVIntl()
@@ -316,15 +310,13 @@ const effectiveDropdownId = computed(
 // Auth state
 const userId = ref<string | null | false>(null)
 
-const notificationsData = ref<PlatformNotification[] | null>(null)
+const notificationsData = ref<Notification[] | null>(null)
 
 async function refreshNotifications() {
 	if (!userId.value) return
 	try {
-		const notifs = (await apiFetch(`user/${userId.value}/notifications`)) as PlatformNotification[]
-		browser.runtime
-			.sendMessage({ type: 'notifications-fetched', notifications: notifs })
-			.catch(() => {})
+		const notifs = await fetchNotifications(userId.value)
+		syncToBackground(notifs)
 		notificationsData.value = await fetchExtraNotificationData(notifs)
 	} catch (err) {
 		console.error('[Modrinth Extras] Failed to fetch notifications:', err)
@@ -354,7 +346,7 @@ onMounted(async () => {
 	])
 	if (cachedUserId && Array.isArray(cachedNotifs) && cachedNotifs.length > 0) {
 		userId.value = cachedUserId as string
-		notificationsData.value = cachedNotifs as PlatformNotification[]
+		notificationsData.value = cachedNotifs as Notification[]
 	}
 
 	if (!(await tryAuth())) {
@@ -427,19 +419,19 @@ onBeforeUnmount(() => {
 	if (refreshInterval) clearInterval(refreshInterval)
 })
 
-function syncBadgeCount() {
-	browser.runtime.sendMessage({ type: 'badge-count', count: unreadCount.value }).catch(() => {})
+function syncNotifications() {
+	if (notificationsData.value) syncToBackground(notificationsData.value)
 }
 
-async function handleAcceptInvite(notif: PlatformNotification) {
+async function handleAcceptInvite(notif: Notification) {
 	try {
 		if (notificationsData.value) {
 			const n = notificationsData.value.find((n) => n.id === notif.id)
 			if (n) n.read = true
 		}
-		syncBadgeCount()
-		await acceptTeamInvite((notif.body as PlatformNotificationBody).team_id as string)
-		markAsRead([notif.id]).catch((err) =>
+		syncNotifications()
+		await acceptTeamInvite((notif.body as NotificationBody).team_id as string)
+		markNotificationsAsRead([notif.id]).catch((err) =>
 			console.error('[Modrinth Extras] Error marking as read:', err),
 		)
 	} catch (err) {
@@ -447,18 +439,18 @@ async function handleAcceptInvite(notif: PlatformNotification) {
 	}
 }
 
-async function handleDeclineInvite(notif: PlatformNotification) {
+async function handleDeclineInvite(notif: Notification) {
 	try {
 		if (notificationsData.value) {
 			const n = notificationsData.value.find((n) => n.id === notif.id)
 			if (n) n.read = true
 		}
-		syncBadgeCount()
+		syncNotifications()
 		await removeSelfFromTeam(
-			(notif.body as PlatformNotificationBody).team_id as string,
+			(notif.body as NotificationBody).team_id as string,
 			userId.value as string,
 		)
-		markAsRead([notif.id]).catch((err) =>
+		markNotificationsAsRead([notif.id]).catch((err) =>
 			console.error('[Modrinth Extras] Error marking as read:', err),
 		)
 	} catch (err) {
@@ -466,7 +458,7 @@ async function handleDeclineInvite(notif: PlatformNotification) {
 	}
 }
 
-async function handleMarkAsRead(notif: PlatformNotification) {
+async function handleMarkAsRead(notif: Notification) {
 	try {
 		const ids = [notif.id, ...(notif.grouped_notifs?.map((n) => n.id) ?? [])]
 		if (notificationsData.value) {
@@ -475,8 +467,10 @@ async function handleMarkAsRead(notif: PlatformNotification) {
 				if (n) n.read = true
 			}
 		}
-		syncBadgeCount()
-		markAsRead(ids).catch((err) => console.error('[Modrinth Extras] Error marking as read:', err))
+		syncNotifications()
+		markNotificationsAsRead(ids).catch((err) =>
+			console.error('[Modrinth Extras] Error marking as read:', err),
+		)
 	} catch (err) {
 		console.error('[Modrinth Extras] Error marking as read:', err)
 	}
@@ -484,12 +478,12 @@ async function handleMarkAsRead(notif: PlatformNotification) {
 
 async function handleMarkAllAsRead() {
 	try {
-		const ids = notificationsData.value?.map((n) => n.id) ?? []
+		const ids = notificationsData.value?.filter((n) => !n.read).map((n) => n.id) ?? []
 		if (notificationsData.value) {
 			for (const n of notificationsData.value) n.read = true
 		}
-		syncBadgeCount()
-		markAsRead(ids).catch((err) =>
+		syncNotifications()
+		markNotificationsAsRead(ids).catch((err) =>
 			console.error('[Modrinth Extras] Error marking all as read:', err),
 		)
 	} catch (err) {
@@ -507,7 +501,7 @@ function handleViewHistory() {
 	router.push('/dashboard/notifications/history')
 }
 
-async function handleNotificationClick(notif: PlatformNotification) {
+async function handleNotificationClick(notif: Notification) {
 	notificationsOverflow.value?.close()
 	if (!notif.read) handleMarkAsRead(notif)
 	navigate(notif.link)

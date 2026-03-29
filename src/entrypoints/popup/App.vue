@@ -170,6 +170,7 @@ import {
 	DiscordIcon,
 	GitGraphIcon,
 	GithubIcon,
+	ImageIcon,
 	LanguagesIcon,
 	LoaderCircleIcon,
 	MonitorIcon,
@@ -287,6 +288,14 @@ const messages = defineMessages({
 		id: 'feature.discordSidebar.description',
 		defaultMessage:
 			'Server name, description, member count, and online count for linked Discord servers.',
+	},
+	'feature.galleryBanner.title': {
+		id: 'feature.galleryBanner.title',
+		defaultMessage: 'Gallery banner',
+	},
+	'feature.galleryBanner.description': {
+		id: 'feature.galleryBanner.description',
+		defaultMessage: 'Display the featured gallery image as a background banner on project pages.',
 	},
 	'feature.notificationBadge.title': {
 		id: 'feature.notificationBadge.title',
@@ -434,6 +443,12 @@ const contentPageFeatures = computed<FeatureDef[]>(() => [
 		icon: DiscordIcon,
 		title: formatMessage(messages['feature.discordSidebar.title']),
 		description: formatMessage(messages['feature.discordSidebar.description']),
+	},
+	{
+		key: 'galleryBanner',
+		icon: ImageIcon,
+		title: formatMessage(messages['feature.galleryBanner.title']),
+		description: formatMessage(messages['feature.galleryBanner.description']),
 	},
 ])
 

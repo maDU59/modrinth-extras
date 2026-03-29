@@ -1,7 +1,7 @@
 import { browser } from 'wxt/browser'
 
 import { apiFetch, getBackgroundAuthToken } from '../helpers/apiFetch'
-import { groupNotifications, type PlatformNotification } from '../helpers/platform-notifications'
+import { fetchNotifications, groupNotifications, type Notification } from '../helpers/notifications'
 import { getSettings } from '../helpers/settings'
 import { sendDesktopNotifications } from './desktop-notifications'
 
@@ -18,16 +18,14 @@ export async function showCachedBadge() {
 		browser.storage.local.get('notifications'),
 	])
 	if (!notificationBadge.enabled || !Array.isArray(notifications)) return
-	const unread = groupNotifications(
-		(notifications as PlatformNotification[]).filter((n) => !n.read),
-	).length
+	const unread = groupNotifications((notifications as Notification[]).filter((n) => !n.read)).length
 	console.log(`[Modrinth Extras] Badge: Restored cached: ${unread} unread`)
 	await setBadge(unread)
 }
 
 export async function applyNotifications(
-	newNotifs: PlatformNotification[],
-	prevNotifs: PlatformNotification[] | null,
+	newNotifs: Notification[],
+	prevNotifs: Notification[] | null,
 	userId?: string,
 ) {
 	const { notificationBadge } = await getSettings()
@@ -72,14 +70,12 @@ export async function updateBadge() {
 		const user = (await apiFetch('user', { token })) as { id?: string } | null
 		if (!user?.id) throw new Error('Failed to fetch user')
 
-		const notifs = await apiFetch(`user/${user.id}/notifications`, { token })
-		if (Array.isArray(notifs)) {
-			await applyNotifications(
-				notifs as PlatformNotification[],
-				Array.isArray(prevNotifs) ? (prevNotifs as PlatformNotification[]) : null,
-				user.id,
-			)
-		}
+		const notifs = await fetchNotifications(user.id, { token })
+		await applyNotifications(
+			notifs,
+			Array.isArray(prevNotifs) ? (prevNotifs as Notification[]) : null,
+			user.id,
+		)
 	} catch (err) {
 		console.error('[Modrinth Extras] Badge: Background update failed:', err)
 		await setBadge(0)

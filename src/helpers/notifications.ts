@@ -1,15 +1,14 @@
 import type { Organization, Project, Report, User, Version } from '@modrinth/utils'
+import { browser } from 'wxt/browser'
 
-import { apiFetch } from '../helpers/apiFetch'
+import { apiFetch, type ApiFetchOptions } from './apiFetch'
 
-type Fetcher = (url: string, options?: RequestInit & { apiVersion?: number }) => Promise<unknown>
-
-export type PlatformNotificationAction = {
+export type NotificationAction = {
 	title: string
 	action_route: [string, string]
 }
 
-export type PlatformNotificationBody = {
+export type NotificationBody = {
 	type?: string
 	project_id?: string
 	version_id?: string
@@ -20,7 +19,7 @@ export type PlatformNotificationBody = {
 	team_id?: string
 }
 
-export type PlatformNotificationExtraData = {
+export type NotificationExtraData = {
 	project?: Project
 	organization?: Organization
 	user?: User
@@ -30,7 +29,7 @@ export type PlatformNotificationExtraData = {
 	invited_by?: User
 }
 
-export type PlatformNotification = {
+export type Notification = {
 	id: string
 	user_id: string
 	type:
@@ -44,34 +43,62 @@ export type PlatformNotification = {
 	link: string
 	read: boolean
 	created: string
-	actions: PlatformNotificationAction[]
-	body?: PlatformNotificationBody
-	extra_data?: PlatformNotificationExtraData
-	grouped_notifs?: PlatformNotification[]
+	actions: NotificationAction[]
+	body?: NotificationBody
+	extra_data?: NotificationExtraData
+	grouped_notifs?: Notification[]
+}
+
+export function groupNotifications(notifications: Notification[]): Notification[] {
+	const byProject = new Map<string, Notification>()
+	const result: Notification[] = []
+
+	for (const notif of notifications) {
+		const key = notif.body?.project_id
+		if (key) {
+			const leader = byProject.get(key)
+			if (leader) {
+				;(leader.grouped_notifs ??= []).push(notif)
+			} else {
+				const copy = { ...notif }
+				byProject.set(key, copy)
+				result.push(copy)
+			}
+		} else {
+			result.push(notif)
+		}
+	}
+
+	return result
 }
 
 async function getBulk<T extends { id: string }>(
 	type: string,
 	ids: string[],
-	fetcher: Fetcher,
 	apiVersion = 2,
+	options?: ApiFetchOptions,
 ): Promise<T[]> {
-	if (!ids || ids.length === 0) {
-		return []
-	}
+	if (!ids || ids.length === 0) return []
 	const url = `${type}?ids=${encodeURIComponent(JSON.stringify([...new Set(ids)]))}`
 	try {
-		const res = await fetcher(url, { apiVersion })
+		const res = await apiFetch(url, { apiVersion, ...options })
 		return Array.isArray(res) ? res : []
 	} catch {
 		return []
 	}
 }
 
+export async function fetchNotifications(
+	userId: string,
+	options?: ApiFetchOptions,
+): Promise<Notification[]> {
+	return (await apiFetch(`user/${userId}/notifications`, options)) as Notification[]
+}
+
 export async function fetchExtraNotificationData(
-	notifications: PlatformNotification[],
-	fetcher: Fetcher = apiFetch,
-): Promise<PlatformNotification[]> {
+	notifications: Notification[],
+	options?: ApiFetchOptions,
+): Promise<Notification[]> {
 	const bulk = {
 		projects: [] as string[],
 		reports: [] as string[],
@@ -93,7 +120,7 @@ export async function fetchExtraNotificationData(
 		}
 	}
 
-	const reports = (await getBulk<Report>('reports', bulk.reports, fetcher)).filter(Boolean)
+	const reports = (await getBulk<Report>('reports', bulk.reports, 2, options)).filter(Boolean)
 	for (const r of reports) {
 		if (!r?.item_type) continue
 		if (r.item_type === 'project') bulk.projects.push(r.item_id)
@@ -101,18 +128,18 @@ export async function fetchExtraNotificationData(
 		else if (r.item_type === 'version') bulk.versions.push(r.item_id)
 	}
 
-	const versions = (await getBulk<Version>('versions', bulk.versions, fetcher)).filter(Boolean)
+	const versions = (await getBulk<Version>('versions', bulk.versions, 2, options)).filter(Boolean)
 	for (const v of versions) bulk.projects.push(v.project_id)
 
 	const [projects, threads, users, organizations] = await Promise.all([
-		getBulk<Project>('projects', bulk.projects, fetcher),
-		getBulk<{ id: string }>('threads', bulk.threads, fetcher),
-		getBulk<User>('users', bulk.users, fetcher),
-		getBulk<Organization>('organizations', bulk.organizations, fetcher, 3),
+		getBulk<Project>('projects', bulk.projects, 2, options),
+		getBulk<{ id: string }>('threads', bulk.threads, 2, options),
+		getBulk<User>('users', bulk.users, 2, options),
+		getBulk<Organization>('organizations', bulk.organizations, 3, options),
 	])
 
 	for (const n of notifications) {
-		n.extra_data = {} as PlatformNotificationExtraData
+		n.extra_data = {} as NotificationExtraData
 		if (n.body) {
 			if (n.body.project_id)
 				n.extra_data.project = projects.find((x) => x.id === n.body!.project_id)
@@ -140,29 +167,18 @@ export async function fetchExtraNotificationData(
 	return notifications
 }
 
-export function groupNotifications(notifications: PlatformNotification[]): PlatformNotification[] {
-	const byProject = new Map<string, PlatformNotification>()
-	const result: PlatformNotification[] = []
-
-	for (const notif of notifications) {
-		const key = notif.body?.project_id
-		if (key) {
-			const leader = byProject.get(key)
-			if (leader) {
-				;(leader.grouped_notifs ??= []).push(notif)
-			} else {
-				const copy = { ...notif }
-				byProject.set(key, copy)
-				result.push(copy)
-			}
-		} else {
-			result.push(notif)
-		}
+export async function markNotificationsAsRead(
+	ids: string[],
+	options?: ApiFetchOptions,
+): Promise<void> {
+	const unique = [...new Set(ids)]
+	const BATCH_SIZE = 50
+	for (let i = 0; i < unique.length; i += BATCH_SIZE) {
+		const batch = unique.slice(i, i + BATCH_SIZE)
+		await apiFetch(`notifications?ids=${JSON.stringify(batch)}`, { method: 'PATCH', ...options })
 	}
-
-	return result
 }
 
-export async function markAsRead(ids: string[], fetcher: Fetcher = apiFetch): Promise<void> {
-	await fetcher(`notifications?ids=${JSON.stringify([...new Set(ids)])}`, { method: 'PATCH' })
+export function syncToBackground(notifications: Notification[]) {
+	browser.runtime.sendMessage({ type: 'notifications-fetched', notifications }).catch(() => {})
 }

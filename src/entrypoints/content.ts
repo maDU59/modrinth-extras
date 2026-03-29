@@ -9,6 +9,7 @@ import DependenciesSidebar from '../components/DependenciesSidebar.vue'
 import DiscordSidebar from '../components/DiscordSidebar.vue'
 import ErrorNotice from '../components/ErrorNotice.vue'
 import FooterBadge from '../components/FooterBadge.vue'
+import GalleryBanner from '../components/GalleryBanner.vue'
 import GitHubSidebar from '../components/GitHubSidebar.vue'
 import NotificationsIndicator from '../components/NotificationsIndicator.vue'
 import ProjectCardActions from '../components/ProjectCardActions.vue'
@@ -32,6 +33,8 @@ interface InjectionConfig {
 	attach: (container: HTMLElement) => boolean
 	createApp: () => App
 	persistent: boolean
+	/** When true, the injection persists across same-project tab navigations */
+	projectScoped?: boolean
 }
 
 function createInjection(config: InjectionConfig) {
@@ -94,6 +97,7 @@ function createInjection(config: InjectionConfig) {
 interface MultiInjectionConfig {
 	settingsKeys: (keyof ExtensionSettings)[]
 	persistent: boolean
+	projectScoped?: boolean
 	isEnabled: () => boolean
 	targets: string
 	attach: (target: HTMLElement) => HTMLElement | null
@@ -161,6 +165,11 @@ function createMultiInjection(config: MultiInjectionConfig) {
 }
 
 const PROJECT_TYPE_PATTERN = /^\/(mod|plugin|datapack|shader|resourcepack|modpack|map)\/([^/?#]+)/
+
+function getProjectSlug(): string | null {
+	const match = window.location.pathname.match(PROJECT_TYPE_PATTERN)
+	return match?.[2] ?? null
+}
 
 function attachCardActions(card: HTMLElement): HTMLElement | null {
 	const href =
@@ -313,20 +322,21 @@ export default defineContentScript({
 			isEnabled: () => settings.activitySparkline.enabled,
 			settingsKeys: ['activitySparkline'],
 			persistent: false,
+			projectScoped: true,
 			attach(container) {
 				const path = window.location.pathname
 				if (!/^\/(mod|plugin|datapack|shader|resourcepack|modpack)\/[^/?#]+/.test(path))
 					return false
 				const header = document.querySelector('.normal-page__header')
 				if (!header) return false
-				const borderDiv = header.querySelector<HTMLElement>(
-					'div.border-b.border-solid.border-divider',
-				)
-				if (!borderDiv) return false
-				borderDiv.style.position = 'relative'
-				borderDiv.style.isolation = 'isolate'
+				// Try the border div first (description/versions tabs), fall back to header itself (gallery tab)
+				const target =
+					header.querySelector<HTMLElement>('div.border-b.border-solid.border-divider') ??
+					(header as HTMLElement)
+				target.style.position = 'relative'
+				target.style.isolation = 'isolate'
 				container.style.display = 'contents'
-				borderDiv.appendChild(container)
+				target.appendChild(container)
 				return document.contains(container)
 			},
 			createApp() {
@@ -335,6 +345,30 @@ export default defineContentScript({
 				)?.[2]
 				const app = createApp(h(ActivitySparkline, { projectSlug: slug ?? '' }))
 				installI18n(app)
+				return app
+			},
+		})
+
+		const galleryBanner = createInjection({
+			id: 'modrinth-extras-gallery-banner',
+			isEnabled: () => settings.galleryBanner.enabled,
+			settingsKeys: ['galleryBanner'],
+			persistent: false,
+			projectScoped: true,
+			attach(container) {
+				const path = window.location.pathname
+				if (!/^\/(mod|plugin|datapack|shader|resourcepack|modpack)\/[^/?#]+/.test(path))
+					return false
+				if (!document.querySelector('.normal-page__header')) return false
+				container.style.display = 'contents'
+				document.body.appendChild(container)
+				return true
+			},
+			createApp() {
+				const slug = window.location.pathname.match(
+					/^\/(mod|plugin|datapack|shader|resourcepack|modpack)\/([^/]+)/,
+				)?.[2]
+				const app = createApp(h(GalleryBanner, { projectSlug: slug ?? '' }))
 				return app
 			},
 		})
@@ -453,6 +487,7 @@ export default defineContentScript({
 			toolsSidebar,
 			dependencySidebar,
 			activitySparkline,
+			galleryBanner,
 			gitHubSidebar,
 			discordSidebar,
 			errorNotice,
@@ -493,16 +528,27 @@ export default defineContentScript({
 			}
 		})
 
+		let prevProjectSlug: string | null = null
+
 		window.addEventListener('modrinth-extras:before-navigate', () => {
 			navigating = true
+			prevProjectSlug = getProjectSlug()
 			for (const inj of injections) {
-				if (!inj.config.persistent) inj.unmount()
+				if (inj.config.persistent) continue
+				// Keep project-scoped injections alive — we'll check in after-navigate
+				if (inj.config.projectScoped) continue
+				inj.unmount()
 			}
 		})
 
 		window.addEventListener('modrinth-extras:after-navigate', () => {
 			navigating = false
-			for (const inj of injections) inj.schedule()
+			const newSlug = getProjectSlug()
+			const projectChanged = prevProjectSlug !== newSlug
+			for (const inj of injections) {
+				if (inj.config.projectScoped && projectChanged) inj.unmount()
+				inj.schedule()
+			}
 		})
 
 		const domObserver = new MutationObserver(() => {
