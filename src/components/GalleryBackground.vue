@@ -7,8 +7,13 @@
 		<img
 			:src="imageUrl"
 			alt=""
-			class="h-full w-full scale-110 object-cover object-top opacity-50"
-			:style="{ filter: 'blur(8px)' }"
+			class="h-full w-full scale-110 object-cover object-top"
+			:style="{
+				filter: 'blur(8px)',
+				opacity: animated ? 0.5 : 0,
+				transition: 'opacity 0.5s ease-out',
+			}"
+			@load="onLoad"
 		/>
 		<div class="gallery-background-fade absolute inset-0" />
 	</div>
@@ -34,37 +39,24 @@ interface Project {
 	gallery: GalleryImage[]
 }
 
-const imageCache = new Map<string, string | null>()
-
 const imageUrl = ref<string | null>(null)
+const animated = ref(false)
+
+function onLoad() {
+	window.requestAnimationFrame(() => {
+		animated.value = true
+	})
+}
 
 onMounted(async () => {
-	const cached = imageCache.get(props.projectSlug)
-	if (cached !== undefined) {
-		imageUrl.value = cached
-		return
-	}
-
 	try {
 		const project = (await apiFetch(`project/${props.projectSlug}`)) as Project
-		if (!Array.isArray(project.gallery) || project.gallery.length === 0) {
-			imageCache.set(props.projectSlug, null)
-			return
-		}
+		if (!Array.isArray(project.gallery) || project.gallery.length === 0) return
 
 		const featured = project.gallery.find((img) => img.featured)
-		const url = featured?.url ?? project.gallery[0].url
-		imageCache.set(props.projectSlug, url)
-		imageUrl.value = url
+		imageUrl.value = featured?.url ?? project.gallery[0].url
 	} catch (err) {
 		console.error('[Modrinth Extras] Failed to load gallery background:', err)
-		imageCache.set(props.projectSlug, null)
 	}
 })
 </script>
-
-<style scoped>
-.gallery-background-fade {
-	background: linear-gradient(to bottom, transparent 60%, var(--color-bg) 80%);
-}
-</style>
