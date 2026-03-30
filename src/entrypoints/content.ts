@@ -35,6 +35,8 @@ interface InjectionConfig {
 	persistent: boolean
 	/** When true, the injection persists across same-project tab navigations */
 	projectScoped?: boolean
+	/** Optional fine-grained scope key; if it changes between navigations (within the same project), force re-mount */
+	scopeKey?: () => string
 }
 
 function createInjection(config: InjectionConfig) {
@@ -95,9 +97,11 @@ function createInjection(config: InjectionConfig) {
 }
 
 interface MultiInjectionConfig {
+	id?: string
 	settingsKeys: (keyof ExtensionSettings)[]
 	persistent: boolean
 	projectScoped?: boolean
+	scopeKey?: () => string
 	isEnabled: () => boolean
 	targets: string
 	attach: (target: HTMLElement) => HTMLElement | null
@@ -285,6 +289,7 @@ export default defineContentScript({
 			isEnabled: () => settings.toolsSidebar.enabled,
 			settingsKeys: ['toolsSidebar'],
 			persistent: false,
+			projectScoped: true,
 			attach: attachToSidebar,
 			createApp() {
 				const pageUrl = window.location.href.split('?')[0].split('#')[0]
@@ -302,6 +307,9 @@ export default defineContentScript({
 			isEnabled: () => settings.dependenciesSidebar.enabled,
 			settingsKeys: ['dependenciesSidebar'],
 			persistent: false,
+			projectScoped: true,
+			scopeKey: () =>
+				window.location.pathname.match(PROJECT_DEP_PATTERN)?.slice(2, 4).join('/') ?? '',
 			attach(container) {
 				if (!PROJECT_DEP_PATTERN.test(window.location.pathname)) return false
 				return attachToSidebar(container)
@@ -379,6 +387,7 @@ export default defineContentScript({
 			isEnabled: () => settings.githubSidebar.enabled,
 			settingsKeys: ['githubSidebar'],
 			persistent: false,
+			projectScoped: true,
 			attach: attachToSidebar,
 			createApp() {
 				const pageUrl = window.location.href.split('?')[0].split('#')[0]
@@ -393,6 +402,7 @@ export default defineContentScript({
 			isEnabled: () => settings.discordSidebar.enabled,
 			settingsKeys: ['discordSidebar'],
 			persistent: false,
+			projectScoped: true,
 			attach: attachToSidebar,
 			createApp() {
 				const pageUrl = window.location.href.split('?')[0].split('#')[0]
@@ -530,14 +540,18 @@ export default defineContentScript({
 		})
 
 		let prevProjectSlug: string | null = null
+		const prevScopeKeys = new Map<string, string>()
 
 		window.addEventListener('modrinth-extras:before-navigate', () => {
 			navigating = true
 			prevProjectSlug = getProjectSlug()
 			for (const inj of injections) {
 				if (inj.config.persistent) continue
-				// Keep project-scoped injections alive — we'll check in after-navigate
-				if (inj.config.projectScoped) continue
+				if (inj.config.projectScoped) {
+					if (inj.config.scopeKey && inj.config.id)
+						prevScopeKeys.set(inj.config.id, inj.config.scopeKey())
+					continue
+				}
 				inj.unmount()
 			}
 		})
@@ -547,9 +561,17 @@ export default defineContentScript({
 			const newSlug = getProjectSlug()
 			const projectChanged = prevProjectSlug !== newSlug
 			for (const inj of injections) {
-				if (inj.config.projectScoped && projectChanged) inj.unmount()
+				if (inj.config.projectScoped) {
+					if (projectChanged) {
+						inj.unmount()
+					} else if (inj.config.scopeKey) {
+						const prev = inj.config.id ? prevScopeKeys.get(inj.config.id) : undefined
+						if (prev !== inj.config.scopeKey()) inj.unmount()
+					}
+				}
 				inj.schedule()
 			}
+			prevScopeKeys.clear()
 		})
 
 		const domObserver = new MutationObserver(() => {
