@@ -369,8 +369,10 @@ export default defineContentScript({
 					return false
 				const header = document.querySelector('.normal-page__header')
 				if (!header) return false
+				const page = header.parentElement
+				if (!page) return false
 				container.style.display = 'contents'
-				header.appendChild(container)
+				page.insertBefore(container, page.firstChild)
 				return true
 			},
 			createApp() {

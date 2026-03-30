@@ -1,7 +1,7 @@
 <template>
 	<div
 		v-if="imageUrl"
-		class="fixed top-0 left-0 -z-10 h-screen w-screen overflow-hidden pointer-events-none"
+		class="absolute top-0 left-0 -z-10 h-screen w-screen overflow-hidden pointer-events-none"
 		aria-hidden="true"
 	>
 		<img
@@ -60,3 +60,9 @@ onMounted(async () => {
 	}
 })
 </script>
+
+<style scoped>
+.gallery-background-fade {
+	background: linear-gradient(to bottom, transparent 80%, var(--color-bg) 100%);
+}
+</style>
