@@ -71,26 +71,30 @@ export default defineContentScript({
 		}
 
 		function hookRouter(): boolean {
-			const router = getRouter()
+			const router = getRouter()!
 			if (!router) return false
 
-			router.beforeEach(() => {
-				window.dispatchEvent(new CustomEvent('modrinth-extras:before-navigate'))
-			})
-			router.afterEach(() => {
-				window.dispatchEvent(new CustomEvent('modrinth-extras:after-navigate'))
-			})
-
 			// The router is available before Nuxt hydration completes.
-			// Injecting into the DOM during hydration causes a mismatch
-			// error, so we must wait until hydration is truly finished.
+			// Adding guards or dispatching events during hydration can
+			// break Vue's internal iterator state, so defer everything
+			// until hydration is truly finished.
+			function attach() {
+				router.beforeEach(() => {
+					window.dispatchEvent(new CustomEvent('modrinth-extras:before-navigate'))
+				})
+				router.afterEach(() => {
+					window.dispatchEvent(new CustomEvent('modrinth-extras:after-navigate'))
+				})
+				dispatchReady()
+			}
+
 			const nuxtApp = w.__nuxt_app
 			if (nuxtApp?.isHydrating === false) {
-				dispatchReady()
+				attach()
 			} else if (nuxtApp?.hook) {
-				nuxtApp.hook('app:suspense:resolve', () => requestAnimationFrame(dispatchReady))
+				nuxtApp.hook('app:suspense:resolve', () => requestAnimationFrame(attach))
 			} else {
-				requestAnimationFrame(() => requestAnimationFrame(dispatchReady))
+				requestAnimationFrame(() => requestAnimationFrame(attach))
 			}
 
 			return true
