@@ -1,4 +1,4 @@
-# Modrinth Extras — Claude Guidelines
+# Modrinth Extras
 
 Browser extension that enhances the Modrinth website with extra features. Built with WXT, Vue 3, TypeScript, and Tailwind CSS. Not officially affiliated with Modrinth.
 
@@ -41,7 +41,7 @@ src/
 ### Injection System
 
 - `createInjection`: single instance per page (e.g. notifications indicator, quick search). Handles mount/unmount lifecycle across SPA navigations.
-- `createMultiInjection`: multiple instances targeting specific DOM elements (e.g. project card action buttons). Uses MutationObserver for dynamic content.
+- `createDynamicInjection`: multiple instances targeting specific DOM elements (e.g. project card action buttons). Uses MutationObserver for dynamic content.
 
 ### Notifications Flow
 

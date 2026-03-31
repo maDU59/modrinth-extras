@@ -96,7 +96,7 @@ function createInjection(config: InjectionConfig) {
 	return { unmount, schedule, checkDetached, config }
 }
 
-interface MultiInjectionConfig {
+interface DynamicInjectionConfig {
 	id?: string
 	settingsKeys: (keyof ExtensionSettings)[]
 	persistent: boolean
@@ -109,7 +109,7 @@ interface MultiInjectionConfig {
 	onSchedule?: () => void
 }
 
-function createMultiInjection(config: MultiInjectionConfig) {
+function createDynamicInjection(config: DynamicInjectionConfig) {
 	const injected = new Map<Element, { container: HTMLElement; app: App }>()
 
 	function unmount(): void {
@@ -476,7 +476,7 @@ export default defineContentScript({
 			},
 		})
 
-		const projectCardActions = createMultiInjection({
+		const projectCardActions = createDynamicInjection({
 			settingsKeys: ['projectCardActions'],
 			persistent: false,
 			isEnabled: () => settings.projectCardActions.enabled,
