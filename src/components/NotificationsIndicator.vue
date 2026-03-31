@@ -299,9 +299,6 @@ function formatRelativeTime(value: Date | number | string | null | undefined): s
 	return rtf.format(Math.round(diff / 31_556_952_000), 'year')
 }
 
-const router = { push: navigate }
-
-// Stable per-instance ID
 const instanceId = Math.random().toString(36).slice(2)
 const effectiveDropdownId = computed(
 	() => props.dropdownId || `notifications-dropdown-${instanceId}`,
@@ -338,32 +335,12 @@ async function tryAuth(): Promise<boolean> {
 	}
 }
 
-onMounted(async () => {
-	// Show cached notifications immediately while the fresh fetch is in progress
-	const { userId: cachedUserId, notifications: cachedNotifs } = await browser.storage.local.get([
-		'userId',
-		'notifications',
-	])
-	if (cachedUserId && Array.isArray(cachedNotifs) && cachedNotifs.length > 0) {
-		userId.value = cachedUserId as string
-		notificationsData.value = cachedNotifs as Notification[]
-	}
-
-	if (!(await tryAuth())) {
-		userId.value = false
-	}
-})
-
-const unreadCount = computed(() => {
-	if (!notificationsData.value) return 0
-	const grouped = groupNotifications(notificationsData.value.filter((n) => !n.read))
-	return grouped.length
-})
-
 const recentNotifications = computed(() => {
 	if (!notificationsData.value) return []
 	return groupNotifications(notificationsData.value.filter((n) => !n.read))
 })
+
+const unreadCount = computed(() => recentNotifications.value.length)
 
 const NOTIFICATIONS_PER_PAGE = 20
 const currentPage = ref(1)
@@ -395,7 +372,11 @@ const notificationsOverflow = ref<InstanceType<typeof OverflowMenu> | null>(null
 let authWatchInterval: ReturnType<typeof setInterval> | null = null
 let refreshInterval: ReturnType<typeof setInterval> | null = null
 
-onMounted(() => {
+onMounted(async () => {
+	if (!(await tryAuth())) {
+		userId.value = false
+	}
+
 	// Watches cookie, signs in when cookie appears, signs out when it disappears
 	authWatchInterval = setInterval(async () => {
 		const cookie = hasAuthCookie()
@@ -419,8 +400,8 @@ onBeforeUnmount(() => {
 	if (refreshInterval) clearInterval(refreshInterval)
 })
 
-function syncNotifications() {
-	if (notificationsData.value) syncToBackground(notificationsData.value)
+function syncBadgeCount() {
+	browser.runtime.sendMessage({ type: 'badge-count', count: unreadCount.value }).catch(() => {})
 }
 
 async function handleAcceptInvite(notif: Notification) {
@@ -429,7 +410,7 @@ async function handleAcceptInvite(notif: Notification) {
 			const n = notificationsData.value.find((n) => n.id === notif.id)
 			if (n) n.read = true
 		}
-		syncNotifications()
+		syncBadgeCount()
 		await acceptTeamInvite((notif.body as NotificationBody).team_id as string)
 		markNotificationsAsRead([notif.id]).catch((err) =>
 			console.error('[Modrinth Extras] Error marking as read:', err),
@@ -445,7 +426,7 @@ async function handleDeclineInvite(notif: Notification) {
 			const n = notificationsData.value.find((n) => n.id === notif.id)
 			if (n) n.read = true
 		}
-		syncNotifications()
+		syncBadgeCount()
 		await removeSelfFromTeam(
 			(notif.body as NotificationBody).team_id as string,
 			userId.value as string,
@@ -467,7 +448,7 @@ async function handleMarkAsRead(notif: Notification) {
 				if (n) n.read = true
 			}
 		}
-		syncNotifications()
+		syncBadgeCount()
 		markNotificationsAsRead(ids).catch((err) =>
 			console.error('[Modrinth Extras] Error marking as read:', err),
 		)
@@ -482,7 +463,7 @@ async function handleMarkAllAsRead() {
 		if (notificationsData.value) {
 			for (const n of notificationsData.value) n.read = true
 		}
-		syncNotifications()
+		syncBadgeCount()
 		markNotificationsAsRead(ids).catch((err) =>
 			console.error('[Modrinth Extras] Error marking all as read:', err),
 		)
@@ -493,12 +474,12 @@ async function handleMarkAllAsRead() {
 
 function handleViewAllNotifications() {
 	notificationsOverflow.value?.close()
-	router.push('/dashboard/notifications')
+	navigate('/dashboard/notifications')
 }
 
 function handleViewHistory() {
 	notificationsOverflow.value?.close()
-	router.push('/dashboard/notifications/history')
+	navigate('/dashboard/notifications/history')
 }
 
 async function handleNotificationClick(notif: Notification) {
