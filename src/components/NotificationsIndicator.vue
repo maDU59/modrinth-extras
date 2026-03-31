@@ -4,7 +4,6 @@
 			ref="notificationsOverflow"
 			:dropdown-id="effectiveDropdownId"
 			class="btn-dropdown-animation relative flex items-center gap-1 rounded-xl bg-transparent px-2 py-1"
-			:options="[]"
 			@dblclick="handleViewAllNotifications"
 		>
 			<div class="relative flex h-5 flex-shrink-0 items-center justify-center">
